@@ -256,6 +256,7 @@ int bch_set_geometry(struct gpmi_nand_data *this)
 	unsigned int ecc_strength;
 	unsigned int page_size;
 	unsigned int gf_len;
+	unsigned int erase_threshold;
 	int ret;
 
 	if (common_nfc_set_geometry(this))
@@ -297,6 +298,15 @@ int bch_set_geometry(struct gpmi_nand_data *this)
 			| BF_BCH_FLASH0LAYOUT1_GF(gf_len, this)
 			| BF_BCH_FLASH0LAYOUT1_DATAN_SIZE(block_size, this),
 			r->bch_regs + HW_BCH_FLASH0LAYOUT1);
+
+	/* Set the tolerance for bitflips when reading erased blocks. */
+	erase_threshold = gf_len / 2;
+	if (erase_threshold > bch_geo->ecc_strength)
+		erase_threshold = bch_geo->ecc_strength;
+
+	writel(erase_threshold & BM_BCH_MODE_ERASE_THRESHOLD_MASK,
+		r->bch_regs + HW_BCH_MODE);
+
 
 	/* Set *all* chip selects to use layout 0. */
 	writel(0, r->bch_regs + HW_BCH_LAYOUTSELECT);
