@@ -1080,8 +1080,9 @@ disable:
 	return ret;
 }
 
-int v4l2_media_subdev_s_power(struct media_entity *entity, int enable)
+int v4l2_media_subdev_s_power(struct ipucsi *ipucsi, int enable)
 {
+	struct media_entity *entity = &ipucsi->subdev.entity;
 	struct media_entity_graph graph;
 	struct media_entity *first;
 	struct v4l2_subdev *sd;
@@ -1131,7 +1132,7 @@ static int ipucsi_open(struct file *file)
 		goto out;
 
 	if (v4l2_fh_is_singular_file(file))
-		ret = v4l2_media_subdev_s_power(&ipucsi->subdev.entity, 1);
+		ret = v4l2_media_subdev_s_power(ipucsi, 1);
 
 out:
 	mutex_unlock(&ipucsi->mutex);
@@ -1144,7 +1145,7 @@ static int ipucsi_release(struct file *file)
 
 	mutex_lock(&ipucsi->mutex);
 	if (v4l2_fh_is_singular_file(file)) {
-		v4l2_media_subdev_s_power(&ipucsi->subdev.entity, 0);
+		v4l2_media_subdev_s_power(ipucsi, 0);
 
 		vb2_fop_release(file);
 	} else {
