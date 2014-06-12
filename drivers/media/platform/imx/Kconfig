@@ -14,6 +14,15 @@ config MEDIA_IMX_IPU
 config VIDEO_IMX_IPU_COMMON
 	tristate
 
+config VIDEO_IMX_IPU_CSI
+	tristate "i.MX5/6 CMOS Sensor Interface driver"
+	depends on VIDEO_DEV && IMX_IPUV3_CORE && MEDIA_CONTROLLER
+	select VIDEOBUF2_DMA_CONTIG
+	select VIDEO_IMX_IPU_COMMON
+	select VIDEO_IMX_IPUV3
+	---help---
+	  This is a v4l2 video capture driver for the IPUv3 on i.MX5/6.
+
 config VIDEO_IMX_IPU_SCALER
 	tristate "i.MX5/6 IPUv3 based image scaler driver"
 	depends on VIDEO_DEV && IMX_IPUV3_CORE
