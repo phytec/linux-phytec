@@ -344,14 +344,16 @@
 	pinctrl-0 = <&pinctrl_usdhc2>;
 	cd-gpios = <&gpio1 4 0>;
 	wp-gpios = <&gpio1 2 0>;
+	vmmc-supply = <&vdd_sd1_reg>;
 	status = "disabled";
 };
 
 &usdhc3 {
-        pinctrl-names = "default";
-        pinctrl-0 = <&pinctrl_usdhc3
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_usdhc3
 		     &pinctrl_usdhc3_cdwp>;
-        cd-gpios = <&gpio1 27 0>;
-        wp-gpios = <&gpio1 29 0>;
-        status = "disabled";
+	cd-gpios = <&gpio1 27 0>;
+	wp-gpios = <&gpio1 29 0>;
+	vmmc-supply = <&vdd_sd0_reg>;
+	status = "disabled";
 };
