@@ -90,6 +90,12 @@
 	status = "disabled";
 };
 
+&cpu0 {
+	fsl,tol = <5000>;
+	arm-supply = <&vddcore_reg>;
+	soc-supply = <&vddsoc_reg>;
+};
+
 &ecspi3 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_ecspi3>;
@@ -501,6 +507,18 @@
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_pwm1>;
 	status = "okay";
+};
+
+&reg_arm {
+	regulator-allow-bypass;
+};
+
+&reg_pu {
+	regulator-allow-bypass;
+};
+
+&reg_soc {
+	regulator-allow-bypass;
 };
 
 &uart3 {
