@@ -37,6 +37,7 @@ static unsigned int transition_latency;
 
 static u32 *imx6_soc_volt;
 static u32 soc_opp_count;
+static u32 tol;
 
 static int imx6q_set_target(struct cpufreq_policy *policy, unsigned int index)
 {
@@ -68,18 +69,18 @@ static int imx6q_set_target(struct cpufreq_policy *policy, unsigned int index)
 	/* scaling up?  scale voltage before frequency */
 	if (new_freq > old_freq) {
 		if (!IS_ERR(pu_reg)) {
-			ret = regulator_set_voltage_tol(pu_reg, imx6_soc_volt[index], 0);
+			ret = regulator_set_voltage_tol(pu_reg, imx6_soc_volt[index], tol);
 			if (ret) {
 				dev_err(cpu_dev, "failed to scale vddpu up: %d\n", ret);
 				return ret;
 			}
 		}
-		ret = regulator_set_voltage_tol(soc_reg, imx6_soc_volt[index], 0);
+		ret = regulator_set_voltage_tol(soc_reg, imx6_soc_volt[index], tol);
 		if (ret) {
 			dev_err(cpu_dev, "failed to scale vddsoc up: %d\n", ret);
 			return ret;
 		}
-		ret = regulator_set_voltage_tol(arm_reg, volt, 0);
+		ret = regulator_set_voltage_tol(arm_reg, volt, tol);
 		if (ret) {
 			dev_err(cpu_dev,
 				"failed to scale vddarm up: %d\n", ret);
@@ -113,19 +114,19 @@ static int imx6q_set_target(struct cpufreq_policy *policy, unsigned int index)
 
 	/* scaling down?  scale voltage after frequency */
 	if (new_freq < old_freq) {
-		ret = regulator_set_voltage_tol(arm_reg, volt, 0);
+		ret = regulator_set_voltage_tol(arm_reg, volt, tol);
 		if (ret) {
 			dev_warn(cpu_dev,
 				 "failed to scale vddarm down: %d\n", ret);
 			ret = 0;
 		}
-		ret = regulator_set_voltage_tol(soc_reg, imx6_soc_volt[index], 0);
+		ret = regulator_set_voltage_tol(soc_reg, imx6_soc_volt[index], tol);
 		if (ret) {
 			dev_warn(cpu_dev, "failed to scale vddsoc down: %d\n", ret);
 			ret = 0;
 		}
 		if (!IS_ERR(pu_reg)) {
-			ret = regulator_set_voltage_tol(pu_reg, imx6_soc_volt[index], 0);
+			ret = regulator_set_voltage_tol(pu_reg, imx6_soc_volt[index], tol);
 			if (ret) {
 				dev_warn(cpu_dev, "failed to scale vddpu down: %d\n", ret);
 				ret = 0;
@@ -255,6 +256,12 @@ static int imx6q_cpufreq_probe(struct platform_device *pdev)
 			}
 		}
 	}
+
+	prop = of_find_property(np, "fsl,tol", NULL);
+	if (!prop)
+		tol = 0;
+	else
+		tol = be32_to_cpup(prop->value);
 
 soc_opp_out:
 	/* use fixed soc opp volt if no valid soc opp info found in dtb */
