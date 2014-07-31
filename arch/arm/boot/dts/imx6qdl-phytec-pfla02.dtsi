@@ -381,6 +381,11 @@
 	phy-reset-gpios = <&gpio3 23 GPIO_ACTIVE_LOW>;
 	phy-supply = <&vdd_eth_io_reg>;
 	status = "disabled";
+
+	txc-skew-ps = <1680>;
+	rxc-skew-ps = <1860>;
+
+
 };
 
 &gpmi {
