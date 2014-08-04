@@ -80,6 +80,9 @@
 };
 
 &hdmi {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_hdmicec>;
+	ddc-i2c-bus = <&i2c2>;
 	status = "okay";
 };
 
