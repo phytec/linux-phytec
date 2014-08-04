@@ -267,6 +267,13 @@
 	pinctrl-0 = <&pinctrl_hog>;
 
 	imx6q-phytec-pfla02 {
+		pinctrl_hdmicec: hdmicecgrp {
+			fsl,pins = <
+				MX6QDL_PAD_EIM_A25__HDMI_TX_CEC_LINE 0x1f8b0
+			>;
+		};
+
+
 		pinctrl_i2c_gpio: pinctrli2cgpiogrp {
 			fsl,pins = <
 				MX6QDL_PAD_KEY_ROW3__GPIO4_IO13 0x80000000
