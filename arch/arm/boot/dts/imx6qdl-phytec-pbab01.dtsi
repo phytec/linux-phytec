@@ -10,6 +10,7 @@
  */
 
 #include <dt-bindings/sound/fsl-imx-audmux.h>
+#include "imx6qdl-phytec-lcd-018.dtsi"
 
 / {
 	chosen {
@@ -101,6 +102,12 @@
 	};
 };
 
+&backlight {
+	pwms = <&pwm1 0 5000000>;
+	enable-gpios = <&gpio1 8 GPIO_ACTIVE_LOW>;
+	status = "okay";
+};
+
 &can1 {
 	status = "okay";
 };
@@ -155,6 +162,14 @@
 
 &i2c3 {
 	status = "okay";
+};
+
+&ldb {
+	status = "okay";
+
+	lvds-channel@0 {
+		status = "okay";
+	};
 };
 
 &pcie {
