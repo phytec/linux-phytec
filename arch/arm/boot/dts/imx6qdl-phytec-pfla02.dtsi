@@ -350,7 +350,7 @@
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_gpmi_nand>;
 	nand-on-flash-bbt;
-	status = "disabled";
+	status = "okay";
 
 	#address-cells = <1>;
 	#size-cells = <1>;
