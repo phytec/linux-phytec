@@ -255,6 +255,10 @@
 			>;
 		};
 
+		pinctrl_edt_ft5x06: edt_ft5x06grp {
+			fsl,pins = <MX6QDL_PAD_GPIO_17__GPIO7_IO12	0x80000000>;
+		};
+
 		pinctrl_enet: enetgrp {
 			fsl,pins = <
 				MX6QDL_PAD_ENET_MDIO__ENET_MDIO		0x1b0b0
