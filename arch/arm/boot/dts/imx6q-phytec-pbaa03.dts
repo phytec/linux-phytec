@@ -1,0 +1,99 @@
+/*
+ * Copyright 2014 Christian Hemp, Phytec Messtechnik GmbH
+ *
+ * The code contained herein is licensed under the GNU General Public
+ * License. You may obtain a copy of the GNU General Public License
+ * Version 2 or later at the following locations:
+ *
+ * http://www.opensource.org/licenses/gpl-license.html
+ * http://www.gnu.org/copyleft/gpl.html
+ */
+
+/dts-v1/;
+#include "imx6q-phytec-pcaaxl3.dtsi"
+#include "imx6qdl-phytec-lcd-018.dtsi"
+
+/ {
+	model = "Phytec phyCARD-i.MX6 Quad Carrier-Board";
+	compatible = "phytec,imx6q-pbaa03", "phytec,imx6q-pcaaxl3", "fsl,imx6q";
+
+	chosen {
+		linux,stdout-path = &uart3;
+	};
+
+	regulators {
+		reg_3v3: regulator@2 {
+                        compatible = "regulator-fixed";
+                        reg = <2>;
+                        regulator-name = "3V3";
+                        regulator-min-microvolt = <3300000>;
+                        regulator-max-microvolt = <3300000>;
+                        regulator-always-on;
+                };
+	};
+};
+
+&fec {
+	status = "okay";
+};
+
+&i2c2 {
+	status = "okay";
+
+	polytouch: edt-ft5x06@38 {
+		compatible = "edt,edt-ft5406", "edt,edt-ft5x06";
+		reg = <0x38>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_edt_ft5x06>;
+		interrupt-parent = <&gpio1>;
+		interrupts = <6 0>;
+	};
+
+	stmpe@44 {
+		compatible = "st,stmpe811";
+		reg = <0x44>;
+		interrupt-parent = <&gpio4>;
+		interrupts = <29 0>;
+	};
+
+	rtc@51 {
+		compatible = "nxp,rtc8564";
+		reg = <0x51>;
+	};
+
+	pca9530@60 {
+		compatible = "nxp,pca9530";
+		reg = <0x60>;
+	};	
+
+	adc@64 {
+		compatible = "maxim,max1037";
+		vcc-supply = <&reg_3v3>;
+		reg = <0x64>;
+	};
+	
+};
+
+&ldb {
+	status = "okay";
+
+	lvds-channel@0 {
+		status = "okay";
+	};
+};
+
+&uart3 {
+	status = "okay";
+};
+
+&usbh1 {
+	status = "okay";
+};
+
+&usbotg {
+	status = "okay";
+};
+
+&usdhc3 {
+	status = "okay";
+};
