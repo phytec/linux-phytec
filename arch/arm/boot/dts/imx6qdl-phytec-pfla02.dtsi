@@ -31,6 +31,7 @@
 			regulator-min-microvolt = <5000000>;
 			regulator-max-microvolt = <5000000>;
 			gpio = <&gpio4 15 0>;
+			enable-active-high;
 		};
 
 		reg_usb_h1_vbus: regulator@1 {
@@ -40,6 +41,7 @@
 			regulator-min-microvolt = <5000000>;
 			regulator-max-microvolt = <5000000>;
 			gpio = <&gpio1 0 0>;
+			enable-active-high;
 		};
 	};
 
@@ -369,7 +371,8 @@
 
 		pinctrl_usbh1: usbh1grp {
 			fsl,pins = <
-				MX6QDL_PAD_GPIO_0__USB_H1_PWR		0x80000000
+				MX6QDL_PAD_GPIO_0__GPIO1_IO00		0x80000000
+				MX6QDL_PAD_GPIO_3__USB_H1_OC		0x1b0b0	
 			>;
 		};
 
