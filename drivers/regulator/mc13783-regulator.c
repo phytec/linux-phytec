@@ -443,6 +443,7 @@ static int mc13783_regulator_probe(struct platform_device *pdev)
 		config.init_data = init_data;
 		config.driver_data = priv;
 		config.of_node = node;
+		config.ena_gpio = -EINVAL;
 
 		priv->regulators[i] = devm_regulator_register(&pdev->dev, desc,
 							      &config);

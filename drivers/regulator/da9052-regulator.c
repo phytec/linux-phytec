@@ -418,6 +418,7 @@ static int da9052_regulator_probe(struct platform_device *pdev)
 	config.dev = &pdev->dev;
 	config.driver_data = regulator;
 	config.regmap = da9052->regmap;
+	config.ena_gpio = -EINVAL;
 	if (pdata && pdata->regulators) {
 		config.init_data = pdata->regulators[pdev->id];
 	} else {
