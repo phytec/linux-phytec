@@ -1,0 +1,120 @@
+/*
+ * Copyright 2014 Christian Hemp, Phytec Messtechnik GmbH
+ *
+ * The code contained herein is licensed under the GNU General Public
+ * License. You may obtain a copy of the GNU General Public License
+ * Version 2 or later at the following locations:
+ *
+ * http://www.opensource.org/licenses/gpl-license.html
+ * http://www.gnu.org/copyleft/gpl.html
+ */
+
+/dts-v1/;
+#include "imx6q-phytec-pfla02.dtsi"
+#include <dt-bindings/pwm/pwm.h>
+
+/ {
+	model = "Phytec phyBOARD ALCOR";
+	compatible = "phytec,imx6q-pbab02", "phytec,imx6q-pfla02", "fsl,imx6q";
+
+	chosen {
+		stdout-path = &uart4;
+	};
+
+	backlight {
+		compatible = "pwm-backlight";
+		pwms = <&pwm1 0 5000000 PWM_POLARITY_INVERTED>;
+		brightness-levels = <0 4 8 16 32 64 128 255>;
+		default-brightness-level = <0>;
+		enable-gpios = <&gpio1 8 GPIO_ACTIVE_LOW>;
+		power-supply = <&lcd_3v3>;
+	};
+
+	regulators {
+		lcd_3v3: regulator@2 {
+			compatible = "regulator-fixed";
+			reg = <2>;
+			regulator-name = "lcd_3v3";
+			regulator-min-microvolt = <3300000>;
+			regulator-max-microvolt = <3300000>;
+		};
+	};
+};
+
+&can1 {
+/*	gpio = <&gpio4 5 0>; CAN enable GPIO must fix */
+	status = "okay";
+};
+
+&ethphy {
+	max-speed = <100>;
+};
+
+&fec {
+	status = "okay";
+};
+
+&i2c2 {
+	status = "okay";
+
+	polytouch: edt-ft5x06@38 {
+		compatible = "edt,edt-ft5406", "edt,edt-ft5x06";
+		reg = <0x38>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_edt_ft5x06>;
+		interrupt-parent = <&gpio7>;
+		interrupts = <12 0>;
+	};
+
+	rtc@68 {
+		compatible = "mc,rv4162";
+		reg = <0x68>;
+	};
+};
+
+&ldb {
+	status = "okay";
+
+	lvds-channel@0 {
+		fsl,data-mapping = "spwg";
+		fsl,data-width = <18>;
+		status = "okay";
+
+		display-timings {
+			native-mode = <&timing0>;
+			timing0: etm0700g0dh6 {
+				clock-frequency = <33260000>;
+				hactive = <800>;
+				vactive = <480>;
+				hback-porch = <216>;
+				hfront-porch = <40>;
+				hsync-len = <128>;
+				vback-porch = <35>;
+				vfront-porch = <10>;
+				vsync-len = <2>;
+			};
+		};
+	};
+};
+
+
+/* RS485 */
+&uart3 {
+	status = "okay";
+};
+
+&uart4 {
+	status = "okay";
+};
+
+&usbh1 {
+	status = "okay";
+};
+
+&usbotg {
+	status = "okay";
+};
+
+&usdhc3 {
+	status = "okay";
+};
