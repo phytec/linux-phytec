@@ -226,6 +226,7 @@ dtb-$(CONFIG_ARCH_MXC) += \
 	imx6q-nitrogen6x.dtb \
 	imx6q-phytec-pbaa03.dtb \
 	imx6q-phytec-pbab01.dtb \
+	imx6q-phytec-phyboard-alcore.dtb \
 	imx6q-rex-pro.dtb \
 	imx6q-sabreauto.dtb \
 	imx6q-sabrelite.dtb \
