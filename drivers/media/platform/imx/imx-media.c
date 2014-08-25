@@ -172,3 +172,22 @@ int ipu_media_device_register(struct device *dev)
 	return 0;
 }
 EXPORT_SYMBOL_GPL(ipu_media_device_register);
+
+int ipu_media_device_unregister(struct device *dev)
+{
+	struct media_device *mdev;
+
+	if (!ipu_media || ipu_media->mdev.dev != dev)
+		return -EINVAL;
+
+	mdev = &ipu_media->mdev;
+
+	v4l2_device_unregister(&ipu_media->v4l2_dev);
+	media_device_unregister(mdev);
+
+	ipu_media = NULL;
+	return 0;
+}
+EXPORT_SYMBOL_GPL(ipu_media_device_unregister);
+
+MODULE_LICENSE("GPL");
