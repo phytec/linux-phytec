@@ -17,9 +17,15 @@ struct media_device *ipu_find_media_device(void);
 
 #ifdef CONFIG_MEDIA_IMX
 int ipu_media_device_register(struct device *dev);
+int ipu_media_device_unregister(struct device *dev);
 #else
 static inline int ipu_media_device_register(struct device *dev)
 {
-	return 0;
+	return -EINVAL;
+}
+
+static inline int ipu_media_device_unregister(struct device *dev)
+{
+	return -EINVAL;
 }
 #endif
