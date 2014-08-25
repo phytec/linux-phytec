@@ -147,7 +147,7 @@ int ipu_media_device_register(struct device *dev)
 	int ret;
 
 	if (ipu_media)
-		return 0;
+		return -EBUSY;
 
 	ipu_media = devm_kzalloc(dev, sizeof(*ipu_media), GFP_KERNEL);
 	if (!ipu_media)
