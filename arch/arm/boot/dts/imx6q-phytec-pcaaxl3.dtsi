@@ -58,6 +58,12 @@
 	};
 };
 
+&audmux {
+	pinctrl-names = "default";
+	pinctrl-0 =  <&pinctrl_audmux>;
+	status = "disabled";
+};
+
 &i2c1 {
 	status = "okay";
 	pinctrl-names = "default";
@@ -132,6 +138,16 @@
 				MX6QDL_PAD_EIM_D20__GPIO3_IO20		0x80000000
 				MX6QDL_PAD_GPIO_7__GPIO1_IO07		0x80000000
 				MX6QDL_PAD_DISP0_DAT8__GPIO4_IO29	0x80000000
+			>;
+		};
+
+		pinctrl_audmux: audmuxgrp {
+			fsl,pins = <
+				MX6QDL_PAD_DISP0_DAT16__AUD5_TXC	0x130b0
+				MX6QDL_PAD_DISP0_DAT17__AUD5_TXD	0x110b0
+				MX6QDL_PAD_DISP0_DAT18__AUD5_TXFS	0x130b0
+				MX6QDL_PAD_DISP0_DAT19__AUD5_RXD	0x130b0
+				MX6QDL_PAD_GPIO_17__GPIO7_IO12		0x80000000
 			>;
 		};
 
@@ -275,6 +291,11 @@
 		reg = <0xC40000 0x0>;
 	};
 
+};
+
+&ssi2 {
+	fsl,mode = "i2s-slave";
+	status = "okay";
 };
 
 &uart3 {
