@@ -1,0 +1,65 @@
+LEDs connected to pca9530, pca9531, pca9532 or pca9533
+
+Required properties:
+- compatible : should be : "nxp,pca9530", "nxp,pca9531", "nxp,pca9532" or
+		"nxp,pca9533"
+- #address-cells: must be 1
+- #size-cells: must be 0
+- reg: typically 0x62
+
+
+Optional properties:
+- nxp,pwm0 : 
+- nxp,pwm1 :
+- nxp,psc0 :
+- nxp,psc1 :
+
+Each led is represented as a sub-node of the nxp,pca953x device.
+
+LED sub-node properties:
+- label : (optional) see Documentation/devicetree/bindings/leds/common.txt
+- reg : number of LED line (could be from 2 in pca9530 or 8 in pca9531 or 16 in
+		pca9532 or 4 in pca9633)
+- state: "on" or "pwm0" or "pwm1" or "off"
+- type: "led" or "beep" or "gpio" or "none"
+Examples:
+pca9533@62 {
+	compatible = "nxp,pca9533";
+	#address-cells = <1>;
+	#size-cells = <0>;
+	reg = <0x62>;
+
+	nxp,pwm0 = <150>;
+	nxp,pwm1 = <1>;
+	nxp,psc0 = <1>;
+	nxp,psc1 = <1>;
+
+	user_led1: red1_led@0 {
+		label = "user_led1:red";
+		reg = <0x0>;
+		state = "on";
+		type = "led";
+	};
+
+	user_led2: yellow1_led@1 {
+		label = "user_led2:yellow";
+		reg = <0x1>;
+		state = "on";
+		type = "led";
+	};
+
+	user_led3: yellow2_led@2 {
+		label = "user_led3:yellow";
+		reg = <0x2>;
+		state = "pwm0";
+		type = "led";
+	};
+
+	user_led4: red2_led@3 {
+		label = "user_led4:red";
+		reg = <0x3>;
+		state = "pwm1";
+		type = "led";
+	};
+};
+

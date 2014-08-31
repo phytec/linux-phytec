@@ -38,7 +38,7 @@ struct pca9532_led {
 };
 
 struct pca9532_platform_data {
-	struct pca9532_led leds[16];
+	struct pca9532_led *leds;
 	u8 pwm[2];
 	u8 psc[2];
 	int gpio_base;
