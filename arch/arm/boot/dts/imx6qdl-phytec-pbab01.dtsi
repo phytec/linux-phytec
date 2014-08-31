@@ -158,6 +158,46 @@
 		reg = <0x51>;
 	};
 
+	pca9533@62 {
+		compatible = "nxp,pca9533";
+		#address-cells = <1>;
+		#size-cells = <0>;
+		reg = <0x62>;
+
+		nxp,pwm0 = <150>;
+		nxp,pwm1 = <1>;
+		nxp,psc0 = <1>;
+		nxp,psc1 = <1>;
+
+		user_led1: red1_led@0 {
+			label = "user_led1:red";
+			reg = <0x0>;
+			state = "on";
+			type = "led";
+		};
+
+		user_led2: yellow1_led@1 {
+			label = "user_led2:yellow";
+			reg = <0x1>;
+			state = "on";
+			type = "led";
+		};
+
+		user_led3: yellow2_led@2 {
+			label = "user_led3:yellow";
+			reg = <0x2>;
+			state = "pwm0";
+			type = "led";
+		};
+
+		user_led4: red2_led@3 {
+			label = "user_led4:red";
+			reg = <0x3>;
+			state = "pwm1";
+			type = "led";
+		};
+	};
+
 	adc@64 {
 		compatible = "maxim,max1037";
 		reg = <0x64>;
