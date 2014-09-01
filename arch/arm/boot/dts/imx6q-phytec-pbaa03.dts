@@ -144,7 +144,26 @@
 
 	pca9530@60 {
 		compatible = "nxp,pca9530";
+		#address-cells = <1>;
+		#size-cells = <0>;
 		reg = <0x60>;
+		
+		nxp,pwm0 = <1>;
+		nxp,psc0 = <1>;
+
+		ls_backlight: ls_backlight@0 {
+			label = "ls_backlight";
+			reg = <0x0>;
+			state = "pwm0";
+			type = "led";
+		};
+
+		user_led1: yellow_led@1 {
+			label = "led_yellow";
+			reg = <0x1>;
+			state = "on";
+			type = "led";
+		};
 	};	
 
 	adc@64 {
