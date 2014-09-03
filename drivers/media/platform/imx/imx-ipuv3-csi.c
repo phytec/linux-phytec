@@ -155,7 +155,7 @@ struct ipucsi_format {
 
 int v4l2_media_subdev_s_stream(struct media_entity *entity, int enable);
 
-static struct ipucsi_format ipucsi_formats[] = {
+static struct ipucsi_format const ipucsi_formats[] = {
 	{
 		.name = "Monochrome 8 bit",
 		.fourcc = V4L2_PIX_FMT_GREY,
@@ -215,7 +215,7 @@ static struct ipucsi_format ipucsi_formats[] = {
 	},
 };
 
-static struct ipucsi_format ipucsi_format_testpattern = {
+static struct ipucsi_format const	ipucsi_format_testpattern = {
 	.name = "RGB888 32bit",
 	.fourcc = V4L2_PIX_FMT_RGB32,
 	.mbus_code = V4L2_MBUS_FMT_FIXED,
@@ -669,7 +669,7 @@ out:
 	return IRQ_HANDLED;
 }
 
-static struct ipucsi_format *ipucsi_current_format(struct ipucsi *ipucsi)
+static struct ipucsi_format const *ipucsi_current_format(struct ipucsi *ipucsi)
 {
 	if (ipucsi->ctrl_test_pattern->val)
 		return &ipucsi_format_testpattern;
@@ -686,7 +686,7 @@ static int ipucsi_videobuf_setup(struct vb2_queue *vq, const struct v4l2_format 
 {
 	struct ipucsi *ipucsi = vq->drv_priv;
 	int bytes_per_line;
-	struct ipucsi_format *ipucsifmt = ipucsi_current_format(ipucsi);
+	struct ipucsi_format const *ipucsifmt = ipucsi_current_format(ipucsi);
 
 	if (!fmt)
 		fmt = &ipucsi->format;
@@ -715,7 +715,7 @@ static int ipucsi_videobuf_prepare(struct vb2_buffer *vb)
 	size_t new_size;
 	struct ipucsi_buffer *buf;
 	struct v4l2_pix_format *pix = &ipucsi->format.fmt.pix;
-	struct ipucsi_format *ipucsifmt = ipucsi_current_format(ipucsi);
+	struct ipucsi_format const *ipucsifmt = ipucsi_current_format(ipucsi);
 
 	buf = to_ipucsi_vb(vb);
 
@@ -784,7 +784,7 @@ static int ipucsi_videobuf_init(struct vb2_buffer *vb)
 static int ipucsi_videobuf_start_streaming(struct vb2_queue *vq, unsigned int count)
 {
 	struct ipucsi *ipucsi = vq->drv_priv;
-	struct ipucsi_format *ipucsifmt = ipucsi_current_format(ipucsi);
+	struct ipucsi_format const *ipucsifmt = ipucsi_current_format(ipucsi);
 	int xres = ipucsi->format.fmt.pix.width;
 	int yres = ipucsi->format.fmt.pix.height;
 	struct ipu_ch_param *cpmem = ipu_get_cpmem(ipucsi->ipuch);
@@ -987,7 +987,7 @@ static int ipucsi_try_fmt(struct file *file, void *fh,
 		struct v4l2_format *f)
 {
 	struct ipucsi *ipucsi = video_drvdata(file);
-	struct ipucsi_format *ipucsifmt = ipucsi_current_format(ipucsi);
+	struct ipucsi_format const *ipucsifmt = ipucsi_current_format(ipucsi);
 	enum v4l2_field in = ipucsi->format_mbus[1].field;
 	enum v4l2_field out = f->fmt.pix.field;
 	struct ipu_fmt *fmt = NULL;
@@ -1144,10 +1144,10 @@ static int ipucsi_subdev_get_format(struct v4l2_subdev *subdev,
 	return 0;
 }
 
-static struct ipucsi_format *ipucsi_find_subdev_format(const u32 *fourcc,
-		const u32 *mbus_code)
+static struct ipucsi_format const *ipucsi_find_subdev_format(
+	const u32 *fourcc, const u32 *mbus_code)
 {
-	struct ipucsi_format *ipucsifmt;
+	struct ipucsi_format const *ipucsifmt;
 	int i;
 
 	for (i = 0; i < ARRAY_SIZE(ipucsi_formats); i++) {
@@ -1167,7 +1167,7 @@ static int ipucsi_subdev_set_format(struct v4l2_subdev *subdev,
 {
 	struct ipucsi *ipucsi = container_of(subdev, struct ipucsi, subdev);
 	struct v4l2_mbus_framefmt *mbusformat;
-	struct ipucsi_format *ipucsiformat;
+	struct ipucsi_format const *ipucsiformat;
 	unsigned int width, height;
 
 	ipucsiformat = ipucsi_find_subdev_format(NULL, &sdformat->format.code);
@@ -1353,7 +1353,7 @@ static int ipucsi_enum_framesizes(struct file *file, void *fh,
 				  struct v4l2_frmsizeenum *fsize)
 {
 	struct ipucsi *ipucsi = video_drvdata(file);
-	struct ipucsi_format *ipucsifmt = ipucsi_current_format(ipucsi);
+	struct ipucsi_format const *ipucsifmt = ipucsi_current_format(ipucsi);
 	struct v4l2_mbus_config mbus_config;
 	struct ipu_fmt *fmt = NULL;
 	int ret;
