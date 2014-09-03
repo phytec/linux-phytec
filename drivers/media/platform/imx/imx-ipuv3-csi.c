@@ -371,6 +371,11 @@ static int ipu_csi_init_interface(struct ipucsi *ipucsi,
 	if (mbus_flags & V4L2_MBUS_PCLK_SAMPLE_FALLING)
 		sens_conf |= CSI_SENS_CONF_PIX_CLK_POL;
 
+	if (mbus_flags & V4L2_MBUS_DATA_EN_ACTIVE_HIGH)
+		sens_conf &= ~CSI_SENS_CONF_DATA_EN_POL;
+	else if (mbus_flags & V4L2_MBUS_DATA_EN_ACTIVE_LOW)
+		sens_conf |=  CSI_SENS_CONF_DATA_EN_POL;
+
 	switch (mbus_config.type) {
 	case V4L2_MBUS_PARALLEL:
 		if (mbus_flags & V4L2_MBUS_HSYNC_ACTIVE_LOW)
