@@ -12,6 +12,7 @@ struct ipu_media_link *ipu_media_entity_create_link(struct v4l2_subdev *sd,
 void ipu_media_entity_remove_link(struct ipu_media_link *link);
 
 struct v4l2_device *ipu_media_get_v4l2_dev(void);
+void ipu_media_put_v4l2_dev(struct v4l2_device *v4l2_dev);
 
 struct media_device *ipu_find_media_device(void);
 
