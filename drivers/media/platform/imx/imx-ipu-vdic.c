@@ -455,7 +455,7 @@ static void ipu_vdic_buf_queue(struct vb2_buffer *vb)
 	v4l2_m2m_buf_queue(ctx->fh.m2m_ctx, vb);
 }
 
-static int ipu_vdic_stop_streaming(struct vb2_queue *q)
+static void ipu_vdic_stop_streaming(struct vb2_queue *q)
 {
 	struct ipu_vdic_ctx *ctx = vb2_get_drv_priv(q);
 	struct vb2_buffer *buf;
@@ -472,7 +472,7 @@ static int ipu_vdic_stop_streaming(struct vb2_queue *q)
 			v4l2_m2m_buf_done(buf, VB2_BUF_STATE_ERROR);
 	}
 
-	return 0;
+	return;
 }
 
 static struct vb2_ops ipu_vdic_qops = {
