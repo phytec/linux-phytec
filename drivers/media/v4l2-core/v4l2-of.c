@@ -99,7 +99,14 @@ static void v4l2_of_parse_parallel_bus(const struct device_node *node,
 	if (!of_property_read_u32(node, "field-even-active", &v))
 		flags |= v ? V4L2_MBUS_FIELD_EVEN_HIGH :
 			V4L2_MBUS_FIELD_EVEN_LOW;
-	if (flags)
+
+	if (of_property_read_bool(node, "phytec,x-bus-type-bt656"))
+		endpoint->bus_type = V4L2_MBUS_BT656;
+	else if (of_property_read_bool(node, "phytec,x-bus-type-bt1120-sdr"))
+		endpoint->bus_type = V4L2_MBUS_BT1120_SDR;
+	else if (of_property_read_bool(node, "phytec,x-bus-type-bt1120-ddr"))
+		endpoint->bus_type = V4L2_MBUS_BT1120_DDR;
+	else if (flags)
 		endpoint->bus_type = V4L2_MBUS_PARALLEL;
 	else
 		endpoint->bus_type = V4L2_MBUS_BT656;

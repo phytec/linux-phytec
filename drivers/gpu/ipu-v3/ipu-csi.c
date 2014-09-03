@@ -366,6 +366,20 @@ static int fill_csi_bus_cfg(struct ipu_csi_bus_config *csicfg,
 		else
 			csicfg->clk_mode = IPU_CSI_CLK_MODE_CCIR656_PROGRESSIVE;
 		break;
+	case V4L2_MBUS_BT1120_SDR:
+		csicfg->ext_vsync = 0;
+		if (V4L2_FIELD_HAS_BOTH(mbus_fmt->field))
+			csicfg->clk_mode = IPU_CSI_CLK_MODE_CCIR1120_INTERLACED_SDR;
+		else
+			csicfg->clk_mode = IPU_CSI_CLK_MODE_CCIR1120_PROGRESSIVE_SDR;
+		break;
+	case V4L2_MBUS_BT1120_DDR:
+		csicfg->ext_vsync = 0;
+		if (V4L2_FIELD_HAS_BOTH(mbus_fmt->field))
+			csicfg->clk_mode = IPU_CSI_CLK_MODE_CCIR1120_INTERLACED_DDR;
+		else
+			csicfg->clk_mode = IPU_CSI_CLK_MODE_CCIR1120_PROGRESSIVE_DDR;
+		break;
 	case V4L2_MBUS_CSI2:
 		/*
 		 * MIPI CSI-2 requires non gated clock mode, all other
