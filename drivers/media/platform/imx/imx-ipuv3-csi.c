@@ -357,12 +357,22 @@ static int ipu_csi_init_interface(struct ipucsi *ipucsi,
 	if (ret)
 		return ret;
 
+	switch (ipucsi->format_mbus[0].field) {
+	case V4L2_FIELD_SEQ_TB:
+	case V4L2_FIELD_SEQ_BT:
+		interlaced = true;
+		break;
+	default:
+		interlaced = false;
+		break;
+	}
+
+	mbus_flags = mbus_config.flags;
+	if (mbus_flags & V4L2_MBUS_PCLK_SAMPLE_FALLING)
+		sens_conf |= CSI_SENS_CONF_PIX_CLK_POL;
+
 	switch (mbus_config.type) {
 	case V4L2_MBUS_PARALLEL:
-		mbus_flags = mbus_config.flags;
-
-		if (mbus_flags & V4L2_MBUS_PCLK_SAMPLE_FALLING)
-			sens_conf |= CSI_SENS_CONF_PIX_CLK_POL;
 		if (mbus_flags & V4L2_MBUS_HSYNC_ACTIVE_LOW)
 			sens_conf |= CSI_SENS_CONF_HSYNC_POL;
 		if (mbus_flags & V4L2_MBUS_VSYNC_ACTIVE_LOW)
@@ -371,15 +381,6 @@ static int ipu_csi_init_interface(struct ipucsi *ipucsi,
 			sens_conf |= CSI_SENS_CONF_DATA_POL;
 		break;
 	case V4L2_MBUS_BT656:
-		switch (ipucsi->format_mbus[0].field) {
-		case V4L2_FIELD_SEQ_TB:
-		case V4L2_FIELD_SEQ_BT:
-			interlaced = true;
-			break;
-		default:
-			interlaced = false;
-			break;
-		}
 		if (interlaced) {
 			sens_conf |= CSI_SENS_PRTCL_BT656_INTERLACED;
 			if (width == 720 && height == 576) {
