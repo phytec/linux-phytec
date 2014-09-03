@@ -1324,6 +1324,8 @@ static int ipucsi_release(struct file *file)
 	struct ipucsi *ipucsi = video_drvdata(file);
 
 	mutex_lock(&ipucsi->mutex);
+	mutex_unlock(&ipucsi->mutex);
+
 	if (v4l2_fh_is_singular_file(file)) {
 		v4l2_media_subdev_s_power(ipucsi, 0);
 
@@ -1334,7 +1336,6 @@ static int ipucsi_release(struct file *file)
 		v4l2_fh_release(file);
 	}
 
-	mutex_unlock(&ipucsi->mutex);
 	return 0;
 }
 
