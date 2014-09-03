@@ -213,6 +213,7 @@ static struct ipucsi_format const ipucsi_formats[] = {
 		.bytes_per_sample = 2,
 		.raw = 1,
 	},
+	{ /* end-of-array sentinel */ },
 };
 
 static struct ipucsi_format const	ipucsi_format_testpattern = {
@@ -314,6 +315,29 @@ static int ipu_csi_get_mbus_config(struct ipucsi *ipucsi,
 	}
 
 	return ret;
+}
+
+static struct ipucsi_format const *ipu_csi_get_formats(struct ipucsi *ipucsi,
+						       size_t *cnt)
+{
+	struct v4l2_mbus_config mbus_config;
+	int			rc;
+
+	rc = ipu_csi_get_mbus_config(ipucsi, &mbus_config);
+	if (rc)
+		return NULL;
+
+	switch (mbus_config.type) {
+	case V4L2_MBUS_PARALLEL:
+		if (cnt)
+			*cnt = ARRAY_SIZE(ipucsi_formats) - 1u;
+
+		return ipucsi_formats;
+
+	default:
+		WARN_ON(1);
+		return NULL;
+	}
 }
 
 static int ipu_csi_init_interface(struct ipucsi *ipucsi,
@@ -1145,17 +1169,20 @@ static int ipucsi_subdev_get_format(struct v4l2_subdev *subdev,
 }
 
 static struct ipucsi_format const *ipucsi_find_subdev_format(
-	const u32 *fourcc, const u32 *mbus_code)
+	struct ipucsi *ipucsi, const u32 *fourcc, const u32 *mbus_code)
 {
 	struct ipucsi_format const *ipucsifmt;
 	int i;
 
-	for (i = 0; i < ARRAY_SIZE(ipucsi_formats); i++) {
-		ipucsifmt = &ipucsi_formats[i];
-		if (fourcc && *fourcc == ipucsifmt->fourcc)
+	ipucsifmt = ipu_csi_get_formats(ipucsi, NULL);
+	if (!ipucsifmt)
+		return NULL;
+
+	for (i = 0; ipucsifmt[i].name != NULL; i++) {
+		if (fourcc && *fourcc == ipucsifmt[i].fourcc)
 			return ipucsifmt;
-		if (mbus_code && *mbus_code == ipucsifmt->mbus_code)
-			return ipucsifmt;
+		if (mbus_code && *mbus_code == ipucsifmt[i].mbus_code)
+			return &ipucsifmt[i];
 	}
 
 	return NULL;
@@ -1170,7 +1197,8 @@ static int ipucsi_subdev_set_format(struct v4l2_subdev *subdev,
 	struct ipucsi_format const *ipucsiformat;
 	unsigned int width, height;
 
-	ipucsiformat = ipucsi_find_subdev_format(NULL, &sdformat->format.code);
+	ipucsiformat = ipucsi_find_subdev_format(ipucsi, NULL,
+						 &sdformat->format.code);
 	if (!ipucsiformat)
 		return -EINVAL;
 
