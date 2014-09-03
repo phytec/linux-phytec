@@ -498,13 +498,37 @@ static int ipu_csi_init_interface(struct ipucsi *ipucsi,
 				      CSI_SENS_PRTCL_BT1120_DDR_PROGRESSIVE);
 
 		if (!interlaced) {
-			ccir1 = (CSI_CCIRx_ERR_DET_EN |
-				 CSI_CCIRx_START_FLD_BLNK_1ST(6) |
-				 CSI_CCIRx_END_FLD_ACTV(4));
+			ccir1 = CSI_CCIRx_START_FLD_BLNK_1ST(6) |
+				CSI_CCIRx_END_FLD_ACTV(4);
+
 			ccir2 = 0;
 		} else {
-			WARN_ON(1);	/* TODO */
+			ccir1 = CSI_CCIRx_START_FLD_BLNK_1ST(6) |
+				CSI_CCIRx_START_FLD_BLNK_1ST(2) |
+				CSI_CCIRx_END_FLD_BLNK_2ND(6) |
+				CSI_CCIRx_START_FLD_BLNK_2ND(2) |
+				CSI_CCIRx_END_FLD_ACTV(4) |
+				CSI_CCIRx_START_FLD_ACTV(0);
+
+			ccir2 = CSI_CCIRx_END_FLD_BLNK_1ST(7) |
+				CSI_CCIRx_START_FLD_BLNK_1ST(3) |
+				CSI_CCIRx_END_FLD_BLNK_2ND(7) |
+				CSI_CCIRx_START_FLD_BLNK_2ND(3) |
+				CSI_CCIRx_END_FLD_ACTV(5) |
+				CSI_CCIRx_START_FLD_ACTV(1);
 		}
+
+		switch (ipucsi->format_mbus[0].field) {
+		case V4L2_FIELD_SEQ_TB:
+			break;
+
+		case V4L2_FIELD_SEQ_BT:
+			swap(ccir1, ccir2);
+			/* TODO: really? */
+			break;
+		}
+
+		ccir1 |= CSI_CCIRx_ERR_DET_EN;
 
 		switch (ipucsi->ipucsifmt.sens_conf & CSI_SENS_CONF_DATA_WIDTH_mask) {
 		case CSI_SENS_CONF_DATA_WIDTH_10:
