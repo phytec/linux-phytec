@@ -608,6 +608,8 @@ static void ipu_scale_stop_streaming(struct vb2_queue *q)
 		while ((buf = v4l2_m2m_dst_buf_remove(ctx->fh.m2m_ctx)))
 			v4l2_m2m_buf_done(buf, VB2_BUF_STATE_ERROR);
 	}
+
+	return;
 }
 
 static struct vb2_ops ipu_scale_qops = {
