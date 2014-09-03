@@ -105,6 +105,7 @@ struct v4l2_event_sync_lock {
 #define CSI_SENS_CONF_DATA_WIDTH_10		(3 << 11)
 #define CSI_SENS_CONF_DATA_WIDTH_12		(5 << 11)
 #define CSI_SENS_CONF_DATA_WIDTH_16		(9 << 11)
+#define CSI_SENS_CONF_DATA_WIDTH_mask		(15 << 11)
 #define CSI_SENS_CONF_EXT_VSYNC			(1 << 15)
 #define CSI_SENS_CONF_DATA_DEST_ISP		(1 << 24)
 #define CSI_SENS_CONF_DATA_DEST_IC		(1 << 25)
@@ -155,7 +156,44 @@ struct ipucsi_format {
 
 int v4l2_media_subdev_s_stream(struct media_entity *entity, int enable);
 
-static struct ipucsi_format const ipucsi_formats[] = {
+static struct ipucsi_format const	ipucsi_formats_bt1120[] = {
+	{
+		.name = "UYVV 1x16 bit",
+		.fourcc = V4L2_PIX_FMT_UYVY,
+		.mbus_code = V4L2_MBUS_FMT_UYVY8_1X16,
+		.sens_conf = CSI_SENS_CONF_DATA_FMT_YUV422_UYVY | CSI_SENS_CONF_DATA_WIDTH_8,
+		.bytes_per_pixel = 2,
+		.bytes_per_sample = 1,
+		.yuv = 1,
+	}, {
+		.name = "YUYV 1x16 bit",
+		.fourcc = V4L2_PIX_FMT_YUYV,
+		.mbus_code = V4L2_MBUS_FMT_YUYV8_1X16,
+		.sens_conf = CSI_SENS_CONF_DATA_FMT_YUV422_YUYV | CSI_SENS_CONF_DATA_WIDTH_8,
+		.bytes_per_pixel = 2,
+		.bytes_per_sample = 1,
+		.yuv = 1,
+	}, {
+		.name = "UYVV 1x20 bit",
+		.fourcc = V4L2_PIX_FMT_UYVY,
+		.mbus_code = V4L2_MBUS_FMT_UYVY10_1X20,
+		.sens_conf = CSI_SENS_CONF_DATA_FMT_YUV422_YUYV | CSI_SENS_CONF_DATA_WIDTH_10,
+		.bytes_per_pixel = 4,
+		.bytes_per_sample = 2,
+		.yuv = 1,
+	}, {
+		.name = "YUYV 1x20 bit",
+		.fourcc = V4L2_PIX_FMT_YUYV,
+		.mbus_code = V4L2_MBUS_FMT_YUYV10_1X20,
+		.sens_conf = CSI_SENS_CONF_DATA_FMT_YUV422_YUYV | CSI_SENS_CONF_DATA_WIDTH_10,
+		.bytes_per_pixel = 4,
+		.bytes_per_sample = 2,
+		.yuv = 1,
+	},
+	{ /* end-of-array sentinel */ },
+};
+
+static struct ipucsi_format const ipucsi_formats_raw[] = {
 	{
 		.name = "Monochrome 8 bit",
 		.fourcc = V4L2_PIX_FMT_GREY,
@@ -330,9 +368,17 @@ static struct ipucsi_format const *ipu_csi_get_formats(struct ipucsi *ipucsi,
 	switch (mbus_config.type) {
 	case V4L2_MBUS_PARALLEL:
 		if (cnt)
-			*cnt = ARRAY_SIZE(ipucsi_formats) - 1u;
+			*cnt = ARRAY_SIZE(ipucsi_formats_raw) - 1u;
 
-		return ipucsi_formats;
+		return ipucsi_formats_raw;
+
+	case V4L2_MBUS_BT656:
+	case V4L2_MBUS_BT1120_SDR:
+	case V4L2_MBUS_BT1120_DDR:
+		if (cnt)
+			*cnt = ARRAY_SIZE(ipucsi_formats_bt1120) - 1u;
+
+		return ipucsi_formats_bt1120;
 
 	default:
 		WARN_ON(1);
@@ -433,12 +479,51 @@ static int ipu_csi_init_interface(struct ipucsi *ipucsi,
 			ccir2 = 0;
 		}
 
-		ccir3 = 0xff0000;
+		ccir3 = 0x00ff0000;
 
 		ipu_csi_write(ipucsi, ccir1, CSI_CCIR_CODE_1);
 		ipu_csi_write(ipucsi, ccir2, CSI_CCIR_CODE_2);
 		ipu_csi_write(ipucsi, ccir3, CSI_CCIR_CODE_3);
 		break;
+
+	case V4L2_MBUS_BT1120_SDR:
+	case V4L2_MBUS_BT1120_DDR:
+		if (mbus_config.type == V4L2_MBUS_BT1120_SDR)
+			sens_conf |= (interlaced ?
+				      CSI_SENS_PRTCL_BT1120_SDR_INTERLACED :
+				      CSI_SENS_PRTCL_BT1120_SDR_PROGRESSIVE);
+		else
+			sens_conf |= (interlaced ?
+				      CSI_SENS_PRTCL_BT1120_DDR_INTERLACED :
+				      CSI_SENS_PRTCL_BT1120_DDR_PROGRESSIVE);
+
+		if (!interlaced) {
+			ccir1 = (CSI_CCIRx_ERR_DET_EN |
+				 CSI_CCIRx_START_FLD_BLNK_1ST(6) |
+				 CSI_CCIRx_END_FLD_ACTV(4));
+			ccir2 = 0;
+		} else {
+			WARN_ON(1);	/* TODO */
+		}
+
+		switch (ipucsi->ipucsifmt.sens_conf & CSI_SENS_CONF_DATA_WIDTH_mask) {
+		case CSI_SENS_CONF_DATA_WIDTH_10:
+			ccir3 = 0x3ff00000;
+			break;
+		case CSI_SENS_CONF_DATA_WIDTH_8:
+			ccir3 = 0x00ff0000;
+			break;
+		default:
+			WARN_ON(1);
+			ccir3 = 0x00ff0000;
+			break;
+		}
+
+		ipu_csi_write(ipucsi, ccir1, CSI_CCIR_CODE_1);
+		ipu_csi_write(ipucsi, ccir2, CSI_CCIR_CODE_2);
+		ipu_csi_write(ipucsi, ccir3, CSI_CCIR_CODE_3);
+		break;
+
 	default:
 		return -EINVAL;
 	}
