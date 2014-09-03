@@ -134,12 +134,27 @@ EXPORT_SYMBOL_GPL(ipu_media_entity_remove_link);
 
 struct v4l2_device *ipu_media_get_v4l2_dev(void)
 {
+	struct v4l2_device *v4l2_dev;
+
 	if (!ipu_media)
 		return NULL;
 
-	return &ipu_media->v4l2_dev;
+	v4l2_dev = &ipu_media->v4l2_dev;
+	v4l2_device_get(v4l2_dev);
+	return v4l2_dev;
 }
 EXPORT_SYMBOL_GPL(ipu_media_get_v4l2_dev);
+
+void ipu_media_put_v4l2_dev(struct v4l2_device *v4l2_dev)
+{
+	struct module	*owner;
+
+	if (!v4l2_dev)
+		return;
+
+	v4l2_device_put(v4l2_dev);
+}
+EXPORT_SYMBOL_GPL(ipu_media_put_v4l2_dev);
 
 int ipu_media_device_register(struct device *dev)
 {
