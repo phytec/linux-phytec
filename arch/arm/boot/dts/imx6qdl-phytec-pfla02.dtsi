@@ -30,7 +30,9 @@
 			regulator-name = "usb_otg_vbus";
 			regulator-min-microvolt = <5000000>;
 			regulator-max-microvolt = <5000000>;
-			gpio = <&gpio4 15 0>;
+			/* WORKADDOUND: Remove the vbus enable GPIO *
+			 * The OTG ID pin has only 1V if otg is in device mode*/
+			/* gpio = <&gpio4 15 0>; */
 			enable-active-high;
 		};
 
