@@ -1,0 +1,60 @@
+/*
+ * Copyright 2014 Christian Hemp, Phytec Messtechnik GmbH
+ *
+ * The code contained herein is licensed under the GNU General Public
+ * License. You may obtain a copy of the GNU General Public License
+ * Version 2 or later at the following locations:
+ *
+ * http://www.opensource.org/licenses/gpl-license.html
+ * http://www.gnu.org/copyleft/gpl.html
+ */
+
+/dts-v1/;
+#include "imx6dl-phytec-pfla02.dtsi"
+
+/ {
+	model = "Phytec phyBOARD SUBRA";
+	compatible = "phytec,imx6q-pbab05", "phytec,imx6dl-pfla02", "fsl,imx6dl";
+
+	chosen {
+		stdout-path = &uart4;
+	};
+};
+
+&can1 {
+/*	gpio = <&gpio4 5 0>; CAN enable GPIO must fix */
+	status = "okay";
+};
+
+&fec {
+	status = "okay";
+};
+
+&hdmi {
+	status = "okay";
+};
+
+&i2c2 {
+	status = "okay";
+
+	rtc@68 {
+		compatible = "mc,rv4162";
+		reg = <0x68>;
+	};
+};
+
+&uart4 {
+	status = "okay";
+};
+
+&usbh1 {
+	status = "okay";
+};
+
+&usbotg {
+	status = "okay";
+};
+
+&usdhc3 {
+	status = "okay";
+};
