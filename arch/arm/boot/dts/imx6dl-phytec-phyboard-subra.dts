@@ -43,6 +43,10 @@
 	};
 };
 
+&reg_usb_otg_vbus {
+	gpio = <&gpio4 15 0>;
+};
+
 &uart4 {
 	status = "okay";
 };
