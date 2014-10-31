@@ -161,12 +161,29 @@ static int imx6q_cpufreq_probe(struct platform_device *pdev)
 	int num, ret;
 	const struct property *prop;
 	const __be32 *val;
+	struct regulator *anatop_arm_reg = NULL;
+	struct regulator *anatop_pu_reg = NULL;
+	struct regulator *anatop_soc_reg = NULL;
 	u32 nr, i, j;
 
 	cpu_dev = get_cpu_device(0);
 	if (!cpu_dev) {
 		pr_err("failed to get cpu0 device\n");
 		return -ENODEV;
+	}
+
+	np = of_find_compatible_node(NULL, NULL, "fsl,imx6q-anatop");
+	if (np) {
+		anatop_arm_reg = regulator_get(&pdev->dev, "vddarm");
+		anatop_pu_reg = regulator_get(&pdev->dev, "vddpu");
+		anatop_soc_reg = regulator_get(&pdev->dev, "vddsoc");
+		if (PTR_ERR(anatop_arm_reg) == -EPROBE_DEFER ||
+		    PTR_ERR(anatop_pu_reg) == -EPROBE_DEFER ||
+		    PTR_ERR(anatop_soc_reg) == -EPROBE_DEFER) {
+				ret = -EPROBE_DEFER;
+				goto put_reg;
+		}
+		of_node_put(np);
 	}
 
 	np = of_node_get(cpu_dev->of_node);
@@ -312,7 +329,41 @@ soc_opp_out:
 		goto free_freq_table;
 	}
 
+	/* enable LDO bypass mode if anatop regs are not being used for core */
+	if ((!IS_ERR(anatop_arm_reg) &&
+	     !IS_ERR(anatop_pu_reg) &&
+	     !IS_ERR(anatop_soc_reg) &&
+	     regulator_is_same(arm_reg, anatop_arm_reg) &&
+	     regulator_is_same(pu_reg, anatop_pu_reg) &&
+	     regulator_is_same(soc_reg, anatop_soc_reg)) ||
+            (freq_table[num].frequency == FREQ_1P2_GHZ / 1000))
+	{
+		printk("Using anatop regulators: LDO enabled\n");
+	} else {
+		int puvolt = regulator_get_voltage(anatop_pu_reg);
+
+		printk("Not using anatop LDO's: enabling LDO bypass\n");
+		regulator_allow_bypass(anatop_arm_reg, true);
+		regulator_allow_bypass(anatop_pu_reg, true);
+		if (regulator_is_same(pu_reg, anatop_pu_reg))
+			regulator_allow_bypass(pu_reg, true);
+		regulator_allow_bypass(anatop_soc_reg, true);
+		if (!regulator_is_bypass(anatop_arm_reg) ||
+		    !regulator_is_bypass(anatop_pu_reg) ||
+		    !regulator_is_bypass(anatop_soc_reg))
+			dev_err(cpu_dev, "failed to set LDO bypass\n");
+		else {
+			if (puvolt == 0)
+				regulator_set_voltage(anatop_pu_reg, 0, 0);
+		}
+
+	}
+	regulator_put(anatop_arm_reg);
+	regulator_put(anatop_pu_reg);
+	regulator_put(anatop_soc_reg);
+
 	of_node_put(np);
+
 	return 0;
 
 free_freq_table:
