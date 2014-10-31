@@ -3171,6 +3171,29 @@ int regulator_allow_bypass(struct regulator *regulator, bool enable)
 EXPORT_SYMBOL_GPL(regulator_allow_bypass);
 
 /**
+ * regulator_is_bypass - determine if a regulator is in bypass mode
+ *
+ * @regulator: Regulator to configure
+ *
+ * return positive if regulator is in bypass mode.
+ */
+int regulator_is_bypass(struct regulator *regulator)
+{
+	struct regulator_dev *rdev = regulator->rdev;
+	int ret;
+
+	if (!regulator)
+		return -EINVAL;
+
+	mutex_lock(&rdev->mutex);
+	ret = regulator->bypass ? 1 : 0;
+	mutex_unlock(&rdev->mutex);
+
+	return ret;
+}
+EXPORT_SYMBOL_GPL(regulator_is_bypass);
+
+/**
  * regulator_register_notifier - register regulator event notifier
  * @regulator: regulator source
  * @nb: notifier block
