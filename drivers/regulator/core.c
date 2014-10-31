@@ -2267,6 +2267,23 @@ int regulator_is_enabled(struct regulator *regulator)
 EXPORT_SYMBOL_GPL(regulator_is_enabled);
 
 /**
+ * regulator_is_same - are two regulators the same
+ * @regulator1: regulator source
+ * @regulator2: regulator source
+ *
+ * Returns positive if both regulators point to the same regulator_dev.
+ */
+int regulator_is_same(struct regulator *regulator1,
+		      struct regulator *regulator2)
+{
+	if (!regulator1 || !regulator2)
+		return -EINVAL;
+
+	return (regulator1->rdev == regulator2->rdev) ? 1 : 0;
+}
+EXPORT_SYMBOL_GPL(regulator_is_same);
+
+/**
  * regulator_can_change_voltage - check if regulator can change voltage
  * @regulator: regulator source
  *
