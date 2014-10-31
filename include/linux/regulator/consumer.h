@@ -243,6 +243,7 @@ unsigned int regulator_get_mode(struct regulator *regulator);
 int regulator_set_load(struct regulator *regulator, int load_uA);
 
 int regulator_allow_bypass(struct regulator *regulator, bool allow);
+int regulator_is_bypass(struct regulator *regulator);
 
 struct regmap *regulator_get_regmap(struct regulator *regulator);
 int regulator_get_hardware_vsel_register(struct regulator *regulator,
@@ -498,6 +499,11 @@ static inline int regulator_set_load(struct regulator *regulator, int load_uA)
 
 static inline int regulator_allow_bypass(struct regulator *regulator,
 					 bool allow)
+{
+	return 0;
+}
+
+static inline int regulator_is_bypass(struct regulator *regulator)
 {
 	return 0;
 }
