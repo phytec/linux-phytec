@@ -124,10 +124,6 @@
 	};
 };
 
-&hdmi {
-	status = "okay";
-};
-
 &i2c2 {
 	status = "okay";
 
