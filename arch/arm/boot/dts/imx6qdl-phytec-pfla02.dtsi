@@ -240,6 +240,7 @@
 			vdd_sd0_reg: ldo9 {
 				regulator-min-microvolt = <3300000>;
 				regulator-max-microvolt = <3300000>;
+				regulator-always-on;
 			};
 
 			vdd_sd1_reg: ldo10 {
