@@ -35,6 +35,11 @@
 		};
 	};
 
+	user_leds_pca9533: leds2 {
+		compatible = "gpio-leds";
+	};
+
+
 	tlv320_mclk: oscillator {
 		compatible = "fixed-clock";
 		#clock-cells = <0>;
@@ -165,6 +170,15 @@
 		reg = <0x51>;
 	};
 
+	leddim: leddimmer@62 {
+		compatible = "nxp,pca9533";
+		gpio-controller;
+		#gpio-cells = <2>;
+		nxp,typecodes = <0xFF>;
+		nxp,statecodes = <0x55>;
+		reg = <0x62>;
+	};
+
 	adc@64 {
 		compatible = "maxim,max1037";
 		reg = <0x64>;
@@ -213,4 +227,34 @@
 
 &usdhc3 {
 	status = "okay";
+};
+
+&user_leds_pca9533 {
+	led1 {
+		label = "red:user1";
+		gpios = <&leddim 0 0>;
+		linux,default-trigger = "none";
+		default-state = "on";
+	};
+
+	led2 {
+		label = "yellow:user2";
+		gpios = <&leddim 1 0>;
+		linux,default-trigger = "none";
+		default-state = "on";
+	};
+
+	led3 {
+		label = "yellow:user3";
+		gpios = <&leddim 2 0>;
+		linux,default-trigger = "none";
+		default-state = "on";
+	};
+
+	led4 {
+		label = "green:user4";
+		gpios = <&leddim 3 0>;
+		linux,default-trigger = "none";
+		default-state = "on";
+	};
 };
