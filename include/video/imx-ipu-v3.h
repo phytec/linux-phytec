@@ -204,17 +204,17 @@ void ipu_cpmem_set_burstsize(struct ipuv3_channel *ch, int burstsize);
 void ipu_cpmem_set_block_mode(struct ipuv3_channel *ch);
 void ipu_cpmem_set_rotation(struct ipuv3_channel *ch,
 			    enum ipu_rotate_mode rot);
-int ipu_cpmem_set_format_rgb(struct ipuv3_channel *ch,
+int __must_check ipu_cpmem_set_format_rgb(struct ipuv3_channel *ch,
 			     const struct ipu_rgb *rgb);
-int ipu_cpmem_set_format_passthrough(struct ipuv3_channel *ch, int width);
+int __must_check ipu_cpmem_set_format_passthrough(struct ipuv3_channel *ch, int width);
 void ipu_cpmem_set_yuv_interleaved(struct ipuv3_channel *ch, u32 pixel_format);
 void ipu_cpmem_set_yuv_planar_full(struct ipuv3_channel *ch,
 				   u32 pixel_format, int stride,
 				   int u_offset, int v_offset);
 void ipu_cpmem_set_yuv_planar(struct ipuv3_channel *ch,
 			      u32 pixel_format, int stride, int height);
-int ipu_cpmem_set_fmt(struct ipuv3_channel *ch, u32 drm_fourcc);
-int ipu_cpmem_set_image(struct ipuv3_channel *ch, struct ipu_image *image);
+int __must_check ipu_cpmem_set_fmt(struct ipuv3_channel *ch, u32 drm_fourcc);
+int __must_check ipu_cpmem_set_image(struct ipuv3_channel *ch, struct ipu_image *image);
 void ipu_cpmem_dump(struct ipuv3_channel *ch);
 
 /*
@@ -281,7 +281,7 @@ int ipu_dp_set_global_alpha(struct ipu_dp *dp, bool enable, u8 alpha,
  * IPU CMOS Sensor Interface (csi) functions
  */
 struct ipu_csi;
-int ipu_csi_init_interface(struct ipu_csi *csi,
+int __must_check ipu_csi_init_interface(struct ipu_csi *csi,
 			   struct v4l2_mbus_config *mbus_cfg,
 			   struct v4l2_mbus_framefmt *mbus_fmt);
 bool ipu_csi_is_interlaced(struct ipu_csi *csi);
