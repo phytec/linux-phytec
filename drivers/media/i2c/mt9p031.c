@@ -1143,6 +1143,16 @@ static int mt9p031_probe(struct i2c_client *client,
 
 	ret = mt9p031_clk_setup(mt9p031);
 
+	if (ret < 0)
+		goto done;
+
+	ret = v4l2_async_register_subdev(&mt9p031->subdev);
+	if (ret < 0) {
+		dev_err(&client->dev, "v4l2_async_register_subdev() failed: %d\n",
+			ret);
+		goto done;
+	}
+
 done:
 	if (ret < 0) {
 		v4l2_ctrl_handler_free(&mt9p031->ctrls);
@@ -1157,6 +1167,7 @@ static int mt9p031_remove(struct i2c_client *client)
 	struct v4l2_subdev *subdev = i2c_get_clientdata(client);
 	struct mt9p031 *mt9p031 = to_mt9p031(subdev);
 
+	v4l2_async_unregister_subdev(&mt9p031->subdev);
 	v4l2_ctrl_handler_free(&mt9p031->ctrls);
 	v4l2_device_unregister_subdev(subdev);
 	media_entity_cleanup(&subdev->entity);
