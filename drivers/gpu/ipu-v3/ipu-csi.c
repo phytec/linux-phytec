@@ -319,13 +319,17 @@ static int mbus_code_to_bus_cfg(struct ipu_csi_bus_config *cfg, u32 mbus_code)
 /*
  * Fill a CSI bus config struct from mbus_config and mbus_framefmt.
  */
-static void fill_csi_bus_cfg(struct ipu_csi_bus_config *csicfg,
+static int fill_csi_bus_cfg(struct ipu_csi_bus_config *csicfg,
 				 struct v4l2_mbus_config *mbus_cfg,
 				 struct v4l2_mbus_framefmt *mbus_fmt)
 {
+	int		rc;
+
 	memset(csicfg, 0, sizeof(*csicfg));
 
-	mbus_code_to_bus_cfg(csicfg, mbus_fmt->code);
+	rc = mbus_code_to_bus_cfg(csicfg, mbus_fmt->code);
+	if (rc < 0)
+		return rc;
 
 	switch (mbus_cfg->type) {
 	case V4L2_MBUS_PARALLEL:
@@ -356,6 +360,8 @@ static void fill_csi_bus_cfg(struct ipu_csi_bus_config *csicfg,
 		/* will never get here, keep compiler quiet */
 		break;
 	}
+
+	return 0;
 }
 
 int ipu_csi_init_interface(struct ipu_csi *csi,
@@ -365,8 +371,17 @@ int ipu_csi_init_interface(struct ipu_csi *csi,
 	struct ipu_csi_bus_config cfg;
 	unsigned long flags;
 	u32 data = 0;
+	int rc;
 
-	fill_csi_bus_cfg(&cfg, mbus_cfg, mbus_fmt);
+	rc = fill_csi_bus_cfg(&cfg, mbus_cfg, mbus_fmt);
+	if (rc < 0) {
+		dev_warn(csi->ipu->dev,
+			 "failed to get bus cfg for [%p(%04x), %p(%04x)]: %d\n",
+			 mbus_cfg, mbus_cfg ? mbus_cfg->type : 0,
+			 mbus_fmt, mbus_fmt ? mbus_fmt->code : 0,
+			 rc);
+		return rc;
+	}
 
 	/* Set the CSI_SENS_CONF register remaining fields */
 	data |= cfg.data_width << CSI_SENS_CONF_DATA_WIDTH_SHIFT |
