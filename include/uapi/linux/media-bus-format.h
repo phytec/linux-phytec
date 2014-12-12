@@ -58,7 +58,7 @@
 #define MEDIA_BUS_FMT_ARGB8888_1X32		0x100d
 #define MEDIA_BUS_FMT_RGB888_1X32_PADHI		0x100f
 
-/* YUV (including grey) - next is	0x2026 */
+/* YUV (including grey) - next is	0x2027 */
 #define MEDIA_BUS_FMT_Y8_1X8			0x2001
 #define MEDIA_BUS_FMT_UV8_1X8			0x2015
 #define MEDIA_BUS_FMT_UYVY8_1_5X8		0x2002
@@ -96,6 +96,8 @@
 #define MEDIA_BUS_FMT_YVYU12_1X24		0x2023
 #define MEDIA_BUS_FMT_YUV10_1X30		0x2016
 #define MEDIA_BUS_FMT_AYUV8_1X32		0x2017
+#define MEDIA_BUS_FMT_Y16_1X16			0x2026
+#define MEDIA_BUS_FMT_Y16_1X16			0x2026
 
 /* Bayer - next is	0x3019 */
 #define MEDIA_BUS_FMT_SBGGR8_1X8		0x3001
@@ -122,6 +124,9 @@
 #define MEDIA_BUS_FMT_SGBRG12_1X12		0x3010
 #define MEDIA_BUS_FMT_SGRBG12_1X12		0x3011
 #define MEDIA_BUS_FMT_SRGGB12_1X12		0x3012
+
+#define MEDIA_BUS_FMT_GENERIC_8			0x3050
+#define MEDIA_BUS_FMT_GENERIC_16		0x3051
 
 /* JPEG compressed formats - next is	0x4002 */
 #define MEDIA_BUS_FMT_JPEG_1X8			0x4001

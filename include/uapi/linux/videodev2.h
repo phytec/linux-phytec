@@ -530,6 +530,9 @@ struct v4l2_pix_format {
 #define V4L2_PIX_FMT_SE401      v4l2_fourcc('S', '4', '0', '1') /* se401 janggu compressed rgb */
 #define V4L2_PIX_FMT_S5C_UYVY_JPG v4l2_fourcc('S', '5', 'C', 'I') /* S5C73M3 interleaved UYVY/JPEG */
 
+#define V4L2_PIX_FMT_IPU_GENERIC_8  v4l2_fourcc('I', 'P', 'U', '0') /* i.MX6 generic 8 bit data */
+#define V4L2_PIX_FMT_IPU_GENERIC_16 v4l2_fourcc('I', 'P', 'U', '1') /* i.MX6 generic 16 bit data */
+
 /* SDR formats - used only for Software Defined Radio devices */
 #define V4L2_SDR_FMT_CU8          v4l2_fourcc('C', 'U', '0', '8') /* IQ u8 */
 #define V4L2_SDR_FMT_CU16LE       v4l2_fourcc('C', 'U', '1', '6') /* IQ u16le */
