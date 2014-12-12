@@ -137,6 +137,7 @@ struct ipu_csi {
 #define MIPI_DT_RAW10		0x2b
 #define MIPI_DT_RAW12		0x2c
 #define MIPI_DT_RAW14		0x2d
+#define MIPI_DT_RAW16		0x2e	/* TODO: really? */
 
 /*
  * Bitfield of CSI bus signal polarities and modes.
@@ -308,6 +309,20 @@ static int mbus_code_to_bus_cfg(struct ipu_csi_bus_config *cfg, u32 mbus_code)
 		cfg->data_fmt = CSI_SENS_CONF_DATA_FMT_JPEG;
 		cfg->mipi_dt = MIPI_DT_RAW8;
 		cfg->data_width = IPU_CSI_DATA_WIDTH_8;
+		break;
+	case MEDIA_BUS_FMT_GENERIC_8:
+	case MEDIA_BUS_FMT_Y8_1X8:
+		cfg->data_fmt = CSI_SENS_CONF_DATA_FMT_BAYER;
+		cfg->mipi_dt = MIPI_DT_RAW8;
+		cfg->data_width = IPU_CSI_DATA_WIDTH_8;
+		break;
+	case MEDIA_BUS_FMT_GENERIC_16:
+	case MEDIA_BUS_FMT_Y10_1X10:
+	case MEDIA_BUS_FMT_Y12_1X12:
+	case MEDIA_BUS_FMT_Y16_1X16:
+		cfg->data_fmt = CSI_SENS_CONF_DATA_FMT_BAYER;
+		cfg->mipi_dt = MIPI_DT_RAW16;
+		cfg->data_width = IPU_CSI_DATA_WIDTH_16;
 		break;
 	default:
 		return -EINVAL;
