@@ -15,6 +15,9 @@
 #include <drm/drm_fourcc.h>
 #include "ipu-prv.h"
 
+#define IPU_DRM_FORMAT_GENERIC8		v4l2_fourcc('I', 'P', 'U', '1')
+#define IPU_DRM_FORMAT_GENERIC16	v4l2_fourcc('I', 'P', 'U', '2')
+
 struct ipu_cpmem_word {
 	u32 data[5];
 	u32 res[3];
@@ -201,6 +204,27 @@ static int v4l2_pix_fmt_to_drm_fourcc(u32 pixelformat)
 		return DRM_FORMAT_NV12;
 	case V4L2_PIX_FMT_NV16:
 		return DRM_FORMAT_NV16;
+	case V4L2_PIX_FMT_SBGGR8:
+	case V4L2_PIX_FMT_SGBRG8:
+	case V4L2_PIX_FMT_SGRBG8:
+	case V4L2_PIX_FMT_SRGGB8:
+	case V4L2_PIX_FMT_GREY:
+	case V4L2_PIX_FMT_IPU_GENERIC_8:
+		return IPU_DRM_FORMAT_GENERIC8;
+	case V4L2_PIX_FMT_SBGGR10:
+	case V4L2_PIX_FMT_SGBRG10:
+	case V4L2_PIX_FMT_SGRBG10:
+	case V4L2_PIX_FMT_SRGGB10:
+	case V4L2_PIX_FMT_SBGGR12:
+	case V4L2_PIX_FMT_SGBRG12:
+	case V4L2_PIX_FMT_SGRBG12:
+	case V4L2_PIX_FMT_SRGGB12:
+	case V4L2_PIX_FMT_SBGGR16:
+	case V4L2_PIX_FMT_Y10:
+	case V4L2_PIX_FMT_Y12:
+	case V4L2_PIX_FMT_Y16:
+	case V4L2_PIX_FMT_IPU_GENERIC_16:
+		return IPU_DRM_FORMAT_GENERIC16;
 	}
 
 	return -EINVAL;
@@ -677,6 +701,31 @@ int ipu_cpmem_set_image(struct ipuv3_channel *ch, struct ipu_image *image)
 	case V4L2_PIX_FMT_RGB24:
 	case V4L2_PIX_FMT_BGR24:
 		offset = image->rect.left * 3 +
+			image->rect.top * pix->bytesperline;
+		break;
+	case V4L2_PIX_FMT_SBGGR8:
+	case V4L2_PIX_FMT_SGBRG8:
+	case V4L2_PIX_FMT_SGRBG8:
+	case V4L2_PIX_FMT_SRGGB8:
+	case V4L2_PIX_FMT_GREY:
+	case V4L2_PIX_FMT_IPU_GENERIC_8:
+		offset = image->rect.left * 1 +
+			image->rect.top * pix->bytesperline;
+		break;
+	case V4L2_PIX_FMT_SBGGR10:
+	case V4L2_PIX_FMT_SGBRG10:
+	case V4L2_PIX_FMT_SGRBG10:
+	case V4L2_PIX_FMT_SRGGB10:
+	case V4L2_PIX_FMT_SBGGR12:
+	case V4L2_PIX_FMT_SGBRG12:
+	case V4L2_PIX_FMT_SGRBG12:
+	case V4L2_PIX_FMT_SRGGB12:
+	case V4L2_PIX_FMT_SBGGR16:
+	case V4L2_PIX_FMT_Y10:
+	case V4L2_PIX_FMT_Y12:
+	case V4L2_PIX_FMT_Y16:
+	case V4L2_PIX_FMT_IPU_GENERIC_16:
+		offset = image->rect.left * 2 +
 			image->rect.top * pix->bytesperline;
 		break;
 	default:
