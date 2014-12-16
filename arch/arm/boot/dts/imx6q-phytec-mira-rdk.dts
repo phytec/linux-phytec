@@ -1,0 +1,156 @@
+/*
+ * Copyright 2014 Christian Hemp, Phytec Messtechnik GmbH
+ *
+ * The code contained herein is licensed under the GNU General Public
+ * License. You may obtain a copy of the GNU General Public License
+ * Version 2 or later at the following locations:
+ *
+ * http://www.opensource.org/licenses/gpl-license.html
+ * http://www.gnu.org/copyleft/gpl.html
+ */
+
+/dts-v1/;
+#include "imx6q.dtsi"
+#include "imx6qdl-phytec-phycore-som.dtsi"
+#include "imx6qdl-phytec-mira.dtsi"
+#include "imx6qdl-phytec-mira-eval-01.dtsi"
+
+
+/ {
+	model = "Phytec phyBOARD-MIRA Quad Carrier-Board";
+	compatible = "phytec,imx6q-pbac06", "phytec,imx6qdl-pcm058", "fsl,imx6q";
+
+	chosen {
+		linux,stdout-path = &uart2;
+	};
+};
+
+&backlight {
+	status = "okay";
+};
+
+&can1 {
+	status = "okay";
+};
+
+&fec {
+	status = "okay";
+	phy-handle = <&ethphy>;
+
+	mdio {
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		ethphy: ethernet-phy@3 {
+			reg = <3>;
+			txc-skew-ps = <1680>;
+			rxc-skew-ps = <1860>;
+		};
+	};
+};
+
+&flash {
+	status = "okay";
+	#address-cells = <1>;
+	#size-cells = <1>;
+
+	partition@0 {
+		label = "barebox";
+		reg = <0x0 0x100000>;
+	};
+
+	partition@1 {
+		label = "barebox-environment";
+		reg = <0x100000 0x20000>;
+	};
+
+	partition@2 {
+		label = "oftree";
+		reg = <0x120000 0x20000>;
+	};
+
+	partition@3 {
+		label = "kernel";
+		reg = <0x140000 0x0>;
+	};
+};
+
+&gpmi {
+	status = "okay";
+	#address-cells = <1>;
+	#size-cells = <1>;
+
+	partition@0 {
+		label = "barebox";
+		reg = <0x0 0x400000>;
+	};
+
+	partition@1 {
+		label = "barebox-environment";
+		reg = <0x400000 0x100000>;
+	};
+
+	partition@2 {
+		label = "oftree";
+		reg = <0x500000 0x100000>;
+	};
+
+	partition@3 {
+		label = "kernel";
+		reg = <0x600000 0x800000>;
+	};
+
+	partition@4 {
+		label = "root";
+		reg = <0xe00000 0x0>;
+	};
+
+};
+
+&hdmi {
+	status = "okay";
+};
+
+&i2c1 {
+	status = "okay";
+};
+
+&i2c2 {
+	status = "okay";
+};
+
+&ldb {
+	status = "okay";
+
+	lvds-channel@0 {
+		status = "okay";
+	};
+};
+
+&pwm1 {
+	status = "okay";
+};
+
+&pcie {
+	status = "okay";
+};
+
+&uart2 {
+	status = "okay";
+};
+
+&uart3 {
+	status = "okay";
+};
+
+&usbh1 {
+	status = "okay";
+};
+
+&usbotg {
+	status = "okay";
+};
+
+&usdhc1 {
+	status = "okay";
+};
