@@ -104,6 +104,10 @@ static void v4l2_of_parse_parallel_bus(const struct device_node *node,
 	else
 		endpoint->bus_type = V4L2_MBUS_BT656;
 
+	if (!of_property_read_u32(node, "phytec,x-data-en-active", &v))
+		flags |= v ? V4L2_MBUS_DATA_EN_ACTIVE_HIGH :
+			V4L2_MBUS_DATA_EN_ACTIVE_LOW;
+
 	if (!of_property_read_u32(node, "data-active", &v))
 		flags |= v ? V4L2_MBUS_DATA_ACTIVE_HIGH :
 			V4L2_MBUS_DATA_ACTIVE_LOW;
