@@ -355,6 +355,8 @@ static int fill_csi_bus_cfg(struct ipu_csi_bus_config *csicfg,
 				     V4L2_MBUS_HSYNC_ACTIVE_LOW) ? 1 : 0;
 		csicfg->pixclk_pol = (mbus_cfg->flags &
 				      V4L2_MBUS_PCLK_SAMPLE_FALLING) ? 1 : 0;
+		csicfg->data_en_pol = (mbus_cfg->flags &
+				       V4L2_MBUS_DATA_EN_ACTIVE_HIGH) ? 1 : 0;
 		csicfg->clk_mode = IPU_CSI_CLK_MODE_GATED_CLK;
 		break;
 	case V4L2_MBUS_BT656:
