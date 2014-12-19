@@ -2,3 +2,10 @@ config PHYTEC_PHYFLEX_MEDIABUS
 	tristate "Phytec Mediabus on PhyFLEX platform"
 	depends on SOC_IMX6
 	---help---
+
+
+config PHYTEC_COLOR_SHIFTER
+	tristate "Phytec color shifter"
+	depends on SOC_IMX6
+	depends on VIDEO_V4L2_SUBDEV_API
+	---help---
