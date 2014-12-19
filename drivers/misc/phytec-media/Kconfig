@@ -1,0 +1,4 @@
+config PHYTEC_PHYFLEX_MEDIABUS
+	tristate "Phytec Mediabus on PhyFLEX platform"
+	depends on SOC_IMX6
+	---help---
