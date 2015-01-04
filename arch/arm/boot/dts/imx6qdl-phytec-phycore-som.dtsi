@@ -65,6 +65,62 @@
 		compatible = "cat,24c32";
 		reg = <0x50>;
 	};
+
+	pmic@58 {
+		compatible = "dlg,da9063";
+		reg = <0x58>;
+		interrupt-parent = <&gpio1>;
+		interrupts = <2 0x8>;
+
+		regulators {
+			vddcore_reg: bcore1 {
+				regulator-min-microvolt = <730000>;
+				regulator-max-microvolt = <1380000>;
+				regulator-always-on;
+			};
+
+			vddsoc_reg: bcore2 {
+				regulator-min-microvolt = <730000>;
+				regulator-max-microvolt = <1380000>;
+				regulator-always-on;
+			};
+
+			vdd_ddr3_reg: bpro {
+				regulator-min-microvolt = <1500000>;
+				regulator-max-microvolt = <1500000>;
+				regulator-always-on;
+			};
+
+			vdd_eth_reg: bio {
+				regulator-min-microvolt = <1200000>;
+				regulator-max-microvolt = <1200000>;
+				regulator-always-on;
+			};
+
+			vdd_eth_io_reg: ldo4 {
+				regulator-min-microvolt = <2500000>;
+				regulator-max-microvolt = <2500000>;
+				regulator-always-on;
+			};
+
+			vdd_mx6_snvs_reg: ldo5 {
+				regulator-min-microvolt = <3000000>;
+				regulator-max-microvolt = <3000000>;
+				regulator-always-on;
+			};
+
+			vdd_emmc_reg: ldo9 {
+				regulator-min-microvolt = <1800000>;
+				regulator-max-microvolt = <1800000>;
+			};
+
+			vdd_mx6_high_reg: ldo11 {
+				regulator-min-microvolt = <3000000>;
+				regulator-max-microvolt = <3000000>;
+				regulator-always-on;
+			};
+		};
+	};
 };
 
 &iomuxc {
@@ -72,6 +128,12 @@
 	pinctrl-0 = <&pinctrl_hog>;
 
 	imx6q-phytec-phycore-som {
+		pinctrl_hog: hoggrp {
+			fsl,pins = <
+				MX6QDL_PAD_GPIO_2__GPIO1_IO02		0x80000000
+			>;
+		};
+
                 pinctrl_enet: enetgrp {
                         fsl,pins = <
                                 MX6QDL_PAD_ENET_MDIO__ENET_MDIO         0x1b0b0
