@@ -33,6 +33,12 @@
 	};
 };
 
+&cpu0 {
+	fsl,tol = <5000>;
+	arm-supply = <&vddcore_reg>;
+	soc-supply = <&vddsoc_reg>;
+};
+
 &ecspi1 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_ecspi1>;
@@ -201,4 +207,16 @@
 		};
 
 	};
+};
+
+&reg_arm {
+	regulator-allow-bypass;
+};
+
+&reg_pu {
+	regulator-allow-bypass;
+};
+
+&reg_soc {
+	regulator-allow-bypass;
 };
