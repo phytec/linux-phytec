@@ -1155,6 +1155,27 @@ static int ipucsi_subdev_set_format(struct v4l2_subdev *subdev,
 	    ipucsi->endpoint.bus_type == V4L2_MBUS_BT656) {
 		/* We capture NTSC bottom field first */
 		mbusformat->field = V4L2_FIELD_SEQ_BT;
+	} else if (mbusformat->field == V4L2_FIELD_ANY &&
+		   sdformat->pad == 0 &&
+		   ipucsi->format_mbus[1].field == V4L2_FIELD_ANY) {
+		struct media_pad *pad;
+
+		pad = media_entity_remote_pad(&ipucsi->subdev_pad[0]);
+		if (pad) {
+			int rc;
+			struct v4l2_subdev *sd;
+			struct v4l2_subdev_format sens_fmt = {
+				.which	= V4L2_SUBDEV_FORMAT_ACTIVE,
+				.format	= sdformat->format,
+				.pad	= pad->index,
+			};
+			sd = media_entity_to_v4l2_subdev(pad->entity);
+			sens_fmt.pad = pad->index;
+
+			rc = v4l2_subdev_call(sd, pad, get_fmt, fh, &sens_fmt);
+			if (!rc)
+				mbusformat->field = sens_fmt.format.field;
+		}
 	} else if (mbusformat->field == V4L2_FIELD_ANY) {
 		mbusformat->field = ipucsi->format_mbus[!sdformat->pad].field;
 	}
