@@ -824,17 +824,21 @@ static int ipucsi_videobuf_start_streaming(struct vb2_queue *vq, unsigned int co
 	ipu_csi_set_window(ipucsi->csi, &w);
 
 	ret = media_entity_pipeline_start(&ipucsi->subdev.entity, &ipucsi->pipe);
-	if (ret)
+	if (ret) {
+		v4l2_err(&ipucsi->subdev, "failed to start pipeline: %d\n", ret);
 		goto free_irq;
+	}
 
 	ret = ipu_csi_init_interface_local(ipucsi);
-	if (ret)
+	if (ret) {
+		v4l2_err(&ipucsi->subdev, "failed to initialized interface: %d\n", ret);
 		goto free_irq;
+	}
 
 	ipu_idmac_set_double_buffer(ipucsi->ipuch, 1);
 
 	if (list_empty(&ipucsi->capture)) {
-		dev_err(dev, "No capture buffers\n");
+		v4l2_err(&ipucsi->subdev, "No capture buffers\n");
 		ret = -ENOMEM;
 		goto free_irq;
 	}
@@ -1114,9 +1118,10 @@ static struct ipucsi_format const *ipucsi_find_subdev_format(
 			return &ipucsifmt[i];
 	}
 
-	dev_warn(ipucsi->dev, "no format found for %04x(%p)/%04x(%p)\n",
+	dev_warn(ipucsi->dev, "no format found for %04x(%p)/%04x(%p) in %p\n",
 		 fourcc ? *fourcc : 0, fourcc,
-		 mbus_code ? *mbus_code : 0, mbus_code);
+		 mbus_code ? *mbus_code : 0, mbus_code,
+		 ipucsifmt);
 
 	return NULL;
 }
