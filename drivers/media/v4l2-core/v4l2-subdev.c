@@ -507,16 +507,27 @@ int v4l2_subdev_link_validate_default(struct v4l2_subdev *sd,
 	/* The width, height and code must match. */
 	if (source_fmt->format.width != sink_fmt->format.width
 	    || source_fmt->format.height != sink_fmt->format.height
-	    || source_fmt->format.code != sink_fmt->format.code)
+	    || source_fmt->format.code != sink_fmt->format.code) {
+		v4l2_warn(sd, "format mismatch: %dx%d|%04x != %dx%d|%04x\n",
+			  source_fmt->format.width,
+			  source_fmt->format.height,
+			  source_fmt->format.code,
+			  sink_fmt->format.width,
+			  sink_fmt->format.height,
+			  sink_fmt->format.code);
 		return -EINVAL;
+	}
 
 	/* The field order must match, or the sink field order must be NONE
 	 * to support interlaced hardware connected to bridges that support
 	 * progressive formats only.
 	 */
 	if (source_fmt->format.field != sink_fmt->format.field &&
-	    sink_fmt->format.field != V4L2_FIELD_NONE)
+	    sink_fmt->format.field != V4L2_FIELD_NONE) {
+		v4l2_warn(sd, "field mismatch: %d != %d\n",
+			  source_fmt->format.field, sink_fmt->format.field);
 		return -EINVAL;
+	}
 
 	return 0;
 }
@@ -526,20 +537,28 @@ static int
 v4l2_subdev_link_validate_get_format(struct media_pad *pad,
 				     struct v4l2_subdev_format *fmt)
 {
+	int	rc;
+
 	if (media_entity_type(pad->entity) == MEDIA_ENT_T_V4L2_SUBDEV) {
 		struct v4l2_subdev *sd =
 			media_entity_to_v4l2_subdev(pad->entity);
 
 		fmt->which = V4L2_SUBDEV_FORMAT_ACTIVE;
 		fmt->pad = pad->index;
-		return v4l2_subdev_call(sd, pad, get_fmt, NULL, fmt);
+		rc = v4l2_subdev_call(sd, pad, get_fmt, NULL, fmt);
+	} else {
+		WARN(pad->entity->type != MEDIA_ENT_T_DEVNODE_V4L,
+		     "Driver bug! Wrong media entity type 0x%08x, entity %s\n",
+		     pad->entity->type, pad->entity->name);
+		rc = -EINVAL;
 	}
 
-	WARN(pad->entity->type != MEDIA_ENT_T_DEVNODE_V4L,
-	     "Driver bug! Wrong media entity type 0x%08x, entity %s\n",
-	     pad->entity->type, pad->entity->name);
+	if (rc < 0)
+		dev_warn(pad->entity->parent->dev,
+			 "%s: failed to get format: %d\n", pad->entity->name,
+			 rc);
 
-	return -EINVAL;
+	return rc;
 }
 
 int v4l2_subdev_link_validate(struct media_link *link)
