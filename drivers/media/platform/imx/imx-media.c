@@ -32,6 +32,7 @@ struct ipu_media_link {
 	struct v4l2_async_subdev	asd;
 	struct v4l2_async_subdev	*asdp;
 	struct v4l2_subdev		*sd;
+	struct device_node		*node;
 	int padno;
 	struct device_node		*endpoint;
 	u32				media_link_flags;
@@ -43,32 +44,23 @@ static int ipu_media_bound(struct v4l2_async_notifier *notifier,
 {
 	struct ipu_media_link *link = container_of(notifier,
 						   struct ipu_media_link, asn);
-	struct device_node *np, *rp;
-	uint32_t portno = 0;
+	struct device_node *rp;
+	uint32_t portno;
 	int ret;
 
-	np = link->endpoint;
-	rp = of_graph_get_remote_port(np);
-	of_property_read_u32(rp, "reg", &portno);
+	rp = of_graph_get_remote_port(link->endpoint);
+	if (of_property_read_u32(rp, "reg", &portno) < 0)
+		portno = 0;
+	of_node_put(rp);
 
 	ret = media_entity_create_link(&sd->entity, portno, &link->sd->entity,
-			link->padno, link->media_link_flags);
+				       link->padno, link->media_link_flags);
 	if (ret)
 		return ret;
 
 	v4l2_info(link->sd, "bound and linked sensor '%s'\n", sd->name);
 
 	return 0;
-}
-
-static void ipu_media_unbind(struct v4l2_async_notifier *notifier,
-			     struct v4l2_subdev *sd,
-			     struct v4l2_async_subdev *asd)
-{
-	if ((sd->flags & V4L2_SUBDEV_FL_HAS_DEVNODE)) {
-		video_unregister_device(sd->devnode);
-		kfree(sd->devnode);
-	}
 }
 
 static int ipu_media_complete(struct v4l2_async_notifier *notifier)
@@ -81,24 +73,31 @@ struct ipu_media_link *ipu_media_entity_create_link(struct v4l2_subdev *sd,
 		u32 media_link_flags)
 {
 	struct ipu_media_controller *im = ipu_media;
-	struct ipu_media_link *link;
+	struct ipu_media_link *link = NULL;
 	int ret;
-	struct device_node *rpp;
+	struct device_node *rpp = NULL;
 
 	rpp = of_graph_get_remote_port_parent(endpoint);
-	if (!rpp)
-		return ERR_PTR(-EINVAL);
+	if (!rpp) {
+		ret = -EINVAL;
+		goto out;
+	}
 
 	pr_info("%s: link on %s pad %d endpoint: %s remotenodeparent: %s\n",
 		__func__, sd->name, padno, endpoint->full_name, rpp->full_name);
-	if (!im)
-		return ERR_PTR(-ENODEV);
+	if (!im) {
+		ret = -ENODEV;
+		goto out;
+	}
 
-	link = kzalloc(sizeof(*link), GFP_KERNEL);
-	if (!link)
-		return ERR_PTR(-ENOMEM);
+	link = devm_kzalloc(sd->v4l2_dev->dev, sizeof(*link), GFP_KERNEL);
+	if (!link) {
+		ret = -ENOMEM;
+		goto out;
+	}
 
 	link->sd = sd;
+	link->node = rpp;
 	link->padno = padno;
 	link->endpoint = endpoint;
 	link->media_link_flags = media_link_flags;
@@ -109,16 +108,23 @@ struct ipu_media_link *ipu_media_entity_create_link(struct v4l2_subdev *sd,
 	link->asdp = &link->asd;
 
 	link->asn.bound = ipu_media_bound;
-	link->asn.unbind = ipu_media_unbind;
 	link->asn.complete = ipu_media_complete;
 	link->asn.subdevs = &link->asdp;
 	link->asn.num_subdevs = 1;
 	link->asn.v4l2_dev = &im->v4l2_dev;
 
 	ret = v4l2_async_notifier_register(&im->v4l2_dev, &link->asn);
-	if (ret) {
-		kfree(link);
-		return ERR_PTR(ret);
+	if (ret)
+		goto out;
+
+	ret = 0;
+
+out:
+	if (ret < 0) {
+		of_node_put(endpoint);
+		of_node_put(rpp);
+		devm_kfree(sd->v4l2_dev->dev, link);
+		link = ERR_PTR(ret);
 	}
 
 	return link;
@@ -128,8 +134,10 @@ EXPORT_SYMBOL_GPL(ipu_media_entity_create_link);
 void ipu_media_entity_remove_link(struct ipu_media_link *link)
 {
 	v4l2_async_notifier_unregister(&link->asn);
+	media_entity_remove_links(&link->sd->entity);
 
-	kfree(link);
+	of_node_put(link->node);
+	of_node_put(link->endpoint);
 }
 EXPORT_SYMBOL_GPL(ipu_media_entity_remove_link);
 
