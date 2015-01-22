@@ -1106,7 +1106,7 @@ static struct ipucsi_format const *ipucsi_find_subdev_format(
 
 	for (i = 0; ipucsifmt[i].name != NULL; i++) {
 		if (fourcc && *fourcc == ipucsifmt[i].fourcc)
-			return ipucsifmt;
+			return &ipucsifmt[i];
 		if (mbus_code && *mbus_code == ipucsifmt[i].mbus_code)
 			return &ipucsifmt[i];
 	}
