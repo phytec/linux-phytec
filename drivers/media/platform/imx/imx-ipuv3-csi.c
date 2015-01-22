@@ -314,8 +314,11 @@ static struct ipucsi_format const *ipu_csi_get_formats(struct ipucsi *ipucsi,
 	int			rc;
 
 	rc = ipu_csi_get_mbus_config(ipucsi, &mbus_config);
-	if (rc)
+	if (rc) {
+		dev_warn(ipucsi->dev,
+			 "failed to get mbus configuration: %d\n", rc);
 		return NULL;
+	}
 
 	switch (mbus_config.type) {
 	case V4L2_MBUS_PARALLEL:
@@ -1110,6 +1113,10 @@ static struct ipucsi_format const *ipucsi_find_subdev_format(
 		if (mbus_code && *mbus_code == ipucsifmt[i].mbus_code)
 			return &ipucsifmt[i];
 	}
+
+	dev_warn(ipucsi->dev, "no format found for %04x(%p)/%04x(%p)\n",
+		 fourcc ? *fourcc : 0, fourcc,
+		 mbus_code ? *mbus_code : 0, mbus_code);
 
 	return NULL;
 }
