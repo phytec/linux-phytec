@@ -41,18 +41,11 @@ static int ipu_media_bound(struct v4l2_async_notifier *notifier,
 			   struct v4l2_subdev *sd,
 			   struct v4l2_async_subdev *asd)
 {
-	struct ipu_media_controller *im = ipu_media;
 	struct ipu_media_link *link = container_of(notifier,
 						   struct ipu_media_link, asn);
 	struct device_node *np, *rp;
 	uint32_t portno = 0;
 	int ret;
-
-	if ((sd->flags & V4L2_SUBDEV_FL_HAS_DEVNODE)) {
-		ret = v4l2_device_register_subdev_node(&im->v4l2_dev, sd);
-		if (ret)
-			return ret;
-	}
 
 	np = link->endpoint;
 	rp = of_graph_get_remote_port(np);
@@ -74,6 +67,11 @@ static void ipu_media_unbind(struct v4l2_async_notifier *notifier,
 		video_unregister_device(sd->devnode);
 		kfree(sd->devnode);
 	}
+}
+
+static int ipu_media_complete(struct v4l2_async_notifier *notifier)
+{
+	return v4l2_device_register_subdev_nodes(notifier->v4l2_dev);
 }
 
 struct ipu_media_link *ipu_media_entity_create_link(struct v4l2_subdev *sd,
@@ -110,6 +108,7 @@ struct ipu_media_link *ipu_media_entity_create_link(struct v4l2_subdev *sd,
 
 	link->asn.bound = ipu_media_bound;
 	link->asn.unbind = ipu_media_unbind;
+	link->asn.complete = ipu_media_complete;
 	link->asn.subdevs = &link->asdp;
 	link->asn.num_subdevs = 1;
 	link->asn.v4l2_dev = &im->v4l2_dev;
