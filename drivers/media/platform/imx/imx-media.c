@@ -56,6 +56,8 @@ static int ipu_media_bound(struct v4l2_async_notifier *notifier,
 	if (ret)
 		return ret;
 
+	v4l2_info(link->sd, "bound and linked sensor '%s'\n", sd->name);
+
 	return 0;
 }
 
