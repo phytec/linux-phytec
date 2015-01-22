@@ -72,6 +72,52 @@ static struct ipu_fmt ipu_fmt_rgb[] = {
 	},
 };
 
+#define BAYER_FMT(_order, _bits) { \
+	.name = # _order # _bits,					\
+	.fourcc = V4L2_PIX_FMT_ ## _order ## _bits,			\
+	.bytes_per_pixel = ((_bits) + 7) /  8,				\
+	}
+
+static struct ipu_fmt ipu_fmt_raw[] = {
+	BAYER_FMT(SBGGR,  8),
+	BAYER_FMT(SBGGR, 10),
+	BAYER_FMT(SBGGR, 12),
+	BAYER_FMT(SGBRG,  8),
+	BAYER_FMT(SGBRG, 10),
+	BAYER_FMT(SGBRG, 12),
+	BAYER_FMT(SGRBG,  8),
+	BAYER_FMT(SGRBG, 10),
+	BAYER_FMT(SGRBG, 12),
+	BAYER_FMT(SRGGB,  8),
+	BAYER_FMT(SRGGB, 10),
+	BAYER_FMT(SRGGB, 12),
+	{
+		.fourcc = V4L2_PIX_FMT_GREY,
+		.name = "Gray 8 bit",
+		.bytes_per_pixel = 1,
+	}, {
+		.fourcc = V4L2_PIX_FMT_Y10,
+		.name = "Grey 10 bit",
+		.bytes_per_pixel = 2,
+	}, {
+		.fourcc = V4L2_PIX_FMT_Y12,
+		.name = "Grey 12 bit",
+		.bytes_per_pixel = 2,
+	}, {
+		.fourcc = V4L2_PIX_FMT_Y16,
+		.name = "Grey 16 bit",
+		.bytes_per_pixel = 2,
+	}, {
+		.fourcc = V4L2_PIX_FMT_IPU_GENERIC_8,
+		.name = "Generic 8",
+		.bytes_per_pixel = 1,
+	}, {
+		.fourcc = V4L2_PIX_FMT_IPU_GENERIC_16,
+		.name = "Generic 16",
+		.bytes_per_pixel = 2,
+	},
+};
+
 struct ipu_fmt *ipu_find_fmt_yuv(unsigned int pixelformat)
 {
 	struct ipu_fmt *fmt;
@@ -102,14 +148,30 @@ struct ipu_fmt *ipu_find_fmt_rgb(unsigned int pixelformat)
 }
 EXPORT_SYMBOL_GPL(ipu_find_fmt_rgb);
 
+struct ipu_fmt *ipu_find_fmt_raw(unsigned int pixelformat)
+{
+	struct ipu_fmt *fmt;
+	int i;
+
+	for (i = 0; i < ARRAY_SIZE(ipu_fmt_raw); i++) {
+		fmt = &ipu_fmt_raw[i];
+		if (fmt->fourcc == pixelformat)
+			return fmt;
+	}
+
+	return NULL;
+}
+EXPORT_SYMBOL_GPL(ipu_find_fmt_raw);
+
 struct ipu_fmt *ipu_find_fmt(unsigned long pixelformat)
 {
 	struct ipu_fmt *fmt;
 
 	fmt = ipu_find_fmt_yuv(pixelformat);
-	if (fmt)
-		return fmt;
-	fmt = ipu_find_fmt_rgb(pixelformat);
+	if (!fmt)
+		fmt = ipu_find_fmt_rgb(pixelformat);
+	if (!fmt)
+		fmt = ipu_find_fmt_raw(pixelformat);
 
 	return fmt;
 }
@@ -170,6 +232,19 @@ int ipu_try_fmt_yuv(struct file *file, void *fh,
 }
 EXPORT_SYMBOL_GPL(ipu_try_fmt_yuv);
 
+int ipu_try_fmt_raw(struct file *file, void *fh,
+		struct v4l2_format *f)
+{
+	struct ipu_fmt *fmt;
+
+	fmt = ipu_find_fmt_raw(f->fmt.pix.pixelformat);
+	if (!fmt)
+		return -EINVAL;
+
+	return ipu_try_fmt(file, fh, f);
+}
+EXPORT_SYMBOL_GPL(ipu_try_fmt_raw);
+
 int ipu_enum_fmt_rgb(struct file *file, void *fh,
 		struct v4l2_fmtdesc *f)
 {
@@ -204,20 +279,52 @@ int ipu_enum_fmt_yuv(struct file *file, void *fh,
 }
 EXPORT_SYMBOL_GPL(ipu_enum_fmt_yuv);
 
-int ipu_enum_fmt(struct file *file, void *fh,
+int ipu_enum_fmt_raw(struct file *file, void *fh,
 		struct v4l2_fmtdesc *f)
 {
 	struct ipu_fmt *fmt;
+
+	if (f->index >= ARRAY_SIZE(ipu_fmt_raw))
+		return -EINVAL;
+
+	fmt = &ipu_fmt_raw[f->index];
+
+	strlcpy(f->description, fmt->name, sizeof(f->description));
+	f->pixelformat = fmt->fourcc;
+
+	return 0;
+}
+EXPORT_SYMBOL_GPL(ipu_enum_fmt_raw);
+
+int ipu_enum_fmt(struct file *file, void *fh,
+		struct v4l2_fmtdesc *f)
+{
+	struct ipu_fmt *fmt = NULL;
 	int index = f->index;
 
-	if (index >= ARRAY_SIZE(ipu_fmt_yuv)) {
-		index -= ARRAY_SIZE(ipu_fmt_yuv);
-		if (index >= ARRAY_SIZE(ipu_fmt_rgb))
-			return -EINVAL;
-		fmt = &ipu_fmt_rgb[index];
-	} else {
+	if (fmt)
+		;			/* noop */
+	else if (index < ARRAY_SIZE(ipu_fmt_yuv))
 		fmt = &ipu_fmt_yuv[index];
-	}
+	else
+		index -= ARRAY_SIZE(ipu_fmt_yuv);
+
+	if (fmt)
+		;			/* noop */
+	else if (index < ARRAY_SIZE(ipu_fmt_rgb))
+		fmt = &ipu_fmt_yuv[index];
+	else
+		index -= ARRAY_SIZE(ipu_fmt_rgb);
+
+	if (fmt)
+		;			/* noop */
+	else if (index < ARRAY_SIZE(ipu_fmt_raw))
+		fmt = &ipu_fmt_yuv[index];
+	else
+		index -= ARRAY_SIZE(ipu_fmt_raw);
+
+	if (!fmt)
+		return -EINVAL;
 
 	strlcpy(f->description, fmt->name, sizeof(f->description));
 	f->pixelformat = fmt->fourcc;
