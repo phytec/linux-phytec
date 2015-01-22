@@ -1,7 +1,7 @@
 NXP PCA9532 LED (incl. GPIO) controller
 
 Required properties:
-- compatible: must be "nxp,pca9532"
+- compatible: must be "nxp,pca9530", "nxp,pca9531", "nxp,pca9532", "nxp,pca9533"
 - reg: I2C address
 - gpio-controller: Marks the device node as a GPIO controller.
 - #gpio-cells: Should be 2:
@@ -22,6 +22,18 @@ Required properties:
 Optional properties:
 - nxp,psc: array of 2 numbers: PSC values for the two PWM channels (see datasheet)
 - nxp,pwm: array of 2 numbers: PWM values for the two PWM channels (see datasheet)
+
+Properties for LED mode:
+- #address-cells: Should be 1;
+- #size-cells: Should be 0;
+Each led is represented as a sub-node of the nsp,pca9532 device.
+
+LED sub-node properties:
+- label : (optional) see Documentation/devicetree/bindings/leds/common.txt
+- linux,default-trigger : (optional)
+   see Documentation/devicetree/bindings/leds/common.txt
+- reg : number of LED line (could be from 0 to 1 in pca9530, 0 to 3 in pca9533,
+	0 to 7 in pca9531 or 0 to 15 in pca9532)
 
 Example:
 
