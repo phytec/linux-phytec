@@ -1427,8 +1427,8 @@ static int ipucsi_subdev_init(struct ipucsi *ipucsi, struct device_node *node)
 
 	ipucsi->subdev.ctrl_handler = &ipucsi->ctrls;
 
-	snprintf(ipucsi->subdev.name, sizeof(ipucsi->subdev.name), "%s",
-			node->full_name);
+	snprintf(ipucsi->subdev.name, sizeof(ipucsi->subdev.name), "%s-sd",
+		 ipucsi->name);
 
 	endpoint = of_get_next_child(node, NULL);
 	if (endpoint)
@@ -1463,7 +1463,7 @@ static int ipucsi_video_device_init(struct platform_device *pdev,
 	struct video_device *vdev = &ipucsi->vdev;
 	int ret;
 
-	snprintf(vdev->name, sizeof(vdev->name), DRIVER_NAME ".%d", pdev->id);
+	snprintf(vdev->name, sizeof(vdev->name), "%s-video", ipucsi->name);
 	vdev->release	= video_device_release_empty;
 	vdev->fops	= &ipucsi_capture_fops;
 	vdev->ioctl_ops	= &ipucsi_capture_ioctl_ops;
