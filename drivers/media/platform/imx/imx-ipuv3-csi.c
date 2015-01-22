@@ -102,6 +102,15 @@ static struct ipucsi_format const	ipucsi_formats_bt1120[] = {
 	{ /* end-of-array sentinel */ },
 };
 
+#define BAYER_FMT(_order, _bits) {					\
+	.name = # _order # _bits,					\
+	.fourcc = V4L2_PIX_FMT_ ## _order ## _bits,			\
+	.mbus_code = MEDIA_BUS_FMT_ ## _order ## _bits ## _1X ## _bits, \
+	.bytes_per_pixel = ((_bits) + 7) /  8,				\
+	.bytes_per_sample = ((_bits) + 7) /  8,				\
+	.raw = 1,							\
+	}
+
 static struct ipucsi_format const ipucsi_formats_raw[] = {
 	{
 		.name = "Monochrome 8 bit",
@@ -149,6 +158,61 @@ static struct ipucsi_format const ipucsi_formats_raw[] = {
 		.name = "YUYV 1x16 bit",
 		.fourcc = V4L2_PIX_FMT_YUYV,
 		.mbus_code = MEDIA_BUS_FMT_YUYV8_1X16,
+		.bytes_per_pixel = 2,
+		.bytes_per_sample = 2,
+		.raw = 1,
+	},
+	BAYER_FMT(SBGGR,  8),
+	BAYER_FMT(SBGGR, 10),
+	BAYER_FMT(SBGGR, 12),
+	BAYER_FMT(SGBRG,  8),
+	BAYER_FMT(SGBRG, 10),
+	BAYER_FMT(SGBRG, 12),
+	BAYER_FMT(SGRBG,  8),
+	BAYER_FMT(SGRBG, 10),
+	BAYER_FMT(SGRBG, 12),
+	BAYER_FMT(SRGGB,  8),
+	BAYER_FMT(SRGGB, 10),
+	BAYER_FMT(SRGGB, 12),
+	{
+		.name = "Gray 8 bit",
+		.fourcc = V4L2_PIX_FMT_GREY,
+		.mbus_code = MEDIA_BUS_FMT_Y8_1X8,
+		.bytes_per_pixel = 1,
+		.bytes_per_sample = 1,
+		.raw = 1,
+	}, {
+		.name = "Gray 10 bit",
+		.fourcc = V4L2_PIX_FMT_Y10,
+		.mbus_code = MEDIA_BUS_FMT_Y10_1X10,
+		.bytes_per_pixel = 2,
+		.bytes_per_sample = 2,
+		.raw = 1,
+	}, {
+		.name = "Gray 12 bit",
+		.fourcc = V4L2_PIX_FMT_Y12,
+		.mbus_code = MEDIA_BUS_FMT_Y12_1X12,
+		.bytes_per_pixel = 2,
+		.bytes_per_sample = 2,
+		.raw = 1,
+	}, {
+		.name = "Gray 16 bit",
+		.fourcc = V4L2_PIX_FMT_Y16,
+		.mbus_code = MEDIA_BUS_FMT_Y16_1X16,
+		.bytes_per_pixel = 2,
+		.bytes_per_sample = 2,
+		.raw = 1,
+	}, {
+		.name = "Generic 8 bit",
+		.fourcc = V4L2_PIX_FMT_IPU_GENERIC_8,
+		.mbus_code = MEDIA_BUS_FMT_GENERIC_8,
+		.bytes_per_pixel = 1,
+		.bytes_per_sample = 1,
+		.raw = 1,
+	}, {
+		.name = "Generic 16 bit",
+		.fourcc = V4L2_PIX_FMT_IPU_GENERIC_16,
+		.mbus_code = MEDIA_BUS_FMT_GENERIC_16,
 		.bytes_per_pixel = 2,
 		.bytes_per_sample = 2,
 		.raw = 1,
