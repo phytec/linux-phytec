@@ -16,7 +16,7 @@ void ipu_media_put_v4l2_dev(struct v4l2_device *v4l2_dev);
 
 struct media_device *ipu_find_media_device(void);
 
-#ifdef CONFIG_MEDIA_IMX
+#if IS_ENABLED(CONFIG_MEDIA_IMX)
 int ipu_media_device_register(struct device *dev);
 int ipu_media_device_unregister(struct device *dev);
 #else
