@@ -359,6 +359,7 @@ static int pca9532_configure(struct i2c_client *client,
 			led->state = pled->state;
 			led->name = pled->name;
 			led->ldev.name = led->name;
+			led->ldev.default_trigger = pled->default_trigger;
 			led->ldev.brightness = LED_OFF;
 			led->ldev.brightness_set = pca9532_set_brightness;
 			led->ldev.blink_set = pca9532_set_blink;
@@ -439,7 +440,7 @@ exit:
 
 static struct pca9532_platform_data *pca9532_parse_dt(struct device *dev)
 {
-	struct device_node *np = dev->of_node;
+	struct device_node *np = dev->of_node, *child;
 	struct pca9532_platform_data *pca9532_pdata;
 	u32 typecodes, statecodes;
 	u32 pwm[2];
@@ -467,6 +468,23 @@ static struct pca9532_platform_data *pca9532_parse_dt(struct device *dev)
 	if (!of_property_read_u32_array(np, "nxp,psc", &psc[0], 2)) {
 		for (i = 0; i < 2; i++)
 			pca9532_pdata->psc[i] = psc[i];
+	}
+
+	for_each_child_of_node(np, child) {
+		struct led_info led;
+		u32 reg;
+		int res;
+
+		res = of_property_read_u32(child, "reg", &reg);
+		if (res)
+			continue;
+		led.name =
+			of_get_property(child, "label", NULL) ? : child->name;
+		led.default_trigger =
+			of_get_property(child, "linux,default-trigger", NULL);
+
+		pca9532_pdata->leds[reg].name = led.name;
+		pca9532_pdata->leds[reg].default_trigger = led.default_trigger;
 	}
 
 	pca9532_pdata->gpio_base = -1; /* dynamically assign gpio base */
