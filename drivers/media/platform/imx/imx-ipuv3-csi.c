@@ -940,8 +940,10 @@ static int ipucsi_try_fmt(struct file *file, void *fh,
 
 	if (ipucsifmt->rgb)
 		fmt = ipu_find_fmt_rgb(f->fmt.pix.pixelformat);
-	if (ipucsifmt->yuv)
+	else if (ipucsifmt->yuv)
 		fmt = ipu_find_fmt_yuv(f->fmt.pix.pixelformat);
+	else if (ipucsifmt->raw)
+		fmt = ipu_find_fmt_raw(f->fmt.pix.pixelformat);
 
 	if (ipucsifmt->raw) {
 		f->fmt.pix.pixelformat = ipucsifmt->fourcc;
@@ -1049,8 +1051,10 @@ static int ipucsi_enum_fmt(struct file *file, void *priv,
 
 	if (ipucsi->ipucsifmt.rgb)
 		return ipu_enum_fmt_rgb(file, priv, f);
-	if (ipucsi->ipucsifmt.yuv)
+	else if (ipucsi->ipucsifmt.yuv)
 		return ipu_enum_fmt_yuv(file, priv, f);
+	else if (ipucsi->ipucsifmt.raw)
+		return ipu_enum_fmt_raw(file, priv, f);
 
 	if (f->index)
 		return -EINVAL;
@@ -1319,9 +1323,12 @@ static int ipucsi_enum_framesizes(struct file *file, void *fh,
 
 	if (ipucsifmt->rgb)
 		fmt = ipu_find_fmt_rgb(fsize->pixel_format);
-	if (ipucsifmt->yuv)
+	else if (ipucsifmt->yuv)
 		fmt = ipu_find_fmt_yuv(fsize->pixel_format);
-	if (!fmt && !ipucsifmt->raw)
+	else if (ipucsifmt->raw)
+		fmt = ipu_find_fmt_raw(fsize->pixel_format);
+
+	if (!fmt)
 		return -EINVAL;
 
 	if (mbus_config.type == V4L2_MBUS_BT656) {
