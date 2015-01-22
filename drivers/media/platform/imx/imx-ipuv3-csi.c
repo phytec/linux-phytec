@@ -923,7 +923,8 @@ static int ipucsi_querycap(struct file *file, void *priv,
 	strlcpy(cap->card, "imx-ipuv3-camera", sizeof(cap->card));
 	strlcpy(cap->bus_info, "platform:imx-ipuv3-csi", sizeof(cap->bus_info));
 	cap->version = 0;
-	cap->capabilities = V4L2_CAP_VIDEO_CAPTURE | V4L2_CAP_STREAMING;
+	cap->device_caps = V4L2_CAP_VIDEO_CAPTURE | V4L2_CAP_STREAMING;
+	cap->capabilities = cap->device_caps | V4L2_CAP_DEVICE_CAPS;
 
 	return 0;
 }
