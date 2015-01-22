@@ -56,97 +56,10 @@ struct v4l2_event_sync_lock {
 	__u8 lock;
 } __attribute__ ((packed));
 
-/* CMOS Sensor Interface Registers */
-#define CSI_SENS_CONF		0x0000
-#define CSI_SENS_FRM_SIZE	0x0004
-#define CSI_ACT_FRM_SIZE	0x0008
-#define CSI_OUT_FRM_CTRL	0x000c
-#define CSI_TST_CTRL		0x0010
-#define CSI_CCIR_CODE_1		0x0014
-#define CSI_CCIR_CODE_2		0x0018
-#define CSI_CCIR_CODE_3		0x001c
-#define CSI_MIPI_DI		0x0020
-#define CSI_SKIP		0x0024
-#define CSI_CPD_CTRL		0x0028
-#define CSI_CPD_RC(n)		(0x002c + 4 * (n))
-#define CSI_CPD_RS(n)		(0x004c + 4 * (n))
-#define CSI_CPD_GRC(n)		(0x005c + 4 * (n))
-#define CSI_CPD_GRS(n)		(0x007c + 4 * (n))
-#define CSI_CPD_GBC(n)		(0x008c + 4 * (n))
-#define CSI_CPD_GBS(n)		(0x00ac + 4 * (n))
-#define CSI_CPD_BC(n)		(0x00bc + 4 * (n))
-#define CSI_CPD_BS(n)		(0x00dc + 4 * (n))
-#define CSI_CPD_OFFSET1		0x00ec
-#define CSI_CPD_OFFSET2		0x00f0
-
-#define CSI_SENS_CONF_VSYNC_POL			(1 << 0)
-#define CSI_SENS_CONF_HSYNC_POL			(1 << 1)
-#define CSI_SENS_CONF_DATA_POL			(1 << 2)
-#define CSI_SENS_CONF_PIX_CLK_POL		(1 << 3)
-#define CSI_SENS_PRTCL_GATED			(0 << 4)
-#define CSI_SENS_PRTCL_NON_GATED		(1 << 4)
-#define CSI_SENS_PRTCL_BT656_PROGRESSIVE	(2 << 4)
-#define CSI_SENS_PRTCL_BT656_INTERLACED		(3 << 4)
-#define CSI_SENS_PRTCL_BT1120_DDR_PROGRESSIVE	(4 << 4)
-#define CSI_SENS_PRTCL_BT1120_SDR_PROGRESSIVE	(5 << 4)
-#define CSI_SENS_PRTCL_BT1120_DDR_INTERLACED	(6 << 4)
-#define CSI_SENS_PRTCL_BT1120_SDR_INTERLACED	(7 << 4)
-#define CSI_SENS_CONF_PACK_TIGHT		(1 << 7)
-#define CSI_SENS_CONF_DATA_FMT_RGB_YUV444	(0 << 8)
-#define CSI_SENS_CONF_DATA_FMT_YUV422_YUYV	(1 << 8)
-#define CSI_SENS_CONF_DATA_FMT_YUV422_UYVY	(2 << 8)
-#define CSI_SENS_CONF_DATA_FMT_GENERIC		(3 << 8)
-#define CSI_SENS_CONF_DATA_FMT_BAYER		(3 << 8)
-#define CSI_SENS_CONF_DATA_FMT_RGB565		(4 << 8)
-#define CSI_SENS_CONF_DATA_FMT_RGB555		(5 << 8)
-#define CSI_SENS_CONF_DATA_FMT_RGB444		(6 << 8)
-#define CSI_SENS_CONF_DATA_FMT_JPEG		(7 << 8)
-#define CSI_SENS_CONF_DATA_WIDTH_8		(1 << 11)
-#define CSI_SENS_CONF_DATA_WIDTH_10		(3 << 11)
-#define CSI_SENS_CONF_DATA_WIDTH_12		(5 << 11)
-#define CSI_SENS_CONF_DATA_WIDTH_16		(9 << 11)
-#define CSI_SENS_CONF_DATA_WIDTH_mask		(15 << 11)
-#define CSI_SENS_CONF_EXT_VSYNC			(1 << 15)
-#define CSI_SENS_CONF_DATA_DEST_ISP		(1 << 24)
-#define CSI_SENS_CONF_DATA_DEST_IC		(1 << 25)
-#define CSI_SENS_CONF_DATA_DEST_IDMAC		(1 << 26)
-#define CSI_SENS_CONF_JPEG8_EN			(1 << 27)
-#define CSI_SENS_CONF_JPEG_EN			(1 << 28)
-#define CSI_SENS_CONF_FORCE_EOF			(1 << 29)
-#define CSI_SENS_CONF_DATA_EN_POL		(1 << 31)
-
-#define CSI_CCIRx_END_FLD_BLNK_1ST(x)		(((x) & 0x7) << 0)
-#define CSI_CCIRx_START_FLD_BLNK_1ST(x)		(((x) & 0x7) << 3)
-#define CSI_CCIRx_END_FLD_BLNK_2ND(x)		(((x) & 0x7) << 6)
-#define CSI_CCIRx_START_FLD_BLNK_2ND(x)		(((x) & 0x7) << 9)
-#define CSI_CCIRx_END_FLD_ACTV(x)		(((x) & 0x7) << 16)
-#define CSI_CCIRx_START_FLD_ACTV(x)		(((x) & 0x7) << 19)
-#define CSI_CCIRx_ERR_DET_EN			(1 << 24)
-
-#define CSI_SENS_FRM_WIDTH(w)			((((w) - 1) & 0x1fff) << 0)
-#define CSI_SENS_FRM_HEIGHT(h)			((((h) - 1) & 0x1fff) << 16)
-
-#define CSI_ACT_FRM_WIDTH(w)			((((w) - 1) & 0x1fff) << 0)
-#define CSI_ACT_FRM_HEIGHT(h)			((((h) - 1) & 0x1fff) << 16)
-
-#define CSI_OUT_FRM_CTRL_HORI_DOWNSIZE_EN	(1 << 31)
-#define CSI_OUT_FRM_CTRL_VERT_DOWNSIZE_EN	(1 << 30)
-#define CSI_OUT_FRM_CTRL_HSC(left)		(((left) & 0x1fff) << 16)
-#define CSI_OUT_FRM_CTRL_VSC(top)		(((top) & 0xfff) << 0)
-
-#define CSI_TST_CTRL_TEST_GEN_MODE_EN		(1 << 24)
-#define CSI_TST_CTRL_R(x)			(((x) & 0xff) << 0)
-#define CSI_TST_CTRL_G(x)			(((x) & 0xff) << 8)
-#define CSI_TST_CTRL_B(x)			(((x) & 0xff) << 16)
-
-#define CSI_COLOR_FIRST_ROW_MASK	0x00000002L
-#define CSI_COLOR_FIRST_COMP_MASK	0x00000001L
-
 struct ipucsi_format {
 	const char *name;
 	u32 mbus_code;
 	u32 fourcc;
-	u32 sens_conf;
 	u32 bytes_per_pixel; /* memory */
 	int bytes_per_sample; /* mbus */
 	unsigned rgb:1;
@@ -161,7 +74,6 @@ static struct ipucsi_format const	ipucsi_formats_bt1120[] = {
 		.name = "UYVV 1x16 bit",
 		.fourcc = V4L2_PIX_FMT_UYVY,
 		.mbus_code = V4L2_MBUS_FMT_UYVY8_1X16,
-		.sens_conf = CSI_SENS_CONF_DATA_FMT_YUV422_UYVY | CSI_SENS_CONF_DATA_WIDTH_8,
 		.bytes_per_pixel = 2,
 		.bytes_per_sample = 1,
 		.yuv = 1,
@@ -169,7 +81,6 @@ static struct ipucsi_format const	ipucsi_formats_bt1120[] = {
 		.name = "YUYV 1x16 bit",
 		.fourcc = V4L2_PIX_FMT_YUYV,
 		.mbus_code = V4L2_MBUS_FMT_YUYV8_1X16,
-		.sens_conf = CSI_SENS_CONF_DATA_FMT_YUV422_YUYV | CSI_SENS_CONF_DATA_WIDTH_8,
 		.bytes_per_pixel = 2,
 		.bytes_per_sample = 1,
 		.yuv = 1,
@@ -177,7 +88,6 @@ static struct ipucsi_format const	ipucsi_formats_bt1120[] = {
 		.name = "UYVV 1x20 bit",
 		.fourcc = V4L2_PIX_FMT_UYVY,
 		.mbus_code = V4L2_MBUS_FMT_UYVY10_1X20,
-		.sens_conf = CSI_SENS_CONF_DATA_FMT_YUV422_YUYV | CSI_SENS_CONF_DATA_WIDTH_10,
 		.bytes_per_pixel = 4,
 		.bytes_per_sample = 2,
 		.yuv = 1,
@@ -185,7 +95,6 @@ static struct ipucsi_format const	ipucsi_formats_bt1120[] = {
 		.name = "YUYV 1x20 bit",
 		.fourcc = V4L2_PIX_FMT_YUYV,
 		.mbus_code = V4L2_MBUS_FMT_YUYV10_1X20,
-		.sens_conf = CSI_SENS_CONF_DATA_FMT_YUV422_YUYV | CSI_SENS_CONF_DATA_WIDTH_10,
 		.bytes_per_pixel = 4,
 		.bytes_per_sample = 2,
 		.yuv = 1,
@@ -198,7 +107,6 @@ static struct ipucsi_format const ipucsi_formats_raw[] = {
 		.name = "Monochrome 8 bit",
 		.fourcc = V4L2_PIX_FMT_GREY,
 		.mbus_code = V4L2_MBUS_FMT_Y8_1X8,
-		.sens_conf = CSI_SENS_CONF_DATA_FMT_GENERIC | CSI_SENS_CONF_DATA_WIDTH_8,
 		.bytes_per_pixel = 1,
 		.bytes_per_sample = 1,
 		.raw = 1,
@@ -206,7 +114,6 @@ static struct ipucsi_format const ipucsi_formats_raw[] = {
 		.name = "Monochrome 10 bit",
 		.fourcc = V4L2_PIX_FMT_Y10,
 		.mbus_code = V4L2_MBUS_FMT_Y10_1X10,
-		.sens_conf = CSI_SENS_CONF_DATA_FMT_GENERIC | CSI_SENS_CONF_DATA_WIDTH_10,
 		.bytes_per_pixel = 2,
 		.bytes_per_sample = 2,
 		.raw = 1,
@@ -214,7 +121,6 @@ static struct ipucsi_format const ipucsi_formats_raw[] = {
 		.name = "Monochrome 12 bit",
 		.fourcc = V4L2_PIX_FMT_Y16,
 		.mbus_code = V4L2_MBUS_FMT_Y12_1X12,
-		.sens_conf = CSI_SENS_CONF_DATA_FMT_GENERIC | CSI_SENS_CONF_DATA_WIDTH_16,
 		.bytes_per_pixel = 2,
 		.bytes_per_sample = 2,
 		.raw = 1,
@@ -222,7 +128,6 @@ static struct ipucsi_format const ipucsi_formats_raw[] = {
 		.name = "UYUV 2x8 bit",
 		.fourcc = V4L2_PIX_FMT_UYVY,
 		.mbus_code = V4L2_MBUS_FMT_UYVY8_2X8,
-		.sens_conf = CSI_SENS_CONF_DATA_FMT_YUV422_UYVY | CSI_SENS_CONF_DATA_WIDTH_8,
 		.bytes_per_pixel = 2,
 		.bytes_per_sample = 1,
 		.yuv = 1,
@@ -230,7 +135,6 @@ static struct ipucsi_format const ipucsi_formats_raw[] = {
 		.name = "YUYV 2x8 bit",
 		.fourcc = V4L2_PIX_FMT_YUYV,
 		.mbus_code = V4L2_MBUS_FMT_YUYV8_2X8,
-		.sens_conf = CSI_SENS_CONF_DATA_FMT_YUV422_YUYV | CSI_SENS_CONF_DATA_WIDTH_8,
 		.bytes_per_pixel = 2,
 		.bytes_per_sample = 1,
 		.yuv = 1,
@@ -238,7 +142,6 @@ static struct ipucsi_format const ipucsi_formats_raw[] = {
 		.name = "UYUV 1x16 bit",
 		.fourcc = V4L2_PIX_FMT_UYVY,
 		.mbus_code = V4L2_MBUS_FMT_UYVY8_1X16,
-		.sens_conf = CSI_SENS_CONF_DATA_FMT_GENERIC | CSI_SENS_CONF_DATA_WIDTH_16,
 		.bytes_per_pixel = 2,
 		.bytes_per_sample = 2,
 		.raw = 1,
@@ -246,7 +149,6 @@ static struct ipucsi_format const ipucsi_formats_raw[] = {
 		.name = "YUYV 1x16 bit",
 		.fourcc = V4L2_PIX_FMT_YUYV,
 		.mbus_code = V4L2_MBUS_FMT_YUYV8_1X16,
-		.sens_conf = CSI_SENS_CONF_DATA_FMT_GENERIC | CSI_SENS_CONF_DATA_WIDTH_16,
 		.bytes_per_pixel = 2,
 		.bytes_per_sample = 2,
 		.raw = 1,
@@ -258,7 +160,6 @@ static struct ipucsi_format const	ipucsi_format_testpattern = {
 	.name = "RGB888 32bit",
 	.fourcc = V4L2_PIX_FMT_RGB32,
 	.mbus_code = V4L2_MBUS_FMT_FIXED,
-	.sens_conf = CSI_SENS_CONF_DATA_FMT_GENERIC | CSI_SENS_CONF_DATA_WIDTH_12,
 	.bytes_per_pixel = 4,
 	.bytes_per_sample = 4,
 	.rgb = 1,
@@ -280,10 +181,13 @@ struct ipucsi {
 	struct list_head		capture;
 	int				ilo;
 
+	char				name[sizeof("IPU-CSI") + 32];
+
 	struct vb2_queue		vb2_vidq;
 
-	int				id; /* CSI<id> - 0 or 1 */
-	void __iomem			*base;
+	struct ipu_csi			*csi;
+	int				csi_id;
+	struct ipu_smfc			*smfc;
 
 	spinlock_t			lock; /* locks CSI register access */
 	struct mutex			mutex;
@@ -314,22 +218,6 @@ static struct ipucsi_buffer *to_ipucsi_vb(struct vb2_buffer *vb)
 {
 	return container_of(vb, struct ipucsi_buffer, vb);
 }
-
-static u32 ipu_csi_read(struct ipucsi *csi, unsigned offset)
-{
-	return readl(csi->base + offset);
-}
-
-static void ipu_csi_write(struct ipucsi *csi, u32 value, unsigned offset)
-{
-	writel(value, csi->base + offset);
-}
-
-static u32 csi_test_ctrl_patterns[] = {
-	CSI_TST_CTRL_R(0xff) | CSI_TST_CTRL_G(0x0) | CSI_TST_CTRL_B(0x0),
-	CSI_TST_CTRL_R(0x0) | CSI_TST_CTRL_G(0xff) | CSI_TST_CTRL_B(0x0),
-	CSI_TST_CTRL_R(0x0) | CSI_TST_CTRL_G(0x0) | CSI_TST_CTRL_B(0xff),
-};
 
 static int ipu_csi_get_mbus_config(struct ipucsi *ipucsi,
 				   struct v4l2_mbus_config *config)
@@ -386,195 +274,37 @@ static struct ipucsi_format const *ipu_csi_get_formats(struct ipucsi *ipucsi,
 	}
 }
 
-static int ipu_csi_init_interface(struct ipucsi *ipucsi,
-			   uint16_t width, uint16_t height)
+static int ipu_csi_init_interface_local(struct ipucsi *ipucsi)
 {
-	struct device *dev = ipucsi->dev;
-	u32 sens_conf, mbus_flags;
-	int interlaced = 0;
-	u32 ccir1, ccir2, ccir3, test_ctrl = 0;
-	struct v4l2_mbus_config mbus_config;
-	int ret;
+	struct v4l2_mbus_config		mbus_config;
+	int				rc;
 
-	sens_conf = ipucsi->ipucsifmt.sens_conf;
-	sens_conf |= CSI_SENS_CONF_DATA_DEST_IDMAC;
-
-	ret = ipu_csi_get_mbus_config(ipucsi, &mbus_config);
-	if (ret)
-		return ret;
-
-	switch (ipucsi->format_mbus[0].field) {
-	case V4L2_FIELD_SEQ_TB:
-	case V4L2_FIELD_SEQ_BT:
-		interlaced = true;
-		break;
-	default:
-		interlaced = false;
-		break;
+	rc = ipu_csi_get_mbus_config(ipucsi, &mbus_config);
+	if (rc) {
+		dev_warn(ipucsi->dev, "failed to get mbus configuration: %d\n",
+			 rc);
+		goto out;
 	}
 
-	mbus_flags = mbus_config.flags;
-	if (mbus_flags & V4L2_MBUS_PCLK_SAMPLE_FALLING)
-		sens_conf |= CSI_SENS_CONF_PIX_CLK_POL;
-
-	if (mbus_flags & V4L2_MBUS_DATA_EN_ACTIVE_HIGH)
-		sens_conf &= ~CSI_SENS_CONF_DATA_EN_POL;
-	else if (mbus_flags & V4L2_MBUS_DATA_EN_ACTIVE_LOW)
-		sens_conf |=  CSI_SENS_CONF_DATA_EN_POL;
-
-	switch (mbus_config.type) {
-	case V4L2_MBUS_PARALLEL:
-		if (mbus_flags & V4L2_MBUS_HSYNC_ACTIVE_LOW)
-			sens_conf |= CSI_SENS_CONF_HSYNC_POL;
-		if (mbus_flags & V4L2_MBUS_VSYNC_ACTIVE_LOW)
-			sens_conf |= CSI_SENS_CONF_VSYNC_POL;
-		if (mbus_flags & V4L2_MBUS_DATA_ACTIVE_LOW)
-			sens_conf |= CSI_SENS_CONF_DATA_POL;
-		break;
-	case V4L2_MBUS_BT656:
-		if (interlaced) {
-			sens_conf |= CSI_SENS_PRTCL_BT656_INTERLACED;
-			if (width == 720 && height == 576) {
-				/* PAL case */
-				ccir1 = CSI_CCIRx_ERR_DET_EN |
-					CSI_CCIRx_END_FLD_BLNK_1ST(6) |
-					CSI_CCIRx_START_FLD_BLNK_1ST(2) |
-					CSI_CCIRx_END_FLD_BLNK_2ND(6) |
-					CSI_CCIRx_START_FLD_BLNK_2ND(2) |
-					CSI_CCIRx_END_FLD_ACTV(4) |
-					CSI_CCIRx_START_FLD_ACTV(0);
-
-				ccir2 = CSI_CCIRx_END_FLD_BLNK_1ST(7) |
-					CSI_CCIRx_START_FLD_BLNK_1ST(3) |
-					CSI_CCIRx_END_FLD_BLNK_2ND(7) |
-					CSI_CCIRx_START_FLD_BLNK_2ND(3) |
-					CSI_CCIRx_END_FLD_ACTV(5) |
-					CSI_CCIRx_START_FLD_ACTV(1);
-			} else if (width == 720 && height == 480) {
-				/* NTSC case */
-				ccir1 = CSI_CCIRx_ERR_DET_EN |
-					CSI_CCIRx_END_FLD_BLNK_1ST(7) |
-					CSI_CCIRx_START_FLD_BLNK_1ST(3) |
-					CSI_CCIRx_END_FLD_BLNK_2ND(7) |
-					CSI_CCIRx_START_FLD_BLNK_2ND(3) |
-					CSI_CCIRx_END_FLD_ACTV(5) |
-					CSI_CCIRx_START_FLD_ACTV(1);
-
-				ccir2 = CSI_CCIRx_END_FLD_BLNK_1ST(6) |
-					CSI_CCIRx_START_FLD_BLNK_1ST(2) |
-					CSI_CCIRx_END_FLD_BLNK_2ND(6) |
-					CSI_CCIRx_START_FLD_BLNK_2ND(2) |
-					CSI_CCIRx_END_FLD_ACTV(4) |
-					CSI_CCIRx_START_FLD_ACTV(0);
-
-				/* 0b111 - 0bHVF */
-			} else {
-				dev_err(dev,
-					"Unsupported CCIR656 interlaced video mode\n");
-				return -EINVAL;
-			}
-		} else {
-			sens_conf |= CSI_SENS_PRTCL_BT656_PROGRESSIVE;
-			ccir1 = CSI_CCIRx_START_FLD_BLNK_1ST(6) | CSI_CCIRx_END_FLD_ACTV(4);
-			ccir2 = 0;
-		}
-
-		ccir3 = 0x00ff0000;
-
-		ipu_csi_write(ipucsi, ccir1, CSI_CCIR_CODE_1);
-		ipu_csi_write(ipucsi, ccir2, CSI_CCIR_CODE_2);
-		ipu_csi_write(ipucsi, ccir3, CSI_CCIR_CODE_3);
-		break;
-
-	case V4L2_MBUS_BT1120_SDR:
-	case V4L2_MBUS_BT1120_DDR:
-		if (mbus_config.type == V4L2_MBUS_BT1120_SDR)
-			sens_conf |= (interlaced ?
-				      CSI_SENS_PRTCL_BT1120_SDR_INTERLACED :
-				      CSI_SENS_PRTCL_BT1120_SDR_PROGRESSIVE);
-		else
-			sens_conf |= (interlaced ?
-				      CSI_SENS_PRTCL_BT1120_DDR_INTERLACED :
-				      CSI_SENS_PRTCL_BT1120_DDR_PROGRESSIVE);
-
-		if (!interlaced) {
-			ccir1 = CSI_CCIRx_START_FLD_BLNK_1ST(6) |
-				CSI_CCIRx_END_FLD_ACTV(4);
-
-			ccir2 = 0;
-		} else {
-			ccir1 = CSI_CCIRx_START_FLD_BLNK_1ST(6) |
-				CSI_CCIRx_START_FLD_BLNK_1ST(2) |
-				CSI_CCIRx_END_FLD_BLNK_2ND(6) |
-				CSI_CCIRx_START_FLD_BLNK_2ND(2) |
-				CSI_CCIRx_END_FLD_ACTV(4) |
-				CSI_CCIRx_START_FLD_ACTV(0);
-
-			ccir2 = CSI_CCIRx_END_FLD_BLNK_1ST(7) |
-				CSI_CCIRx_START_FLD_BLNK_1ST(3) |
-				CSI_CCIRx_END_FLD_BLNK_2ND(7) |
-				CSI_CCIRx_START_FLD_BLNK_2ND(3) |
-				CSI_CCIRx_END_FLD_ACTV(5) |
-				CSI_CCIRx_START_FLD_ACTV(1);
-		}
-
-		switch (ipucsi->format_mbus[0].field) {
-		case V4L2_FIELD_SEQ_TB:
-			break;
-
-		case V4L2_FIELD_SEQ_BT:
-			swap(ccir1, ccir2);
-			/* TODO: really? */
-			break;
-		}
-
-		ccir1 |= CSI_CCIRx_ERR_DET_EN;
-
-		switch (ipucsi->ipucsifmt.sens_conf & CSI_SENS_CONF_DATA_WIDTH_mask) {
-		case CSI_SENS_CONF_DATA_WIDTH_10:
-			ccir3 = 0x3ff00000;
-			break;
-		case CSI_SENS_CONF_DATA_WIDTH_8:
-			ccir3 = 0x00ff0000;
-			break;
-		default:
-			WARN_ON(1);
-			ccir3 = 0x00ff0000;
-			break;
-		}
-
-		ipu_csi_write(ipucsi, ccir1, CSI_CCIR_CODE_1);
-		ipu_csi_write(ipucsi, ccir2, CSI_CCIR_CODE_2);
-		ipu_csi_write(ipucsi, ccir3, CSI_CCIR_CODE_3);
-		break;
-
-	default:
-		return -EINVAL;
+	rc = ipu_csi_init_interface(ipucsi->csi, &mbus_config,
+				    &ipucsi->format_mbus[0]);
+	if (rc) {
+		dev_warn(ipucsi->dev, "failed to initialize iface: %d\n",
+			 rc);
+		goto out;
 	}
 
-	if (ipucsi->ctrl_test_pattern->val) {
-		BUG_ON(ipucsi->ctrl_test_pattern->val > ARRAY_SIZE(csi_test_ctrl_patterns));
-		test_ctrl = csi_test_ctrl_patterns[ipucsi->ctrl_test_pattern->val - 1];
-		test_ctrl |= CSI_TST_CTRL_TEST_GEN_MODE_EN;
-		sens_conf = CSI_SENS_CONF_DATA_DEST_IDMAC |
-			CSI_SENS_CONF_EXT_VSYNC |
-			CSI_SENS_CONF_DATA_WIDTH_8 |
-			CSI_SENS_PRTCL_NON_GATED |
-			CSI_SENS_CONF_PIX_CLK_POL;
+	rc = ipu_csi_set_dest(ipucsi->csi, IPU_CSI_DEST_IDMAC);
+	if (rc) {
+		dev_warn(ipucsi->dev, "failed to set IDMAC destination: %d\n",
+			 rc);
+		goto out;
 	}
 
-	ipu_csi_write(ipucsi, test_ctrl, CSI_TST_CTRL);
+	rc = 0;
 
-	ipu_csi_write(ipucsi, sens_conf, CSI_SENS_CONF);
-	ipu_csi_write(ipucsi, CSI_SENS_FRM_WIDTH(width) |
-			CSI_SENS_FRM_HEIGHT(height), CSI_SENS_FRM_SIZE);
-
-	dev_dbg(dev, "CSI_SENS_CONF = 0x%08X\n",
-		ipu_csi_read(ipucsi, CSI_SENS_CONF));
-	dev_dbg(dev, "CSI_SENS_FRM_SIZE = 0x%08X\n",
-		ipu_csi_read(ipucsi, CSI_SENS_FRM_SIZE));
-
-	return 0;
+out:
+	return rc;
 }
 
 static inline void ipucsi_set_inactive_buffer(struct ipucsi *ipucsi,
@@ -584,10 +314,10 @@ static inline void ipucsi_set_inactive_buffer(struct ipucsi *ipucsi,
 	dma_addr_t eba = vb2_dma_contig_plane_dma_addr(vb, 0);
 
 	if (ipucsi->ilo < 0)
+		/* TODO: really? */
 		eba -= ipucsi->ilo;
 
-	ipu_cpmem_set_buffer(ipu_get_cpmem(ipucsi->ipuch), bufptr, eba);
-
+	ipu_cpmem_set_buffer(ipucsi->ipuch, bufptr, eba);
 	ipu_idmac_select_buffer(ipucsi->ipuch, bufptr);
 }
 
@@ -617,7 +347,7 @@ int ipucsi_resume_stream(struct ipucsi *ipucsi)
 	if (ipucsi->ilo < 0)
 		eba -= ipucsi->ilo;
 
-	ipu_cpmem_set_buffer(ipu_get_cpmem(ipucsi->ipuch), 0, eba);
+	ipu_cpmem_set_buffer(ipucsi->ipuch, 0, eba);
 
 	ipu_idmac_select_buffer(ipucsi->ipuch, 0);
 
@@ -636,15 +366,15 @@ int ipucsi_resume_stream(struct ipucsi *ipucsi)
 	if (ipucsi->ilo < 0)
 		eba -= ipucsi->ilo;
 
-	ipu_cpmem_set_buffer(ipu_get_cpmem(ipucsi->ipuch), 1, eba);
+	ipu_cpmem_set_buffer(ipucsi->ipuch, 1, eba);
 
 	ipu_idmac_select_buffer(ipucsi->ipuch, 1);
 
 	spin_unlock_irqrestore(&ipucsi->lock, flags);
 
-	ipu_smfc_enable(ipucsi->ipu);
+	ipu_smfc_enable(ipucsi->smfc);
 	ipu_idmac_enable_channel(ipucsi->ipuch);
-	ipu_csi_enable(ipucsi->ipu, ipucsi->id);
+	ipu_csi_enable(ipucsi->csi);
 
 	ipucsi->active = buf;
 	ipucsi->paused = false;
@@ -682,9 +412,9 @@ int ipucsi_pause_stream(struct ipucsi *ipucsi)
 	if (ipucsi->paused)
 		return 0;
 
-	ipu_csi_disable(ipucsi->ipu, ipucsi->id);
+	ipu_csi_disable(ipucsi->csi);
 	ipu_idmac_disable_channel(ipucsi->ipuch);
-	ipu_smfc_disable(ipucsi->ipu);
+	ipu_smfc_disable(ipucsi->smfc);
 
 	ipucsi->paused = true;
 
@@ -923,18 +653,22 @@ static int ipucsi_videobuf_init(struct vb2_buffer *vb)
 static int ipucsi_videobuf_start_streaming(struct vb2_queue *vq, unsigned int count)
 {
 	struct ipucsi *ipucsi = vq->drv_priv;
+	struct ipuv3_channel *ipuch = ipucsi->ipuch;
 	struct ipucsi_format const *ipucsifmt = ipucsi_current_format(ipucsi);
 	int xres = ipucsi->format.fmt.pix.width;
 	int yres = ipucsi->format.fmt.pix.height;
-	struct ipu_ch_param *cpmem = ipu_get_cpmem(ipucsi->ipuch);
 	struct device *dev = ipucsi->dev;
-	int capture_channel, burstsize;
+	int burstsize;
 	struct vb2_buffer *vb;
 	struct ipucsi_buffer *buf;
 	int nfack_irq;
 	int ret;
+	struct v4l2_rect w = {
+		.width	= xres,
+		.height	= yres,
+	};
 
-	memset(cpmem, 0, sizeof(*cpmem));
+	ipu_cpmem_zero(ipuch);
 
 	nfack_irq = ipu_idmac_channel_irq(ipucsi->ipu, ipucsi->ipuch,
 			IPU_IRQ_NFACK);
@@ -948,49 +682,66 @@ static int ipucsi_videobuf_start_streaming(struct vb2_queue *vq, unsigned int co
 	dev_dbg(dev, "width: %d height: %d, %c%c%c%c\n",
 			xres, yres, pixfmtstr(ipucsi->format.fmt.pix.pixelformat));
 
-	ipu_cpmem_set_resolution(cpmem, xres, yres);
+	ipu_cpmem_set_resolution(ipuch, xres, yres);
 
 	if (ipucsifmt->raw) {
 		/*
 		 * raw formats. We can only pass them through to memory
 		 */
-		ipu_cpmem_set_stride(cpmem, xres * ipucsifmt->bytes_per_pixel);
-		ipu_cpmem_set_format_passthrough(cpmem, ipucsifmt->bytes_per_sample * 8);
+		ipu_cpmem_set_stride(ipuch, xres * ipucsifmt->bytes_per_pixel);
+		ret = ipu_cpmem_set_format_passthrough(
+			ipuch, ipucsifmt->bytes_per_sample * 8);
+		if (ret) {
+			dev_err(dev,
+				"failed to configure passthrough mode for %dBps\n",
+				ipucsifmt->bytes_per_sample);
+			return ret;
+		}
 	} else {
 		/*
 		 * formats we understand, we can write it in any format not requiring
 		 * colorspace conversion.
 		 */
 		u32 fourcc = ipucsi->format.fmt.pix.pixelformat;
+		ret = 0;
+
 		switch (fourcc) {
 		case V4L2_PIX_FMT_RGB32:
-			ipu_cpmem_set_stride(cpmem, xres * 4);
-			ipu_cpmem_set_fmt(cpmem, fourcc);
+			ipu_cpmem_set_stride(ipuch, xres * 4);
+			ret = ipu_cpmem_set_fmt(ipuch, fourcc);
 			break;
 		case V4L2_PIX_FMT_UYVY:
 		case V4L2_PIX_FMT_YUYV:
-			ipu_cpmem_set_stride(cpmem, xres * 2);
-			ipu_cpmem_set_yuv_interleaved(cpmem, fourcc);
+			ipu_cpmem_set_stride(ipuch, xres * 2);
+			ipu_cpmem_set_yuv_interleaved(ipuch, fourcc);
 			break;
 		case V4L2_PIX_FMT_YUV420:
-			ipu_cpmem_set_stride(cpmem, xres);
-			ipu_cpmem_set_yuv_planar(cpmem, V4L2_PIX_FMT_YUV420, xres, yres);
+			ipu_cpmem_set_stride(ipuch, xres);
+			ipu_cpmem_set_yuv_planar(ipuch, V4L2_PIX_FMT_YUV420, xres, yres);
 			break;
 		default:
 			ret = -EINVAL;
+			break;
+		}
+
+		if (ret) {
+			dev_warn(dev,
+				 "failed to set %08x fourcc mode: %d\n",
+				 fourcc, ret);
 			goto free_irq;
 		}
 	}
 
 	if (ipucsi->ilo) {
-		ipu_ch_cpmem_set_interlaced_scan(ipucsi->ipuch);
-		if (ipucsi->ilo < 0) {
-			ipu_ch_param_write_field(cpmem, IPU_FIELD_ILO,
-						 0x100000 - (ipucsi->ilo/8));
-		}
-	}
+		int stride;
 
-	capture_channel = ipucsi->id; /* CSI0: channel 0, CSI1: channel 1 */
+		if (ipucsi->ilo < 0)
+			stride = (0x100000 - (ipucsi->ilo/8)) * 8;
+		else
+			stride = 0;
+
+		ipu_cpmem_interlaced_scan(ipuch, stride);
+	}
 
 	/*
 	 * Some random value. The reference manual tells us that the burstsize
@@ -999,27 +750,18 @@ static int ipucsi_videobuf_start_streaming(struct vb2_queue *vq, unsigned int co
 	 */
 	burstsize = 8;
 
-	ipu_smfc_set_burstsize(ipucsi->ipu, capture_channel, burstsize - 1);
-	ipu_smfc_map_channel(ipucsi->ipu, capture_channel, ipucsi->id, 0);
+	ipu_smfc_set_burstsize(ipucsi->smfc, burstsize - 1);
+	ipu_smfc_map_channel(ipucsi->smfc, ipucsi->csi_id, 0);
 
 	ipu_cpmem_set_high_priority(ipucsi->ipuch);
 
-	ipu_csi_write(ipucsi, CSI_ACT_FRM_HEIGHT(yres) | CSI_ACT_FRM_WIDTH(xres),
-			CSI_ACT_FRM_SIZE);
-	/* FIXME */
-	if (xres == 720 && yres == 480) {
-		ipu_csi_write(ipucsi, CSI_OUT_FRM_CTRL_HSC(0) |
-				CSI_OUT_FRM_CTRL_VSC(3), CSI_OUT_FRM_CTRL);
-	} else {
-		ipu_csi_write(ipucsi, CSI_OUT_FRM_CTRL_HSC(0) |
-				CSI_OUT_FRM_CTRL_VSC(0), CSI_OUT_FRM_CTRL);
-	}
+	ipu_csi_set_window(ipucsi->csi, &w);
 
 	ret = media_entity_pipeline_start(&ipucsi->subdev.entity, &ipucsi->pipe);
 	if (ret)
 		goto free_irq;
 
-	ret = ipu_csi_init_interface(ipucsi, xres, yres);
+	ret = ipu_csi_init_interface_local(ipucsi);
 	if (ret)
 		goto free_irq;
 
@@ -1039,8 +781,8 @@ static int ipucsi_videobuf_start_streaming(struct vb2_queue *vq, unsigned int co
 	ipucsi_set_inactive_buffer(ipucsi, vb);
 
 	ipu_idmac_enable_channel(ipucsi->ipuch);
-	ipu_smfc_enable(ipucsi->ipu);
-	ipu_csi_enable(ipucsi->ipu, ipucsi->id);
+	ipu_smfc_enable(ipucsi->smfc);
+	ipu_csi_enable(ipucsi->csi);
 
 	ipucsi->paused = false;
 
@@ -1063,9 +805,9 @@ static void ipucsi_videobuf_stop_streaming(struct vb2_queue *vq)
 				IPU_IRQ_NFACK);
 
 	free_irq(nfack_irq, ipucsi);
-	ipu_csi_disable(ipucsi->ipu, ipucsi->id);
+	ipu_csi_disable(ipucsi->csi);
 	ipu_idmac_disable_channel(ipucsi->ipuch);
-	ipu_smfc_disable(ipucsi->ipu);
+	ipu_smfc_disable(ipucsi->smfc);
 
 	ipucsi->paused = false;
 
@@ -1753,34 +1495,56 @@ static int ipucsi_probe(struct platform_device *pdev)
 	spin_lock_init(&ipucsi->lock);
 	mutex_init(&ipucsi->mutex);
 
-	ipucsi->base = devm_ioremap(&pdev->dev, res->start, resource_size(res));
-	if (!ipucsi->base) {
-		dev_err(&pdev->dev, "Couldn't map %pR\n", res);
-		return -ENOMEM;
+	ipucsi->csi_id = pdata->csi;
+	ipucsi->csi = ipu_csi_get(ipu, pdata->csi);
+	if (IS_ERR(ipucsi->csi)) {
+		ret = PTR_ERR(ipucsi->csi);
+		dev_warn(&pdev->dev, "failed to get CSI#%d: %d\n",
+			 pdata->csi, ret);
+		goto failed;
 	}
 
-	/* pdev->id = 0: IPU1 CSI0, 1: IPU1 CSI1, 2: IPU2 CSI0, 3: IPU2 CSI1 */
-	ipucsi->id = pdata->csi; /* CSI0 or CSI1 */
+	ipucsi->smfc = ipu_smfc_get(ipu, pdata->dma[0]);
+	if (IS_ERR(ipucsi->smfc)) {
+		ret = PTR_ERR(ipucsi->smfc);
+		dev_warn(&pdev->dev, "failed to get SMFC#%d: %d\n",
+			 pdata->dma[0], ret);
+		goto failed;
+	}
+
 	ipucsi->ipu = ipu;
 	ipucsi->dev = &pdev->dev;
 	ipucsi->v4l2_dev = ipu_media_get_v4l2_dev();
 
-	if (!ipucsi->v4l2_dev)
-		return -EPROBE_DEFER;
+	if (!ipucsi->v4l2_dev) {
+		ret = -EPROBE_DEFER;
+		goto failed;
+	}
 
 	ipucsi->v4l2_dev->notify = ipucsi_v4l2_dev_notify;
 
 	node = ipucsi_get_port(pdev->dev.parent->of_node, pdata->csi);
 	if (!node) {
 		dev_err(&pdev->dev, "cannot find node port@%d\n", pdata->csi);
-		ipu_media_put_v4l2_dev(ipucsi->v4l2_dev);
-		return -ENODEV;
+		ret = -ENODEV;
+		goto failed;
 	}
+
+	ret = of_alias_get_id(node->parent, "ipu");
+	if (ret < 0) {
+		dev_err(ipucsi->dev, "missing alias for parent ipu\n");
+		ret = -EINVAL;
+		goto failed;
+	}
+
+	snprintf(ipucsi->name, sizeof ipucsi->name, "ipu%u-csi%u",
+		 ret, ipucsi->csi_id);
 
 	ipucsi->ipuch = ipu_idmac_get(ipu, pdata->dma[0]);
 	if (!ipucsi->ipuch) {
 		ipu_media_put_v4l2_dev(ipucsi->v4l2_dev);
-		return -EBUSY;
+		ret = -EBUSY;
+		goto failed;
 	}
 
 	ret = ipucsi_video_device_init(pdev, ipucsi);
@@ -1835,6 +1599,12 @@ failed:
 	if (ipucsi->ipuch)
 		ipu_idmac_put(ipucsi->ipuch);
 
+	if (!IS_ERR_OR_NULL(ipucsi->smfc))
+		ipu_smfc_put(ipucsi->smfc);
+
+	if (!IS_ERR_OR_NULL(ipucsi->csi))
+		ipu_csi_put(ipucsi->csi);
+
 	return ret;
 }
 
@@ -1849,6 +1619,9 @@ static int ipucsi_remove(struct platform_device *pdev)
 	vb2_dma_contig_cleanup_ctx(ipucsi->alloc_ctx);
 	ipu_idmac_put(ipucsi->ipuch);
 	v4l2_ctrl_handler_free(&ipucsi->ctrls);
+
+	ipu_smfc_put(ipucsi->smfc);
+	ipu_csi_put(ipucsi->csi);
 
 	return 0;
 }
