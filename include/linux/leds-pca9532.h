@@ -30,7 +30,8 @@ enum pca9532_type { PCA9532_TYPE_NONE, PCA9532_TYPE_LED,
 struct pca9532_led {
 	u8 id;
 	struct i2c_client *client;
-	char *name;
+	const char *name;
+	const char *default_trigger;
 	struct led_classdev ldev;
 	struct work_struct work;
 	enum pca9532_type type;
