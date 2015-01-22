@@ -1650,15 +1650,16 @@ static int ipucsi_probe(struct platform_device *pdev)
 	ret = media_entity_create_link(&ipucsi->subdev.entity, 1,
 			&ipucsi->vdev.entity, 0,
 			MEDIA_LNK_FL_IMMUTABLE | MEDIA_LNK_FL_ENABLED);
-	if (ret < 0) {
-		video_unregister_device(&ipucsi->vdev);
-		goto failed;
-	}
+	if (ret < 0)
+		goto failed_video;
 
 	dev_info(&pdev->dev, "loaded\n");
 
 	return 0;
 
+failed_video:
+
+	video_unregister_device(&ipucsi->vdev);
 failed:
 	ipu_media_put_v4l2_dev(ipucsi->v4l2_dev);
 	v4l2_ctrl_handler_free(&ipucsi->ctrls);
