@@ -30,6 +30,8 @@ Each led is represented as a sub-node of the nsp,pca9532 device.
 
 LED sub-node properties:
 - label : (optional) see Documentation/devicetree/bindings/leds/common.txt
+- led-invert : set up led to work with inverted polarity. Works only
+  with pins which typecode is 0x1 (see nxp,typecodes above).
 - linux,default-trigger : (optional)
    see Documentation/devicetree/bindings/leds/common.txt
 - reg : number of LED line (could be from 0 to 1 in pca9530, 0 to 3 in pca9533,
