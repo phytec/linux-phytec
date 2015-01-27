@@ -109,7 +109,11 @@ static int pca9532_calcpwm(struct i2c_client *client, int pwm, int blink,
 	for (i = 0; i < data->chip_info->num_leds; i++) {
 		if (data->leds[i].type == PCA9532_TYPE_LED &&
 			data->leds[i].state == PCA9532_PWM0+pwm) {
-				a++;
+			a++;
+			if (data->leds[i].inverted)
+				b += data->leds[i].ldev.max_brightness
+					- data->leds[i].ldev.brightness;
+			else
 				b += data->leds[i].ldev.brightness;
 		}
 	}
@@ -146,6 +150,7 @@ static void pca9532_setled(struct pca9532_led *led)
 {
 	struct i2c_client *client = led->client;
 	struct pca9532_data *data = i2c_get_clientdata(client);
+	enum pca9532_state state;
 	u8 maxleds = data->chip_info->num_leds;
 	char reg;
 
@@ -154,7 +159,14 @@ static void pca9532_setled(struct pca9532_led *led)
 	/* zero led bits */
 	reg = reg & ~(0x3<<LED_NUM(led->id)*2);
 	/* set the new value */
-	reg = reg | (led->state << LED_NUM(led->id)*2);
+	state = led->state;
+	if (led->type == PCA9532_TYPE_LED && led->inverted) {
+		if (led->state == PCA9532_OFF)
+			state = PCA9532_ON;
+		else if (led->state == PCA9532_ON)
+			state = PCA9532_OFF;
+	}
+	reg = reg | (state << LED_NUM(led->id)*2);
 	i2c_smbus_write_byte_data(client, LED_REG(maxleds, led->id), reg);
 	mutex_unlock(&data->update_lock);
 }
@@ -358,9 +370,13 @@ static int pca9532_configure(struct i2c_client *client,
 		case PCA9532_TYPE_LED:
 			led->state = pled->state;
 			led->name = pled->name;
+			led->inverted = pled->inverted;
 			led->ldev.name = led->name;
 			led->ldev.default_trigger = pled->default_trigger;
-			led->ldev.brightness = LED_OFF;
+			if (led->state == PCA9532_OFF)
+				led->ldev.brightness = LED_OFF;
+			else
+				led->ldev.brightness = LED_FULL;
 			led->ldev.brightness_set = pca9532_set_brightness;
 			led->ldev.blink_set = pca9532_set_blink;
 			INIT_WORK(&led->work, pca9532_led_work);
@@ -485,6 +501,8 @@ static struct pca9532_platform_data *pca9532_parse_dt(struct device *dev)
 
 		pca9532_pdata->leds[reg].name = led.name;
 		pca9532_pdata->leds[reg].default_trigger = led.default_trigger;
+		pca9532_pdata->leds[reg].inverted =
+			of_property_read_bool(child, "led-invert");
 	}
 
 	pca9532_pdata->gpio_base = -1; /* dynamically assign gpio base */
