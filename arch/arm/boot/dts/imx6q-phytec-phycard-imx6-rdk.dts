@@ -140,8 +140,12 @@
 		reg = <0x51>;
 	};
 
-	pca9530@60 {
+	pca9530: pca9530@60 {
 		compatible = "nxp,pca9530";
+		#address-cells = <1>;
+		#size-cells = <0>;
+		nxp,typecodes = <0x1>;
+		nxp,statecodes = <0x1>;
 		reg = <0x60>;
 	};	
 
@@ -158,6 +162,14 @@
 
 	lvds-channel@0 {
 		status = "okay";
+	};
+};
+
+&pca9530 {
+	pca9530_lcd@0 {
+		label = "phycard:lcd";
+		reg = <0>;
+		led-invert;
 	};
 };
 
