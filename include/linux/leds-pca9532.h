@@ -36,6 +36,7 @@ struct pca9532_led {
 	struct work_struct work;
 	enum pca9532_type type;
 	enum pca9532_state state;
+	bool inverted;
 };
 
 struct pca9532_platform_data {
