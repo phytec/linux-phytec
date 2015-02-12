@@ -25,9 +25,11 @@
 	};
 };
 
+/*
 &backlight {
 	status = "okay";
 };
+*/
 
 &can1 {
 	status = "okay";
@@ -92,6 +94,7 @@
 	status = "okay";
 };
 
+/*
 &ldb {
 	status = "okay";
 
@@ -99,6 +102,7 @@
 		status = "okay";
 	};
 };
+*/
 
 &pwm1 {
 	status = "okay";

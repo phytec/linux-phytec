@@ -142,6 +142,7 @@
 	clock-frequency = <400000>;
 	status = "disabled";
 
+	/*
 	stmpe@44 {
 		compatible = "st,stmpe811";
 		reg = <0x44>;
@@ -161,6 +162,7 @@
 			st,i-drive = <1>;
 		};
 	};
+	*/
 
 	rtc@68 {
 		compatible = "mc,rv4162";
