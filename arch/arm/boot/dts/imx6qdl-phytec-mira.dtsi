@@ -108,6 +108,7 @@
 			regulator-min-microvolt = <1500000>;
 			regulator-max-microvolt = <1500000>;
 			gpio = <&gpio2 20 0>;
+			enable-active-high;
 		};
 
 		lcd_3v3: regulator@4 {
