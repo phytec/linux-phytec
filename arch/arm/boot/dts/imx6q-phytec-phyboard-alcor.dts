@@ -101,6 +101,9 @@
 /* RS485 */
 &uart3 {
 	status = "okay";
+	fsl,uart-has-rtscts;
+	linux,rs485-enabled-at-boot-time;
+	rs485-rts-active-high;
 };
 
 &uart4 {
