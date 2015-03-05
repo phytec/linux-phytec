@@ -31,14 +31,6 @@
 
 #if LINUX_VERSION_CODE < KERNEL_VERSION(3,5,0)
 #include <mach/viv_gpu.h>
-#else
-#include <linux/pm_runtime.h>
-#if LINUX_VERSION_CODE < KERNEL_VERSION(3, 10, 0)
-#include <mach/busfreq.h>
-#else
-#include <linux/busfreq-imx6.h>
-#include <linux/reset.h>
-#endif
 #endif
 
 #include <linux/clk.h>
@@ -764,24 +756,6 @@ _SetClock(
     return gcvSTATUS_OK;
 }
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(3,5,0)
-#ifdef CONFIG_PM
-static int gpu_runtime_suspend(struct device *dev)
-{
-    release_bus_freq(BUS_FREQ_HIGH);
-    return 0;
-}
-
-static int gpu_runtime_resume(struct device *dev)
-{
-    request_bus_freq(BUS_FREQ_HIGH);
-    return 0;
-}
-
-static struct dev_pm_ops gpu_pm_ops;
-#endif
-#endif
-
 gceSTATUS
 _AdjustDriver(
     IN gckPLATFORM Platform
@@ -795,21 +769,6 @@ _AdjustDriver(
     driver->driver.of_match_table = mxs_gpu_dt_ids;
 #endif
 
-    /* Override PM callbacks to add runtime PM callbacks. */
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(3,5,0)
-    /* Fill local structure with original value. */
-    memcpy(&gpu_pm_ops, driver->driver.pm, sizeof(struct dev_pm_ops));
-
-    /* Add runtime PM callback. */
-#ifdef CONFIG_PM_RUNTIME
-    gpu_pm_ops.runtime_suspend = gpu_runtime_suspend;
-    gpu_pm_ops.runtime_resume = gpu_runtime_resume;
-    gpu_pm_ops.runtime_idle = NULL;
-#endif
-
-    /* Replace callbacks. */
-    driver->driver.pm = &gpu_pm_ops;
-#endif
     return gcvSTATUS_OK;
 }
 
