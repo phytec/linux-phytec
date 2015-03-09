@@ -431,7 +431,7 @@ _DebugFSRead (
     caddr_t data_to_return ;
     gcsDEBUGFS_Node* node ;
     /* get the metadata about this emlog */
-    if ( ( node = _GetNodeInfo ( file->f_dentry->d_inode ) ) == NULL )
+    if ( ( node = _GetNodeInfo ( file->f_path.dentry->d_inode ) ) == NULL )
     {
         printk ( "debugfs_read: record not found\n" ) ;
         return - EIO ;
@@ -499,7 +499,7 @@ _DebugFSWrite (
     gcsDEBUGFS_Node*node ;
 
     /* get the metadata about this log */
-    if ( ( node = _GetNodeInfo ( file->f_dentry->d_inode ) ) == NULL )
+    if ( ( node = _GetNodeInfo ( file->f_path.dentry->d_inode ) ) == NULL )
     {
         return - EIO ;
     }
