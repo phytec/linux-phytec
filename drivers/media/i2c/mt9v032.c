@@ -756,6 +756,33 @@ done:
 	return ret;
 }
 
+#ifdef CONFIG_VIDEO_ADV_DEBUG
+static int mt9v032_g_register(struct v4l2_subdev *subdev,
+				struct v4l2_dbg_register *reg)
+{
+	struct mt9v032 *mt9v032 = to_mt9v032(subdev);
+	struct i2c_client *client = v4l2_get_subdevdata(&mt9v032->subdev);
+	int rc;
+
+	rc = i2c_smbus_read_word_swapped(client, reg->reg);
+	if (rc < 0)
+		return rc;
+
+	reg->val = rc;
+	return 0;
+};
+
+static int mt9v032_s_register(struct v4l2_subdev *subdev,
+                                struct v4l2_dbg_register *reg)
+{
+        struct mt9v032 *mt9v032 = to_mt9v032(subdev);
+        struct i2c_client *client = v4l2_get_subdevdata(&mt9v032->subdev);
+
+        return i2c_smbus_write_word_swapped(client, reg->reg, reg->val);
+};
+
+#endif
+
 /* -----------------------------------------------------------------------------
  * V4L2 subdev internal operations
  */
@@ -841,6 +868,10 @@ static int mt9v032_close(struct v4l2_subdev *subdev, struct v4l2_subdev_fh *fh)
 
 static struct v4l2_subdev_core_ops mt9v032_subdev_core_ops = {
 	.s_power	= mt9v032_set_power,
+#ifdef CONFIG_VIDEO_ADV_DEBUG
+	.s_register	= mt9v032_s_register,
+	.g_register	= mt9v032_g_register,
+#endif
 };
 
 static struct v4l2_subdev_video_ops mt9v032_subdev_video_ops = {
