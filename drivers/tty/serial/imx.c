@@ -435,36 +435,31 @@ static void imx_stop_tx(struct uart_port *port)
 	struct imx_port *sport = (struct imx_port *)port;
 	unsigned long temp;
 
-	if (readl(sport->port.membase + USR2) & USR2_TXDC) {
-		if (sport->rs485.flags & SER_RS485_ENABLED)
-			imx_rs485_switch_to_rx(sport, 0);
-		temp = readl(sport->port.membase + UCR4);
-		temp &= ~UCR4_TCEN;
-		writel(temp, sport->port.membase + UCR4);
-	}
 
-	if (USE_IRDA(sport)) {
-		/* half duplex - wait for end of transmission */
-		int n = 256;
-		while ((--n > 0) &&
-		      !(readl(sport->port.membase + USR2) & USR2_TXDC)) {
-			udelay(5);
-			barrier();
-		}
+	if (USE_IRDA(sport) || (sport->rs485.flags & SER_RS485_ENABLED)) {
 		/*
 		 * irda transceiver - wait a bit more to avoid
 		 * cutoff, hardware dependent
 		 */
-		udelay(sport->trcv_delay);
+		if (USE_IRDA(sport))
+			udelay(sport->trcv_delay);
+
+		/*
+		 * Disable all but UCR4_TCEN, next TXDC irq will recall
+		 * imx_stop_tx after end of transmission
+		 */
+		temp = readl(sport->port.membase + UCR1);
+		temp &= ~(UCR1_TXMPTYEN | UCR1_TRDYEN);
+		writel(temp, sport->port.membase + UCR1);
 
 		/*
 		 * half duplex - reactivate receive mode,
 		 * flush receive pipe echo crap
 		 */
 		if (readl(sport->port.membase + USR2) & USR2_TXDC) {
-			temp = readl(sport->port.membase + UCR1);
-			temp &= ~(UCR1_TXMPTYEN | UCR1_TRDYEN);
-			writel(temp, sport->port.membase + UCR1);
+
+			if (sport->rs485.flags & SER_RS485_ENABLED)
+				imx_rs485_switch_to_rx(sport, 0);
 
 			temp = readl(sport->port.membase + UCR4);
 			temp &= ~(UCR4_TCEN);
@@ -474,12 +469,19 @@ static void imx_stop_tx(struct uart_port *port)
 			       URXD_CHARRDY)
 				barrier();
 
+			/*
+			 * Clear any pending ORE flag before enabling
+			 * interrupt
+			 */
+			temp = readl(sport->port.membase + USR2);
+			writel(temp | USR2_ORE, sport->port.membase + USR2);
+
 			temp = readl(sport->port.membase + UCR1);
 			temp |= UCR1_RRDYEN;
 			writel(temp, sport->port.membase + UCR1);
 
 			temp = readl(sport->port.membase + UCR4);
-			temp |= UCR4_DREN;
+			temp |= UCR4_DREN | UCR4_OREN;
 			writel(temp, sport->port.membase + UCR4);
 		}
 		return;
@@ -648,10 +650,10 @@ static void imx_start_tx(struct uart_port *port)
 	struct imx_port *sport = (struct imx_port *)port;
 	unsigned long temp;
 
-	if (USE_IRDA(sport)) {
+	if (USE_IRDA(sport) || (sport->rs485.flags & SER_RS485_ENABLED)) {
 		/* half duplex in IrDA mode; have to disable receive mode */
 		temp = readl(sport->port.membase + UCR4);
-		temp &= ~(UCR4_DREN);
+		temp &= ~(UCR4_DREN | UCR4_OREN);
 		writel(temp, sport->port.membase + UCR4);
 
 		temp = readl(sport->port.membase + UCR1);
@@ -671,7 +673,7 @@ static void imx_start_tx(struct uart_port *port)
 		writel(temp | UCR1_TXMPTYEN, sport->port.membase + UCR1);
 	}
 
-	if (USE_IRDA(sport)) {
+	if (USE_IRDA(sport) || (sport->rs485.flags & SER_RS485_ENABLED)) {
 		temp = readl(sport->port.membase + UCR1);
 		temp |= UCR1_TRDYEN;
 		writel(temp, sport->port.membase + UCR1);
@@ -681,19 +683,15 @@ static void imx_start_tx(struct uart_port *port)
 		writel(temp, sport->port.membase + UCR4);
 	}
 
+	if (sport->rs485.flags & SER_RS485_ENABLED)
+		imx_rs485_switch_to_tx(sport);
+
 	if (sport->dma_is_enabled) {
 		/* FIXME: port->x_char must be transmitted if != 0 */
 		if (!uart_circ_empty(&port->state->xmit) &&
 		    !uart_tx_stopped(port))
 			imx_dma_tx(sport);
 		return;
-	}
-
-	if (sport->rs485.flags & SER_RS485_ENABLED) {
-		temp = readl(sport->port.membase + UCR4);
-		temp |= UCR4_TCEN;
-		writel(temp, sport->port.membase + UCR4);
-		imx_rs485_switch_to_tx(sport);
 	}
 
 	if (readl(sport->port.membase + uts_reg(sport)) & UTS_TXEMPTY)
