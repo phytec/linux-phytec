@@ -1427,8 +1427,9 @@ imx_set_termios(struct uart_port *port, struct ktermios *termios,
 
 	/* then, disable everything */
 	old_txrxen = readl(sport->port.membase + UCR2);
-	writel(old_txrxen & ~(UCR2_TXEN | UCR2_RXEN),
-			sport->port.membase + UCR2);
+	if (!(sport->rs485.flags & SER_RS485_ENABLED))
+		writel(old_txrxen & ~(UCR2_TXEN | UCR2_RXEN),
+				sport->port.membase + UCR2);
 	old_txrxen &= (UCR2_TXEN | UCR2_RXEN);
 
 	if (USE_IRDA(sport)) {
