@@ -1355,7 +1355,8 @@ imx_set_termios(struct uart_port *port, struct ktermios *termios,
 		ucr2 = UCR2_SRST | UCR2_IRTS;
 
 	if (termios->c_cflag & CRTSCTS) {
-		if (sport->have_rtscts) {
+		if (sport->have_rtscts &&
+			!(sport->rs485.flags & SER_RS485_ENABLED)) {
 			ucr2 &= ~UCR2_IRTS;
 			ucr2 |= UCR2_CTSC;
 
@@ -2052,6 +2053,9 @@ static int serial_imx_probe(struct platform_device *pdev)
 		if (ret)
 			return ret;
 	}
+
+	if (sport->rs485.flags & SER_RS485_ENABLED)
+		imx_rs485_config(sport);
 
 	imx_ports[sport->port.line] = sport;
 
