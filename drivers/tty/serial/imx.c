@@ -291,8 +291,12 @@ static inline void imx_rs485_config(struct imx_port *sport)
 
 	if (sport->have_rtscts) {
 		reg = readl(sport->port.membase + UCR2);
+		reg &= ~(UCR2_CTSC);
+		reg |= UCR2_RXEN;
 		writel(reg & ~UCR2_CTSC, sport->port.membase + UCR2);
 		imx_rs485_switch_to_rx(sport, 1);
+		reg = readl(sport->port.membase + UCR1);
+		writel(reg | UCR1_UARTEN, sport->port.membase + UCR1);
 	} else
 		sport->rs485.flags &= ~SER_RS485_ENABLED;
 }
@@ -1277,6 +1281,8 @@ static void imx_shutdown(struct uart_port *port)
 	spin_lock_irqsave(&sport->port.lock, flags);
 	temp = readl(sport->port.membase + UCR2);
 	temp &= ~(UCR2_TXEN);
+	if (sport->rs485.flags & SER_RS485_ENABLED)
+		temp |= UCR2_RXEN;
 	writel(temp, sport->port.membase + UCR2);
 	spin_unlock_irqrestore(&sport->port.lock, flags);
 
@@ -1299,6 +1305,8 @@ static void imx_shutdown(struct uart_port *port)
 	spin_lock_irqsave(&sport->port.lock, flags);
 	temp = readl(sport->port.membase + UCR1);
 	temp &= ~(UCR1_TXMPTYEN | UCR1_RRDYEN | UCR1_RTSDEN | UCR1_UARTEN);
+	if (sport->rs485.flags & SER_RS485_ENABLED)
+		temp |= UCR1_UARTEN;
 	if (USE_IRDA(sport))
 		temp &= ~(UCR1_IREN);
 
