@@ -263,7 +263,7 @@ static inline void imx_rs485_switch_to_tx(struct imx_port *sport)
 	}
 }
 
-static inline void imx_rs485_switch_to_rx(struct imx_port *sport)
+static inline void imx_rs485_switch_to_rx(struct imx_port *sport, int init)
 {
 	u32 reg;
 	u32 res;
@@ -277,8 +277,9 @@ static inline void imx_rs485_switch_to_rx(struct imx_port *sport)
 		else
 			reg |= UCR2_CTS;
 
-		if (sport->rs485.delay_rts_after_send > 0)
-			mdelay(sport->rs485.delay_rts_after_send);
+		if (init == 0)
+			if (sport->rs485.delay_rts_after_send > 0)
+				mdelay(sport->rs485.delay_rts_after_send);
 
 		writel(reg, sport->port.membase + UCR2);
 	}
@@ -291,7 +292,7 @@ static inline void imx_rs485_config(struct imx_port *sport)
 	if (sport->have_rtscts) {
 		reg = readl(sport->port.membase + UCR2);
 		writel(reg & ~UCR2_CTSC, sport->port.membase + UCR2);
-		imx_rs485_switch_to_rx(sport);
+		imx_rs485_switch_to_rx(sport, 1);
 	} else
 		sport->rs485.flags &= ~SER_RS485_ENABLED;
 }
@@ -432,7 +433,7 @@ static void imx_stop_tx(struct uart_port *port)
 
 	if (readl(sport->port.membase + USR2) & USR2_TXDC) {
 		if (sport->rs485.flags & SER_RS485_ENABLED)
-			imx_rs485_switch_to_rx(sport);
+			imx_rs485_switch_to_rx(sport, 0);
 		temp = readl(sport->port.membase + UCR4);
 		temp &= ~UCR4_TCEN;
 		writel(temp, sport->port.membase + UCR4);
