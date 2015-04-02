@@ -163,6 +163,21 @@
 	stmpe@41 {
 		compatible = "st,stmpe811";
 		reg = <0x41>;
+		interrupts = <8 0x8>;
+		interrupt-parent = <&gpio5>;
+
+		stmpe_touchscreen {
+			compatible = "st,stmpe-ts";
+			st,sample-time = <4>;
+			st,mod-12b = <1>;
+			st,ref-sel = <0>;
+			st,adc-freq = <1>;
+			st,ave-ctrl = <1>;
+			st,touch-det-delay = <2>;
+			st,settling = <2>;
+			st,fraction-z = <7>;
+			st,i-drive = <1>;
+		};
 	};
 
 	rtc@51 {
