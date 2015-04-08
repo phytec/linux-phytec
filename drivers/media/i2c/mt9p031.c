@@ -30,6 +30,7 @@
 #include <media/v4l2-async.h>
 #include <media/v4l2-ctrls.h>
 #include <media/v4l2-device.h>
+#include <media/v4l2-of.h>
 #include <media/v4l2-subdev.h>
 
 #include "aptina-pll.h"
@@ -374,6 +375,14 @@ static int __mt9p031_set_power(struct mt9p031 *mt9p031, bool on)
 	if (ret < 0) {
 		dev_err(&client->dev, "Failed to reset the camera\n");
 		return ret;
+	}
+
+	/* Configure the pixel clock polarity */
+	if (mt9p031->pdata && mt9p031->pdata->pixclk_pol) {
+		ret = mt9p031_write(client, MT9P031_PIXEL_CLOCK_CONTROL,
+				MT9P031_PIXEL_CLOCK_INVERT);
+		if (ret < 0)
+			return ret;
 	}
 
 	return v4l2_ctrl_handler_setup(&mt9p031->ctrls);
@@ -1042,6 +1051,7 @@ static struct mt9p031_platform_data *
 mt9p031_get_pdata(struct i2c_client *client)
 {
 	struct mt9p031_platform_data *pdata;
+	struct v4l2_of_endpoint endpoint;
 	struct device_node *np;
 
 	if (!IS_ENABLED(CONFIG_OF) || !client->dev.of_node)
@@ -1051,12 +1061,18 @@ mt9p031_get_pdata(struct i2c_client *client)
 	if (!np)
 		return NULL;
 
+	if (v4l2_of_parse_endpoint(np, &endpoint) < 0)
+		goto done;
+
 	pdata = devm_kzalloc(&client->dev, sizeof(*pdata), GFP_KERNEL);
 	if (!pdata)
 		goto done;
 
 	of_property_read_u32(np, "input-clock-frequency", &pdata->ext_freq);
 	of_property_read_u32(np, "pixel-clock-frequency", &pdata->target_freq);
+
+	pdata->pixclk_pol = !!(endpoint.bus.parallel.flags &
+			       V4L2_MBUS_PCLK_SAMPLE_RISING);
 
 done:
 	of_node_put(np);
