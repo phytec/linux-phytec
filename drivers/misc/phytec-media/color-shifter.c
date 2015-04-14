@@ -29,6 +29,7 @@
 #include <media/v4l2-of.h>
 
 enum cshift_type {
+	CSHIFT_BITS2,
 	CSHIFT_BITS4
 };
 
@@ -96,12 +97,25 @@ static bool cshift_fixup_code_in(struct cshift_device const *cshift,
 		}
 
 		switch (cshift->type) {
+		case CSHIFT_BITS2:
+			switch (*code) {
+			case MEDIA_BUS_FMT_SGRBG8_1X8:
+				*code = MEDIA_BUS_FMT_SGRBG10_1X10;
+				break;
+			case MEDIA_BUS_FMT_Y8_1X8:
+				*code = MEDIA_BUS_FMT_Y10_1X10;
+				break;
+			default:
+				dev_dbg(cshift->dev, "%s: invalid code %08x\n",
+					__func__, *code);
+				return false;
+			}
+			break;
 		case CSHIFT_BITS4:
 			switch (*code) {
 			case MEDIA_BUS_FMT_SGRBG8_1X8:
 				*code = MEDIA_BUS_FMT_SGRBG12_1X12;
 				break;
-
 			case MEDIA_BUS_FMT_Y8_1X8:
 				*code = MEDIA_BUS_FMT_Y12_1X12;
 				break;
@@ -143,6 +157,20 @@ static bool cshift_fixup_code_out(struct cshift_device const *cshift,
 
 	case CSHIFT_ROLE_SOURCE:
 		switch (cshift->type) {
+		case CSHIFT_BITS2:
+			switch (*code) {
+			case MEDIA_BUS_FMT_SGRBG10_1X10:
+				*code = MEDIA_BUS_FMT_SGRBG8_1X8;
+				break;
+			case MEDIA_BUS_FMT_Y10_1X10:
+				*code = MEDIA_BUS_FMT_Y8_1X8;
+				break;
+			default:
+				dev_dbg(cshift->dev, "%s: invalid code %08x\n",
+					 __func__, *code);
+				return false;
+			}
+			break;
 		case CSHIFT_BITS4:
 			switch (*code) {
 			case MEDIA_BUS_FMT_Y12_1X12:
@@ -579,6 +607,9 @@ static int cshift_parse_dt(struct cshift_device *cshift,
 	}
 
 	switch (val) {
+	case 2:
+		cshift->type = CSHIFT_BITS2;
+		break;
 	case 4:
 		cshift->type = CSHIFT_BITS4;
 		break;
