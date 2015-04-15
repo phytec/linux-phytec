@@ -256,7 +256,10 @@ static ssize_t show_pid(struct device_driver *dev, char *buf)
         kernel = galDevice->kernels[gcvCORE_2D];
     }
 
-    gckOS_AcquireMutex(kernel->os, kernel->db->dbMutex, gcvINFINITE);
+    gckOS_AcquireMutex(kernel->os,
+                       kernel->db->dbMutex,
+                       gcvINFINITE,
+                       GPU_VIV_MUTEX_NORMAL);
 
     size+= snprintf(buf+size, PAGE_SIZE-size, "**************************\n");
     size+= snprintf(buf+size, PAGE_SIZE-size, "***  PROCESS DB DUMP   ***\n");

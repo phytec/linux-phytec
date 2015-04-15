@@ -443,7 +443,10 @@ _FillFlatMapping(
     gctBOOL ace = gckHARDWARE_IsFeatureAvailable(Mmu->hardware, gcvFEATURE_ACE);
 
     /* Grab the mutex. */
-    gcmkONERROR(gckOS_AcquireMutex(Mmu->os, Mmu->pageTableMutex, gcvINFINITE));
+    gcmkONERROR(gckOS_AcquireMutex(Mmu->os,
+                                   Mmu->pageTableMutex,
+                                   gcvINFINITE,
+                                   GPU_VIV_MUTEX_NORMAL));
     mutex = gcvTRUE;
 
     while (mStart <= mEnd)
@@ -760,7 +763,10 @@ _SetupDynamicSpace(
                 &physical));
 
     /* Grab the mutex. */
-    gcmkONERROR(gckOS_AcquireMutex(Mmu->os, Mmu->pageTableMutex, gcvINFINITE));
+    gcmkONERROR(gckOS_AcquireMutex(Mmu->os,
+                                   Mmu->pageTableMutex,
+                                   gcvINFINITE,
+                                   GPU_VIV_MUTEX_NORMAL));
     acquired = gcvTRUE;
 
     /* Map to Master TLB. */
@@ -1410,7 +1416,10 @@ _AllocatePages(
     gcmkSAFECASTSIZET(pageCount, PageCount);
 
     /* Grab the mutex. */
-    gcmkONERROR(gckOS_AcquireMutex(Mmu->os, Mmu->pageTableMutex, gcvINFINITE));
+    gcmkONERROR(gckOS_AcquireMutex(Mmu->os,
+                                   Mmu->pageTableMutex,
+                                   gcvINFINITE,
+                                   GPU_VIV_MUTEX_NORMAL));
     mutex = gcvTRUE;
 
     /* Cast pointer to page table. */
@@ -1615,7 +1624,10 @@ _FreePages(
     /* Get the node by index. */
     node = Mmu->mapLogical + ((gctUINT32_PTR)PageTable - Mmu->pageTableLogical);
 
-    gcmkONERROR(gckOS_AcquireMutex(Mmu->os, Mmu->pageTableMutex, gcvINFINITE));
+    gcmkONERROR(gckOS_AcquireMutex(Mmu->os,
+                                   Mmu->pageTableMutex,
+                                   gcvINFINITE,
+                                   GPU_VIV_MUTEX_NORMAL));
     acquired = gcvTRUE;
 
 #if gcdMMU_CLEAR_VALUE
@@ -1696,7 +1708,10 @@ gckMMU_AllocatePagesEx(
     gctBOOL acquired = gcvFALSE;
     gctBOOL allocated = gcvFALSE;
 
-    gckOS_AcquireMutex(Mmu->os, mirrorPageTableMutex, gcvINFINITE);
+    gckOS_AcquireMutex(Mmu->os,
+                       mirrorPageTableMutex,
+                       gcvINFINITE,
+                       GPU_VIV_MUTEX_NORMAL);
     acquired = gcvTRUE;
 
     /* Allocate page table for current MMU. */
@@ -1758,7 +1773,10 @@ gckMMU_FreePages(
     gctUINT32 offset;
     gckMMU mmu;
 
-    gckOS_AcquireMutex(Mmu->os, mirrorPageTableMutex, gcvINFINITE);
+    gckOS_AcquireMutex(Mmu->os,
+                       mirrorPageTableMutex,
+                       gcvINFINITE,
+                       GPU_VIV_MUTEX_NORMAL);
 
     gcmkVERIFY_OK(_FreePages(Mmu, PageTable, PageCount));
 
@@ -2168,7 +2186,10 @@ gckMMU_FreePagesEx(
     /* Get the node by index. */
     node = Mmu->mapLogical + _AddressToIndex(Mmu, Address);
 
-    gcmkONERROR(gckOS_AcquireMutex(Mmu->os, Mmu->pageTableMutex, gcvINFINITE));
+    gcmkONERROR(gckOS_AcquireMutex(Mmu->os,
+                                   Mmu->pageTableMutex,
+                                   gcvINFINITE,
+                                   GPU_VIV_MUTEX_NORMAL));
 
     if (PageCount == 1)
     {

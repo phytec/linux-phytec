@@ -297,7 +297,10 @@ gceSTATUS gckVGMMU_AllocatePages(
     }
 
     /* Grab the mutex. */
-    status = gckOS_AcquireMutex(Mmu->os, Mmu->mutex, gcvINFINITE);
+    status = gckOS_AcquireMutex(Mmu->os,
+                                Mmu->mutex,
+                                gcvINFINITE,
+                                GPU_VIV_MUTEX_NORMAL);
 
     if (status < 0)
     {

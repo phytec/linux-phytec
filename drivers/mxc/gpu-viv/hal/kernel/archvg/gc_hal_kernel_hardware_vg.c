@@ -1669,7 +1669,10 @@ gckVGHARDWARE_SetPowerManagementState(
     if (broadcast)
     {
         /* Try to acquire the power mutex. */
-        status = gckOS_AcquireMutex(os, Hardware->powerMutex, 0);
+        status = gckOS_AcquireMutex(os,
+                                    Hardware->powerMutex,
+                                    0,
+                                    GPU_VIV_MUTEX_NORMAL);
 
         if (status == gcvSTATUS_TIMEOUT)
         {
@@ -1694,14 +1697,18 @@ gckVGHARDWARE_SetPowerManagementState(
                 /* Acquire the power mutex. */
                 gcmkONERROR(gckOS_AcquireMutex(os,
                                                Hardware->powerMutex,
-                                               gcvINFINITE));
+                                               gcvINFINITE,
+                                               GPU_VIV_MUTEX_NORMAL));
             }
         }
     }
     else
     {
         /* Acquire the power mutex. */
-        gcmkONERROR(gckOS_AcquireMutex(os, Hardware->powerMutex, gcvINFINITE));
+        gcmkONERROR(gckOS_AcquireMutex(os,
+                                       Hardware->powerMutex,
+                                       gcvINFINITE,
+                                       GPU_VIV_MUTEX_NORMAL));
     }
 
     /* Get time until mtuex acquired. */
@@ -1795,7 +1802,8 @@ gckVGHARDWARE_SetPowerManagementState(
         gcmkONERROR(gckOS_AcquireMutex(
             command->os,
             command->commitMutex,
-            gcvINFINITE
+            gcvINFINITE,
+            GPU_VIV_MUTEX_NORMAL
             ));
 
         commitMutex = gcvTRUE;
