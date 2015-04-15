@@ -118,8 +118,10 @@ int gc_clients_show(struct seq_file* m, void* data)
     seq_printf(m, "------------------------\n");
 
     /* Acquire the database mutex. */
-    gcmkVERIFY_OK(
-        gckOS_AcquireMutex(kernel->os, kernel->db->dbMutex, gcvINFINITE));
+    gcmkVERIFY_OK(gckOS_AcquireMutex(kernel->os,
+                                     kernel->db->dbMutex,
+                                     gcvINFINITE,
+                                     GPU_VIV_MUTEX_NORMAL));
 
     /* Walk the databases. */
     for (i = 0; i < gcmCOUNTOF(kernel->db->db); ++i)
@@ -187,8 +189,10 @@ int gc_meminfo_show(struct seq_file* m, void* data)
 
     if (gcmIS_SUCCESS(status))
     {
-        gcmkVERIFY_OK(
-            gckOS_AcquireMutex(memory->os, memory->mutex, gcvINFINITE));
+        gcmkVERIFY_OK(gckOS_AcquireMutex(memory->os,
+                                         memory->mutex,
+                                         gcvINFINITE,
+                                         GPU_VIV_MUTEX_NORMAL));
 
         free  = memory->freeBytes;
         used  = memory->bytes - memory->freeBytes;
@@ -204,8 +208,10 @@ int gc_meminfo_show(struct seq_file* m, void* data)
     seq_printf(m, "        Total : %10u B\n", total);
 
     /* Acquire the database mutex. */
-    gcmkVERIFY_OK(
-        gckOS_AcquireMutex(kernel->os, kernel->db->dbMutex, gcvINFINITE));
+    gcmkVERIFY_OK(gckOS_AcquireMutex(kernel->os,
+                                     kernel->db->dbMutex,
+                                     gcvINFINITE,
+                                     GPU_VIV_MUTEX_NORMAL));
 
     /* Walk the databases. */
     for (i = 0; i < gcmCOUNTOF(kernel->db->db); ++i)
@@ -325,8 +331,10 @@ _ShowProcesses(
     gctINT i;
 
     /* Acquire the database mutex. */
-    gcmkVERIFY_OK(
-        gckOS_AcquireMutex(Kernel->os, Kernel->db->dbMutex, gcvINFINITE));
+    gcmkVERIFY_OK(gckOS_AcquireMutex(Kernel->os,
+                                     Kernel->db->dbMutex,
+                                     gcvINFINITE,
+                                     GPU_VIV_MUTEX_NORMAL));
 
     /* Idle time since last call */
     seq_printf(file, "GPU Idle: %llu ns\n",  Kernel->db->idleTime);

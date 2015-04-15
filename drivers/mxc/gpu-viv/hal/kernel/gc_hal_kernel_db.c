@@ -64,7 +64,10 @@ gckKERNEL_NewDatabase(
     gcmkHEADER_ARG("Kernel=0x%x ProcessID=%d", Kernel, ProcessID);
 
     /* Acquire the database mutex. */
-    gcmkONERROR(gckOS_AcquireMutex(Kernel->os, Kernel->db->dbMutex, gcvINFINITE));
+    gcmkONERROR(gckOS_AcquireMutex(Kernel->os,
+                                   Kernel->db->dbMutex,
+                                   gcvINFINITE,
+                                   GPU_VIV_MUTEX_NORMAL));
     acquired = gcvTRUE;
 
     /* Compute the hash for the database. */
@@ -178,8 +181,10 @@ gckKERNEL_FindDatabase(
     slot = ProcessID % gcmCOUNTOF(Kernel->db->db);
 
     /* Acquire the database mutex. */
-    gcmkONERROR(
-        gckOS_AcquireMutex(Kernel->os, Kernel->db->dbMutex, gcvINFINITE));
+    gcmkONERROR(gckOS_AcquireMutex(Kernel->os,
+                                   Kernel->db->dbMutex,
+                                   gcvINFINITE,
+                                   GPU_VIV_MUTEX_NORMAL));
     acquired = gcvTRUE;
 
     /* Check whether we are getting the last known database. */
@@ -277,8 +282,10 @@ gckKERNEL_DeleteDatabase(
     gcmkHEADER_ARG("Kernel=0x%x Database=0x%x", Kernel, Database);
 
     /* Acquire the database mutex. */
-    gcmkONERROR(
-        gckOS_AcquireMutex(Kernel->os, Kernel->db->dbMutex, gcvINFINITE));
+    gcmkONERROR(gckOS_AcquireMutex(Kernel->os,
+                                   Kernel->db->dbMutex,
+                                   gcvINFINITE,
+                                   GPU_VIV_MUTEX_NORMAL));
     acquired = gcvTRUE;
 
     /* Check slot value. */
@@ -393,8 +400,10 @@ gckKERNEL_NewRecord(
     gcmkHEADER_ARG("Kernel=0x%x Database=0x%x", Kernel, Database);
 
     /* Acquire the database mutex. */
-    gcmkONERROR(
-        gckOS_AcquireMutex(Kernel->os, Kernel->db->dbMutex, gcvINFINITE));
+    gcmkONERROR(gckOS_AcquireMutex(Kernel->os,
+                                   Kernel->db->dbMutex,
+                                   gcvINFINITE,
+                                   GPU_VIV_MUTEX_NORMAL));
     acquired = gcvTRUE;
 
     if (Kernel->db->freeRecord != gcvNULL)
@@ -488,8 +497,10 @@ gckKERNEL_DeleteRecord(
                    Kernel, Database, Type, Data);
 
     /* Acquire the database mutex. */
-    gcmkONERROR(
-        gckOS_AcquireMutex(Kernel->os, Kernel->db->dbMutex, gcvINFINITE));
+    gcmkONERROR(gckOS_AcquireMutex(Kernel->os,
+                                   Kernel->db->dbMutex,
+                                   gcvINFINITE,
+                                   GPU_VIV_MUTEX_NORMAL));
     acquired = gcvTRUE;
 
     /* Scan the database for this record. */
@@ -597,8 +608,10 @@ gckKERNEL_FindRecord(
                    Kernel, Database, Type, Data);
 
     /* Acquire the database mutex. */
-    gcmkONERROR(
-        gckOS_AcquireMutex(Kernel->os, Kernel->db->dbMutex, gcvINFINITE));
+    gcmkONERROR(gckOS_AcquireMutex(Kernel->os,
+                                   Kernel->db->dbMutex,
+                                   gcvINFINITE,
+                                   GPU_VIV_MUTEX_NORMAL));
     acquired = gcvTRUE;
 
     /* Scan the database for this record. */
@@ -967,7 +980,10 @@ gckKERNEL_AddProcessDB(
         break;
     }
 
-    gcmkVERIFY_OK(gckOS_AcquireMutex(Kernel->os, database->counterMutex, gcvINFINITE));
+    gcmkVERIFY_OK(gckOS_AcquireMutex(Kernel->os,
+                                     database->counterMutex,
+                                     gcvINFINITE,
+                                     GPU_VIV_MUTEX_NORMAL));
 
     if (count != gcvNULL)
     {
@@ -1075,7 +1091,10 @@ gckKERNEL_RemoveProcessDB(
     gcmkONERROR(
         gckKERNEL_DeleteRecord(Kernel, database, Type, Pointer, &bytes));
 
-    gcmkVERIFY_OK(gckOS_AcquireMutex(Kernel->os, database->counterMutex, gcvINFINITE));
+    gcmkVERIFY_OK(gckOS_AcquireMutex(Kernel->os,
+                                     database->counterMutex,
+                                     gcvINFINITE,
+                                     GPU_VIV_MUTEX_NORMAL));
 
     /* Update counters. */
     switch (Type)
@@ -1563,7 +1582,10 @@ gckKERNEL_QueryProcessDB(
         gcmkONERROR(
             gckKERNEL_FindDatabase(Kernel, ProcessID, LastProcessID, &database));
 
-        gcmkVERIFY_OK(gckOS_AcquireMutex(Kernel->os, database->counterMutex, gcvINFINITE));
+        gcmkVERIFY_OK(gckOS_AcquireMutex(Kernel->os,
+                                         database->counterMutex,
+                                         gcvINFINITE,
+                                         GPU_VIV_MUTEX_NORMAL));
 
         /* Get pointer to counters. */
         switch (Type)
@@ -1756,7 +1778,10 @@ gckKERNEL_DumpProcessDB(
 
     /* Acquire the database mutex. */
     gcmkVERIFY_OK(
-        gckOS_AcquireMutex(Kernel->os, Kernel->db->dbMutex, gcvINFINITE));
+        gckOS_AcquireMutex(Kernel->os,
+                           Kernel->db->dbMutex,
+                           gcvINFINITE,
+                           GPU_VIV_MUTEX_NORMAL));
 
     gcmkPRINT("**************************\n");
     gcmkPRINT("***  PROCESS DB DUMP   ***\n");

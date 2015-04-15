@@ -299,7 +299,10 @@ gckOS_CallSecurityService(
     gcmkHEADER();
     gcmkVERIFY_ARGUMENT(Channel != 0);
 
-    gckOS_AcquireMutex(channel->os, channel->mutex, gcvINFINITE);
+    gckOS_AcquireMutex(channel->os,
+                       channel->mutex,
+                       gcvINFINITE,
+                       GPU_VIV_MUTEX_NORMAL);
 
     gckOS_MemCopy(channel->virtual, Interface, channel->bytes);
 

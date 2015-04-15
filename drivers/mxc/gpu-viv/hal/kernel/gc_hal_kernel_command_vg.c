@@ -743,7 +743,8 @@ _ScheduleTasks(
         gcmkERR_BREAK(gckOS_AcquireMutex(
             Command->os,
             Command->taskMutex,
-            gcvINFINITE
+            gcvINFINITE,
+            GPU_VIV_MUTEX_NORMAL
             ));
 
         gcmkTRACE_ZONE(
@@ -1838,7 +1839,8 @@ _EventHandler_Block(
         gcmkERR_BREAK(gckOS_AcquireMutex(
             command->os,
             command->taskMutex,
-            gcvINFINITE
+            gcvINFINITE,
+            GPU_VIV_MUTEX_NORMAL
             ));
 
         /* Verify inputs. */
@@ -1908,7 +1910,8 @@ gcmDECLARE_INTERRUPT_HANDLER(COMMAND, 0)
         gcmkERR_BREAK(gckOS_AcquireMutex(
             command->os,
             command->queueMutex,
-            gcvINFINITE
+            gcvINFINITE,
+            GPU_VIV_MUTEX_NORMAL
             ));
 
         /* Get the current queue. */
@@ -2613,7 +2616,8 @@ _LockCurrentQueue(
         gcmkERR_BREAK(gckOS_AcquireMutex(
             Command->os,
             Command->queueMutex,
-            gcvINFINITE
+            gcvINFINITE,
+            GPU_VIV_MUTEX_NORMAL
             ));
 
         /* Determine the first queue entry. */
@@ -3508,7 +3512,8 @@ gckVGCOMMAND_Commit(
         status = gckOS_AcquireMutex(
             Command->os,
             Command->commitMutex,
-            gcvINFINITE
+            gcvINFINITE,
+            GPU_VIV_MUTEX_NORMAL
             );
 
         if (gcmIS_ERROR(status))
@@ -3725,7 +3730,8 @@ gckVGCOMMAND_Commit(
                     gcmkERR_BREAK(gckOS_AcquireMutex(
                         Command->os,
                         Command->queueMutex,
-                        gcvINFINITE
+                        gcvINFINITE,
+                        GPU_VIV_MUTEX_NORMAL
                         ));
                 }
 

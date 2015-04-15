@@ -111,7 +111,8 @@ gckEVENT_FreeRecord(
     /* Acquire the mutex. */
     gcmkONERROR(gckOS_AcquireMutex(Event->os,
                                    Event->freeEventMutex,
-                                   gcvINFINITE));
+                                   gcvINFINITE,
+                                   GPU_VIV_MUTEX_NORMAL));
     acquired = gcvTRUE;
 
     /* Push the record on the free list. */
@@ -169,7 +170,10 @@ gckEVENT_IsEmpty(
     }
 
     /* Try acquiring the mutex. */
-    status = gckOS_AcquireMutex(Event->os, Event->eventQueueMutex, 0);
+    status = gckOS_AcquireMutex(Event->os,
+                                Event->eventQueueMutex,
+                                0,
+                                GPU_VIV_MUTEX_NORMAL);
     if (status == gcvSTATUS_TIMEOUT)
     {
         /* Timeout - queue is no longer empty. */
@@ -218,7 +222,10 @@ _TryToIdleGPU(
 
     if (empty)
     {
-        status = gckOS_AcquireMutex(hardware->os, hardware->powerMutex, 0);
+        status = gckOS_AcquireMutex(hardware->os,
+                                    hardware->powerMutex,
+                                    0,
+                                    GPU_VIV_MUTEX_NORMAL);
         if (status == gcvSTATUS_TIMEOUT)
         {
             gcmkFOOTER_NO();
@@ -810,7 +817,8 @@ gckEVENT_GetEvent(
         /* Grab the queue mutex. */
         gcmkONERROR(gckOS_AcquireMutex(Event->os,
                                        Event->eventQueueMutex,
-                                       gcvINFINITE));
+                                       gcvINFINITE,
+                                       GPU_VIV_MUTEX_NORMAL));
         acquired = gcvTRUE;
 
         /* Walk through all events. */
@@ -960,7 +968,10 @@ gckEVENT_AllocateRecord(
     gcmkVERIFY_ARGUMENT(Record != gcvNULL);
 
     /* Acquire the mutex. */
-    gcmkONERROR(gckOS_AcquireMutex(Event->os, Event->freeEventMutex, gcvINFINITE));
+    gcmkONERROR(gckOS_AcquireMutex(Event->os,
+                                   Event->freeEventMutex,
+                                   gcvINFINITE,
+                                   GPU_VIV_MUTEX_NORMAL));
     acquired = gcvTRUE;
 
     /* Test if we are below the allocation threshold. */
@@ -1115,7 +1126,10 @@ gckEVENT_AddList(
 #endif
 
     /* Acquire the mutex. */
-    gcmkONERROR(gckOS_AcquireMutex(Event->os, Event->eventListMutex, gcvINFINITE));
+    gcmkONERROR(gckOS_AcquireMutex(Event->os,
+                                   Event->eventListMutex,
+                                   gcvINFINITE,
+                                   GPU_VIV_MUTEX_NORMAL));
     acquired = gcvTRUE;
 
     /* Do we need to allocate a new queue? */
@@ -1688,7 +1702,8 @@ gckEVENT_Submit(
             /* Acquire the list mutex. */
             gcmkONERROR(gckOS_AcquireMutex(Event->os,
                                            Event->eventListMutex,
-                                           gcvINFINITE));
+                                           gcvINFINITE,
+                                           GPU_VIV_MUTEX_NORMAL));
             acquired = gcvTRUE;
 
             /* Get the current queue. */
@@ -2359,7 +2374,8 @@ gckEVENT_Notify(
         /* Grab the mutex queue. */
         gcmkONERROR(gckOS_AcquireMutex(Event->os,
                                        Event->eventQueueMutex,
-                                       gcvINFINITE));
+                                       gcvINFINITE,
+                                       GPU_VIV_MUTEX_NORMAL));
         acquired = gcvTRUE;
 
 #if gcdSMP
@@ -3123,7 +3139,8 @@ gckEVENT_FreeProcess(
             /* Grab the event queue mutex. */
             gcmkONERROR(gckOS_AcquireMutex(Event->os,
                                            Event->eventQueueMutex,
-                                           gcvINFINITE));
+                                           gcvINFINITE,
+                                           GPU_VIV_MUTEX_NORMAL));
             acquired = gcvTRUE;
 
             /* Grab the mutex head. */

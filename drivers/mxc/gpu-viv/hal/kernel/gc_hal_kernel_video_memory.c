@@ -859,7 +859,10 @@ gckVIDMEM_AllocateLinear(
     gcmkVERIFY_ARGUMENT(Type < gcvSURF_NUM_TYPES);
 
     /* Acquire the mutex. */
-    gcmkONERROR(gckOS_AcquireMutex(Memory->os, Memory->mutex, gcvINFINITE));
+    gcmkONERROR(gckOS_AcquireMutex(Memory->os,
+                                   Memory->mutex,
+                                   gcvINFINITE,
+                                   GPU_VIV_MUTEX_NORMAL));
 
     acquired = gcvTRUE;
 
@@ -1049,8 +1052,10 @@ gckVIDMEM_Free(
         memory = Node->VidMem.memory;
 
         /* Acquire the mutex. */
-        gcmkONERROR(
-            gckOS_AcquireMutex(memory->os, memory->mutex, gcvINFINITE));
+        gcmkONERROR(gckOS_AcquireMutex(memory->os,
+                                       memory->mutex,
+                                       gcvINFINITE,
+                                       GPU_VIV_MUTEX_NORMAL));
 
         mutexAcquired = gcvTRUE;
 
@@ -1449,7 +1454,10 @@ gckVIDMEM_Lock(
     }
 
     /* Grab the mutex. */
-    gcmkONERROR(gckOS_AcquireMutex(os, Node->mutex, gcvINFINITE));
+    gcmkONERROR(gckOS_AcquireMutex(os,
+                                   Node->mutex,
+                                   gcvINFINITE,
+                                   GPU_VIV_MUTEX_NORMAL));
     acquired = gcvTRUE;
 
     /**************************** Video Memory ********************************/
@@ -1764,7 +1772,10 @@ gckVIDMEM_Unlock(
     }
 
     /* Grab the mutex. */
-    gcmkONERROR(gckOS_AcquireMutex(os, Node->mutex, gcvINFINITE));
+    gcmkONERROR(gckOS_AcquireMutex(os,
+                                   Node->mutex,
+                                   gcvINFINITE,
+                                   GPU_VIV_MUTEX_NORMAL));
     acquired = gcvTRUE;
 
     /**************************** Video Memory ********************************/
@@ -1939,7 +1950,10 @@ gckVIDMEM_Node_Lock(
 
     gcmkONERROR(gckKERNEL_GetProcessMMU(Kernel, &mmu));
 
-    gcmkONERROR(gckOS_AcquireMutex(os, Node->mapMutex, gcvINFINITE));
+    gcmkONERROR(gckOS_AcquireMutex(os,
+                                   Node->mapMutex,
+                                   gcvINFINITE,
+                                   GPU_VIV_MUTEX_NORMAL));
     acquired = gcvTRUE;
 
     /* Get map information for current process. */
@@ -2058,7 +2072,10 @@ gckVIDMEM_NODE_Unlock(
     gcmkVERIFY_OBJECT(Kernel, gcvOBJ_KERNEL);
     gcmkVERIFY_ARGUMENT(Node != gcvNULL);
 
-    gcmkONERROR(gckOS_AcquireMutex(Kernel->os, Node->mapMutex, gcvINFINITE));
+    gcmkONERROR(gckOS_AcquireMutex(Kernel->os,
+                                   Node->mapMutex,
+                                   gcvINFINITE,
+                                   GPU_VIV_MUTEX_NORMAL));
     acquired = gcvTRUE;
 
     /* Get map information for current process. */
@@ -2243,7 +2260,10 @@ gckVIDMEM_HANDLE_Reference(
     gcmkONERROR(
         gckKERNEL_FindHandleDatbase(Kernel, ProcessID, &database, &mutex));
 
-    gcmkVERIFY_OK(gckOS_AcquireMutex(Kernel->os, mutex, gcvINFINITE));
+    gcmkVERIFY_OK(gckOS_AcquireMutex(Kernel->os,
+                                     mutex,
+                                     gcvINFINITE,
+                                     GPU_VIV_MUTEX_NORMAL));
     acquired = gcvTRUE;
 
     /* Translate handle to gckVIDMEM_HANDLE object. */
@@ -2291,7 +2311,10 @@ gckVIDMEM_HANDLE_Dereference(
                                     &handleDatabase,
                                     &mutex));
 
-    gcmkVERIFY_OK(gckOS_AcquireMutex(Kernel->os, mutex, gcvINFINITE));
+    gcmkVERIFY_OK(gckOS_AcquireMutex(Kernel->os,
+                                     mutex,
+                                     gcvINFINITE,
+                                     GPU_VIV_MUTEX_NORMAL));
     acquired = gcvTRUE;
 
     /* Translate handle to gckVIDMEM_HANDLE. */
@@ -2350,7 +2373,10 @@ gckVIDMEM_HANDLE_LookupAndReference(
     gcmkONERROR(
         gckKERNEL_FindHandleDatbase(Kernel, processID, &database, &mutex));
 
-    gcmkVERIFY_OK(gckOS_AcquireMutex(Kernel->os, mutex, gcvINFINITE));
+    gcmkVERIFY_OK(gckOS_AcquireMutex(Kernel->os,
+                                     mutex,
+                                     gcvINFINITE,
+                                     GPU_VIV_MUTEX_NORMAL));
     acquired = gcvTRUE;
 
     /* Translate handle to gckVIDMEM_HANDLE object. */
@@ -2403,7 +2429,10 @@ gckVIDMEM_HANDLE_Lookup(
     gcmkONERROR(
         gckKERNEL_FindHandleDatbase(Kernel, ProcessID, &database, &mutex));
 
-    gcmkVERIFY_OK(gckOS_AcquireMutex(Kernel->os, mutex, gcvINFINITE));
+    gcmkVERIFY_OK(gckOS_AcquireMutex(Kernel->os,
+                                     mutex,
+                                     gcvINFINITE,
+                                     GPU_VIV_MUTEX_NORMAL));
     acquired = gcvTRUE;
 
     gcmkONERROR(
@@ -2535,7 +2564,10 @@ gckVIDMEM_NODE_Dereference(
 
     gcmkHEADER_ARG("Kernel=0x%X Node=0x%X", Kernel, Node);
 
-    gcmkVERIFY_OK(gckOS_AcquireMutex(Kernel->os, mutex, gcvINFINITE));
+    gcmkVERIFY_OK(gckOS_AcquireMutex(Kernel->os,
+                                     mutex,
+                                     gcvINFINITE,
+                                     GPU_VIV_MUTEX_NORMAL));
 
     gcmkVERIFY_OK(gckOS_AtomDecrement(Kernel->os, Node->reference, &oldValue));
 
@@ -2602,7 +2634,10 @@ gckVIDMEM_NODE_Name(
 
     gcmkONERROR(gckOS_GetProcessID(&processID));
 
-    gcmkONERROR(gckOS_AcquireMutex(Kernel->os, mutex, gcvINFINITE));
+    gcmkONERROR(gckOS_AcquireMutex(Kernel->os,
+                                   mutex,
+                                   gcvINFINITE,
+                                   GPU_VIV_MUTEX_NORMAL));
     acquired = gcvTRUE;
 
     gcmkONERROR(gckVIDMEM_HANDLE_LookupAndReference(Kernel, Handle, &node));
@@ -2679,7 +2714,10 @@ gckVIDMEM_NODE_Import(
 
     gcmkHEADER_ARG("Kernel=0x%X Name=%d", Kernel, Name);
 
-    gcmkONERROR(gckOS_AcquireMutex(Kernel->os, mutex, gcvINFINITE));
+    gcmkONERROR(gckOS_AcquireMutex(Kernel->os,
+                                   mutex,
+                                   gcvINFINITE,
+                                   GPU_VIV_MUTEX_NORMAL));
     acquired = gcvTRUE;
 
     /* Lookup in database to get the node. */

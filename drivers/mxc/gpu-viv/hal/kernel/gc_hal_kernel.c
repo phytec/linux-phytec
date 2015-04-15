@@ -1531,7 +1531,10 @@ gckKERNEL_Dispatch(
                    Interface->command, _DispatchText[Interface->command]);
 #endif
 #if QNX_SINGLE_THREADED_DEBUGGING
-    gckOS_AcquireMutex(Kernel->os, Kernel->debugMutex, gcvINFINITE);
+    gckOS_AcquireMutex(Kernel->os,
+                       Kernel->debugMutex,
+                       gcvINFINITE,
+                       GPU_VIV_MUTEX_NORMAL);
 #endif
 
     /* Get the current process ID. */
@@ -2008,7 +2011,10 @@ gckKERNEL_Dispatch(
         {
             gceCHIPPOWERSTATE power;
 
-            gcmkONERROR(gckOS_AcquireMutex(Kernel->os, Kernel->hardware->powerMutex, gcvINFINITE));
+            gcmkONERROR(gckOS_AcquireMutex(Kernel->os,
+                        Kernel->hardware->powerMutex,
+                        gcvINFINITE,
+                        GPU_VIV_MUTEX_NORMAL));
             powerMutexAcquired = gcvTRUE;
             gcmkONERROR(gckHARDWARE_QueryPowerManagementState(Kernel->hardware,
                                                               &power));
@@ -2045,7 +2051,10 @@ gckKERNEL_Dispatch(
             gctUINT32 coreId = 0;
             gctUINT32 coreSelect = Interface->u.ReadRegisterDataEx.coreSelect;
 
-            gcmkONERROR(gckOS_AcquireMutex(Kernel->os, Kernel->hardware->powerMutex, gcvINFINITE));
+            gcmkONERROR(gckOS_AcquireMutex(Kernel->os,
+                                           Kernel->hardware->powerMutex,
+                                           gcvINFINITE,
+                                           GPU_VIV_MUTEX_NORMAL));
             powerMutexAcquired = gcvTRUE;
             gcmkONERROR(gckHARDWARE_QueryPowerManagementState(Kernel->hardware,
                     &power));
@@ -2098,7 +2107,10 @@ gckKERNEL_Dispatch(
             gctUINT32 coreId = 0;
             gctUINT32 coreSelect = Interface->u.WriteRegisterDataEx.coreSelect;
 
-            gcmkONERROR(gckOS_AcquireMutex(Kernel->os, Kernel->hardware->powerMutex, gcvINFINITE));
+            gcmkONERROR(gckOS_AcquireMutex(Kernel->os,
+                                           Kernel->hardware->powerMutex,
+                                           gcvINFINITE,
+                                           GPU_VIV_MUTEX_NORMAL));
             powerMutexAcquired = gcvTRUE;
             gcmkONERROR(gckHARDWARE_QueryPowerManagementState(Kernel->hardware,
                     &power));
@@ -2142,7 +2154,10 @@ gckKERNEL_Dispatch(
         {
             gceCHIPPOWERSTATE power;
 
-            gcmkONERROR(gckOS_AcquireMutex(Kernel->os, Kernel->hardware->powerMutex, gcvINFINITE));
+            gcmkONERROR(gckOS_AcquireMutex(Kernel->os,
+                                           Kernel->hardware->powerMutex,
+                                           gcvINFINITE,
+                                           GPU_VIV_MUTEX_NORMAL));
             powerMutexAcquired = gcvTRUE;
             gcmkONERROR(gckHARDWARE_QueryPowerManagementState(Kernel->hardware,
                                                                   &power));
@@ -3861,7 +3876,10 @@ gckKERNEL_AllocateVirtualCommandBuffer(
                    buffer->gpuAddress, buffer->pageCount,
                    buffer->kernelLogical, buffer->userLogical);
 
-    gcmkVERIFY_OK(gckOS_AcquireMutex(os, Kernel->virtualBufferLock, gcvINFINITE));
+    gcmkVERIFY_OK(gckOS_AcquireMutex(os,
+                                     Kernel->virtualBufferLock,
+                                     gcvINFINITE,
+                                     GPU_VIV_MUTEX_NORMAL));
 
     if (Kernel->virtualBufferHead == gcvNULL)
     {
@@ -3957,7 +3975,10 @@ gckKERNEL_DestroyVirtualCommandBuffer(
 
     gcmkVERIFY_OK(gckOS_FreePagedMemory(os, buffer->physical, Bytes));
 
-    gcmkVERIFY_OK(gckOS_AcquireMutex(os, kernel->virtualBufferLock, gcvINFINITE));
+    gcmkVERIFY_OK(gckOS_AcquireMutex(os,
+                                     kernel->virtualBufferLock,
+                                     gcvINFINITE,
+                                     GPU_VIV_MUTEX_NORMAL));
 
     if (buffer == kernel->virtualBufferHead)
     {
@@ -4007,7 +4028,10 @@ gckKERNEL_GetGPUAddress(
 
     status = gcvSTATUS_INVALID_ADDRESS;
 
-    gcmkVERIFY_OK(gckOS_AcquireMutex(Kernel->os, Kernel->virtualBufferLock, gcvINFINITE));
+    gcmkVERIFY_OK(gckOS_AcquireMutex(Kernel->os,
+                                     Kernel->virtualBufferLock,
+                                     gcvINFINITE,
+                                     GPU_VIV_MUTEX_NORMAL));
 
     /* Walk all command buffer. */
     for (buffer = Kernel->virtualBufferHead; buffer != gcvNULL; buffer = buffer->next)
@@ -4054,7 +4078,10 @@ gckKERNEL_QueryGPUAddress(
     gctUINT32 start;
     gceSTATUS status = gcvSTATUS_NOT_SUPPORTED;
 
-    gcmkVERIFY_OK(gckOS_AcquireMutex(Kernel->os, Kernel->virtualBufferLock, gcvINFINITE));
+    gcmkVERIFY_OK(gckOS_AcquireMutex(Kernel->os,
+                                     Kernel->virtualBufferLock,
+                                     gcvINFINITE,
+                                     GPU_VIV_MUTEX_NORMAL));
 
     /* Walk all command buffers. */
     for (buffer = Kernel->virtualBufferHead; buffer != gcvNULL; buffer = buffer->next)
@@ -4293,7 +4320,10 @@ gckKERNEL_AllocateIntegerId(
 
     gcmkVERIFY_ARGUMENT(Id != gcvNULL);
 
-    gcmkVERIFY_OK(gckOS_AcquireMutex(os, database->mutex, gcvINFINITE));
+    gcmkVERIFY_OK(gckOS_AcquireMutex(os,
+                                     database->mutex,
+                                     gcvINFINITE,
+                                     GPU_VIV_MUTEX_NORMAL));
     acquired = gcvTRUE;
 
     if (database->unused < 1)
@@ -4383,7 +4413,10 @@ gckKERNEL_FreeIntegerId(
 
     gcmkHEADER_ARG("Database=0x%08X Id=%d", Database, Id);
 
-    gcmkVERIFY_OK(gckOS_AcquireMutex(os, database->mutex, gcvINFINITE));
+    gcmkVERIFY_OK(gckOS_AcquireMutex(os,
+                                     database->mutex,
+                                     gcvINFINITE,
+                                     GPU_VIV_MUTEX_NORMAL));
     acquired = gcvTRUE;
 
     if (!(Id > 0 && Id <= database->tableLen))
@@ -4432,7 +4465,10 @@ gckKERNEL_QueryIntegerId(
     gcmkHEADER_ARG("Database=0x%08X Id=%d", Database, Id);
     gcmkVERIFY_ARGUMENT(Pointer != gcvNULL);
 
-    gcmkVERIFY_OK(gckOS_AcquireMutex(os, database->mutex, gcvINFINITE));
+    gcmkVERIFY_OK(gckOS_AcquireMutex(os,
+                                     database->mutex,
+                                     gcvINFINITE,
+                                     GPU_VIV_MUTEX_NORMAL));
     acquired = gcvTRUE;
 
     if (!(Id > 0 && Id <= database->tableLen))
@@ -4693,7 +4729,8 @@ gckKERNEL_DestroyShBuffer(
     gcmkONERROR(
         gckOS_AcquireMutex(Kernel->os,
                            Kernel->db->pointerDatabaseMutex,
-                           gcvINFINITE));
+                           gcvINFINITE,
+                           GPU_VIV_MUTEX_NORMAL));
     acquired = gcvTRUE;
 
     /* Find shared buffer structure. */
@@ -4789,7 +4826,8 @@ gckKERNEL_MapShBuffer(
     gcmkONERROR(
         gckOS_AcquireMutex(Kernel->os,
                            Kernel->db->pointerDatabaseMutex,
-                           gcvINFINITE));
+                           gcvINFINITE,
+                           GPU_VIV_MUTEX_NORMAL));
     acquired = gcvTRUE;
 
     /* Find shared buffer structure. */
@@ -4871,7 +4909,8 @@ gckKERNEL_WriteShBuffer(
     gcmkONERROR(
         gckOS_AcquireMutex(Kernel->os,
                            Kernel->db->pointerDatabaseMutex,
-                           gcvINFINITE));
+                           gcvINFINITE,
+                           GPU_VIV_MUTEX_NORMAL));
     acquired = gcvTRUE;
 
     /* Find shared buffer structure. */
@@ -4975,7 +5014,8 @@ gckKERNEL_ReadShBuffer(
     gcmkONERROR(
         gckOS_AcquireMutex(Kernel->os,
                            Kernel->db->pointerDatabaseMutex,
-                           gcvINFINITE));
+                           gcvINFINITE,
+                           GPU_VIV_MUTEX_NORMAL));
     acquired = gcvTRUE;
 
     /* Find shared buffer structure. */

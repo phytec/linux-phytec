@@ -4612,7 +4612,10 @@ gckHARDWARE_SetPowerManagementState(
     if (broadcast)
     {
         /* Try to acquire the power mutex. */
-        status = gckOS_AcquireMutex(os, Hardware->powerMutex, 0);
+        status = gckOS_AcquireMutex(os,
+                                    Hardware->powerMutex,
+                                    0,
+                                    GPU_VIV_MUTEX_NORMAL);
 
         if (status == gcvSTATUS_TIMEOUT)
         {
@@ -4638,14 +4641,18 @@ gckHARDWARE_SetPowerManagementState(
                 /* Acquire the power mutex. */
                 gcmkONERROR(gckOS_AcquireMutex(os,
                                                Hardware->powerMutex,
-                                               gcvINFINITE));
+                                               gcvINFINITE,
+                                               GPU_VIV_MUTEX_NORMAL));
             }
         }
     }
     else
     {
         /* Acquire the power mutex. */
-        gcmkONERROR(gckOS_AcquireMutex(os, Hardware->powerMutex, gcvINFINITE));
+        gcmkONERROR(gckOS_AcquireMutex(os,
+                                       Hardware->powerMutex,
+                                       gcvINFINITE,
+                                       GPU_VIV_MUTEX_NORMAL));
     }
 
     /* Get time until mtuex acquired. */
@@ -4756,7 +4763,8 @@ gckHARDWARE_SetPowerManagementState(
                            "Reacquiring the power mutex.");
             gcmkONERROR(gckOS_AcquireMutex(os,
                                            Hardware->powerMutex,
-                                           gcvINFINITE));
+                                           gcvINFINITE,
+                                           GPU_VIV_MUTEX_NORMAL));
             mutexAcquired = gcvTRUE;
 
             /* chipPowerState may be changed by external world during the time
@@ -5282,8 +5290,10 @@ gckHARDWARE_SetPowerManagement(
     gcmkVERIFY_OBJECT(Hardware, gcvOBJ_HARDWARE);
     if(!Hardware->powerManagementLock)
     {
-        gcmkVERIFY_OK(
-            gckOS_AcquireMutex(Hardware->os, Hardware->powerMutex, gcvINFINITE));
+        gcmkVERIFY_OK(gckOS_AcquireMutex(Hardware->os,
+                                         Hardware->powerMutex,
+                                         gcvINFINITE,
+                                         GPU_VIV_MUTEX_NORMAL));
 
         Hardware->powerManagement = PowerManagement;
 
@@ -5400,7 +5410,10 @@ gckHARDWARE_SetFscaleValue(
     gcmkVERIFY_ARGUMENT(FscaleValue > 0 && FscaleValue <= 64);
 
     gcmkONERROR(
-        gckOS_AcquireMutex(Hardware->os, Hardware->powerMutex, gcvINFINITE));
+        gckOS_AcquireMutex(Hardware->os,
+                           Hardware->powerMutex,
+                           gcvINFINITE,
+                           GPU_VIV_MUTEX_NORMAL));
     acquired =  gcvTRUE;
 
     Hardware->powerOnFscaleVal = FscaleValue;
@@ -6077,7 +6090,7 @@ gckHARDWARE_QueryContextProfile(
 
     /* Acquire the context sequnence mutex. */
     gcmkONERROR(gckOS_AcquireMutex(
-        command->os, command->mutexContextSeq, gcvINFINITE
+        command->os, command->mutexContextSeq, gcvINFINITE, GPU_VIV_MUTEX_NORMAL
         ));
 
     /* Read the counters. */
@@ -7759,7 +7772,10 @@ gckHARDWARE_QueryLoad(
     gcmkVERIFY_OBJECT(Hardware, gcvOBJ_HARDWARE);
     gcmkVERIFY_ARGUMENT(Load != gcvNULL);
 
-    gckOS_AcquireMutex(Hardware->os, Hardware->powerMutex, gcvINFINITE);
+    gckOS_AcquireMutex(Hardware->os,
+                       Hardware->powerMutex,
+                       gcvINFINITE,
+                       GPU_VIV_MUTEX_NORMAL);
 
     if (Hardware->chipPowerState == gcvPOWER_ON)
     {
@@ -7849,8 +7865,10 @@ gckHARDWARE_SetDVFSPeroid(
     */
     period1 = Frequency * 6250 / 6114;
 #endif
-
-    gckOS_AcquireMutex(Hardware->os, Hardware->powerMutex, gcvINFINITE);
+    gckOS_AcquireMutex(Hardware->os,
+                       Hardware->powerMutex,
+                       gcvINFINITE,
+                       GPU_VIV_MUTEX_NORMAL);
 
     if (Hardware->chipPowerState == gcvPOWER_ON)
     {

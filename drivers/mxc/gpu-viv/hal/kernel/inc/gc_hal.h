@@ -636,8 +636,13 @@ gceSTATUS
 gckOS_AcquireMutex(
     IN gckOS Os,
     IN gctPOINTER Mutex,
-    IN gctUINT32 Timeout
+    IN gctUINT32 Timeout,
+    IN gctINT32 subclass
     );
+
+enum gpu_viv_mutex_lock_class {
+    GPU_VIV_MUTEX_NORMAL
+};
 
 /* Release a mutex. */
 gceSTATUS

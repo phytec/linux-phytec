@@ -51,7 +51,7 @@
     gcmkVERIFY_OK(gckOS_AcquireMutex( \
                                 (os), \
                                 (os)->memoryLock, \
-                                gcvINFINITE))
+                                gcvINFINITE, GPU_VIV_MUTEX_NORMAL))
 
 #define MEMORY_UNLOCK(os) \
     gcmkVERIFY_OK(gckOS_ReleaseMutex((os), (os)->memoryLock))
@@ -60,7 +60,7 @@
     gcmkVERIFY_OK(gckOS_AcquireMutex( \
                                 (os), \
                                 (os)->memoryMapLock, \
-                                gcvINFINITE))
+                                gcvINFINITE, GPU_VIV_MUTEX_NORMAL))
 
 #define MEMORY_MAP_UNLOCK(os) \
     gcmkVERIFY_OK(gckOS_ReleaseMutex((os), (os)->memoryMapLock))
@@ -2863,7 +2863,8 @@ gceSTATUS
 gckOS_AcquireMutex(
     IN gckOS Os,
     IN gctPOINTER Mutex,
-    IN gctUINT32 Timeout
+    IN gctUINT32 Timeout,
+    IN gctINT32 subclass
     )
 {
     gcmkHEADER_ARG("Os=0x%X Mutex=0x%0x Timeout=%u", Os, Mutex, Timeout);
@@ -2875,7 +2876,7 @@ gckOS_AcquireMutex(
     if (Timeout == gcvINFINITE)
     {
         /* Lock the mutex. */
-        mutex_lock(Mutex);
+        mutex_lock_nested(Mutex, subclass);
 
         /* Success. */
         gcmkFOOTER_NO();
@@ -2885,6 +2886,14 @@ gckOS_AcquireMutex(
     for (;;)
     {
         /* Try to acquire the mutex. */
+        /*
+         * GPU_VIV driver's lock hierarchy for the lockdep framework:
+         *
+         * There isn't a function mutex_trylock_nested, but we don't need it
+         * either. There is not call path which acquires a mutex with
+         * mutex_trylock and raises the lockdep deadlock warning.
+         *
+         */
         if (mutex_trylock(Mutex))
         {
             /* Success. */
@@ -7072,7 +7081,10 @@ gckOS_DestroySignal(
     gcmkVERIFY_OBJECT(Os, gcvOBJ_OS);
     gcmkVERIFY_ARGUMENT(Signal != gcvNULL);
 
-    gcmkONERROR(gckOS_AcquireMutex(Os, Os->signalMutex, gcvINFINITE));
+    gcmkONERROR(gckOS_AcquireMutex(Os,
+                                   Os->signalMutex,
+                                   gcvINFINITE,
+                                   GPU_VIV_MUTEX_NORMAL));
     acquired = gcvTRUE;
 
     gcmkONERROR(_QueryIntegerId(&Os->signalDB, (gctUINT32)(gctUINTPTR_T)Signal, (gctPOINTER)&signal));
@@ -7144,7 +7156,10 @@ gckOS_Signal(
     gcmkVERIFY_OBJECT(Os, gcvOBJ_OS);
     gcmkVERIFY_ARGUMENT(Signal != gcvNULL);
 
-    gcmkONERROR(gckOS_AcquireMutex(Os, Os->signalMutex, gcvINFINITE));
+    gcmkONERROR(gckOS_AcquireMutex(Os,
+                                   Os->signalMutex,
+                                   gcvINFINITE,
+                                   GPU_VIV_MUTEX_NORMAL));
     acquired = gcvTRUE;
 
     gcmkONERROR(_QueryIntegerId(&Os->signalDB, (gctUINT32)(gctUINTPTR_T)Signal, (gctPOINTER)&signal));
@@ -8271,7 +8286,10 @@ gckOS_DestroySyncPoint(
     gcmkVERIFY_OBJECT(Os, gcvOBJ_OS);
     gcmkVERIFY_ARGUMENT(SyncPoint != gcvNULL);
 
-    gcmkONERROR(gckOS_AcquireMutex(Os, Os->syncPointMutex, gcvINFINITE));
+    gcmkONERROR(gckOS_AcquireMutex(Os,
+                                   Os->syncPointMutex,
+                                   gcvINFINITE,
+                                   GPU_VIV_MUTEX_NORMAL));
     acquired = gcvTRUE;
 
     gcmkONERROR(
@@ -8325,7 +8343,10 @@ gckOS_SignalSyncPoint(
     gcmkVERIFY_OBJECT(Os, gcvOBJ_OS);
     gcmkVERIFY_ARGUMENT(SyncPoint != gcvNULL);
 
-    gcmkONERROR(gckOS_AcquireMutex(Os, Os->syncPointMutex, gcvINFINITE));
+    gcmkONERROR(gckOS_AcquireMutex(Os,
+                                   Os->syncPointMutex,
+                                   gcvINFINITE,
+                                   GPU_VIV_MUTEX_NORMAL));
     acquired = gcvTRUE;
 
     gcmkONERROR(
