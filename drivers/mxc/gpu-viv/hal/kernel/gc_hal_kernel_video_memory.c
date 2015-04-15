@@ -2294,7 +2294,7 @@ gckVIDMEM_HANDLE_Reference(
     gcmkVERIFY_OK(gckOS_AcquireMutex(Kernel->os,
                                      mutex,
                                      gcvINFINITE,
-                                     GPU_VIV_MUTEX_NORMAL));
+                                     GPU_VIV_MUTEX_HANDLER));
     acquired = gcvTRUE;
 
     /* Translate handle to gckVIDMEM_HANDLE object. */
@@ -2345,7 +2345,7 @@ gckVIDMEM_HANDLE_Dereference(
     gcmkVERIFY_OK(gckOS_AcquireMutex(Kernel->os,
                                      mutex,
                                      gcvINFINITE,
-                                     GPU_VIV_MUTEX_NORMAL));
+                                     GPU_VIV_MUTEX_HANDLER));
     acquired = gcvTRUE;
 
     /* Translate handle to gckVIDMEM_HANDLE. */
@@ -2407,7 +2407,7 @@ gckVIDMEM_HANDLE_LookupAndReference(
     gcmkVERIFY_OK(gckOS_AcquireMutex(Kernel->os,
                                      mutex,
                                      gcvINFINITE,
-                                     GPU_VIV_MUTEX_NORMAL));
+                                     GPU_VIV_MUTEX_HANDLER));
     acquired = gcvTRUE;
 
     /* Translate handle to gckVIDMEM_HANDLE object. */
@@ -2463,7 +2463,7 @@ gckVIDMEM_HANDLE_Lookup(
     gcmkVERIFY_OK(gckOS_AcquireMutex(Kernel->os,
                                      mutex,
                                      gcvINFINITE,
-                                     GPU_VIV_MUTEX_NORMAL));
+                                     GPU_VIV_MUTEX_HANDLER));
     acquired = gcvTRUE;
 
     gcmkONERROR(

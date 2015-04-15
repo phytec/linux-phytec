@@ -1942,7 +1942,7 @@ gcmDECLARE_INTERRUPT_HANDLER(COMMAND, 0)
             command->os,
             command->queueMutex,
             gcvINFINITE,
-            GPU_VIV_MUTEX_NORMAL
+            GPU_VIV_MUTEX_OTHER
             ));
 
         /* Get the current queue. */
@@ -2648,7 +2648,7 @@ _LockCurrentQueue(
             Command->os,
             Command->queueMutex,
             gcvINFINITE,
-            GPU_VIV_MUTEX_NORMAL
+            GPU_VIV_MUTEX_OTHER
             ));
 
         /* Determine the first queue entry. */
@@ -3544,7 +3544,7 @@ gckVGCOMMAND_Commit(
             Command->os,
             Command->commitMutex,
             gcvINFINITE,
-            GPU_VIV_MUTEX_NORMAL
+            GPU_VIV_MUTEX_COMMAND
             );
 
         if (gcmIS_ERROR(status))
@@ -3762,7 +3762,7 @@ gckVGCOMMAND_Commit(
                         Command->os,
                         Command->queueMutex,
                         gcvINFINITE,
-                        GPU_VIV_MUTEX_NORMAL
+                        GPU_VIV_MUTEX_OTHER
                         ));
                 }
 

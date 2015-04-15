@@ -1803,7 +1803,7 @@ gckVGHARDWARE_SetPowerManagementState(
             command->os,
             command->commitMutex,
             gcvINFINITE,
-            GPU_VIV_MUTEX_NORMAL
+            GPU_VIV_MUTEX_COMMAND
             ));
 
         commitMutex = gcvTRUE;
