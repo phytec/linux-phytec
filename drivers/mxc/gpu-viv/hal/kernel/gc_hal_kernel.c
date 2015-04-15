@@ -3879,7 +3879,7 @@ gckKERNEL_AllocateVirtualCommandBuffer(
     gcmkVERIFY_OK(gckOS_AcquireMutex(os,
                                      Kernel->virtualBufferLock,
                                      gcvINFINITE,
-                                     GPU_VIV_MUTEX_NORMAL));
+                                     GPU_VIV_MUTEX_OTHER));
 
     if (Kernel->virtualBufferHead == gcvNULL)
     {
@@ -4031,7 +4031,7 @@ gckKERNEL_GetGPUAddress(
     gcmkVERIFY_OK(gckOS_AcquireMutex(Kernel->os,
                                      Kernel->virtualBufferLock,
                                      gcvINFINITE,
-                                     GPU_VIV_MUTEX_NORMAL));
+                                     GPU_VIV_MUTEX_OTHER));
 
     /* Walk all command buffer. */
     for (buffer = Kernel->virtualBufferHead; buffer != gcvNULL; buffer = buffer->next)
@@ -4081,7 +4081,7 @@ gckKERNEL_QueryGPUAddress(
     gcmkVERIFY_OK(gckOS_AcquireMutex(Kernel->os,
                                      Kernel->virtualBufferLock,
                                      gcvINFINITE,
-                                     GPU_VIV_MUTEX_NORMAL));
+                                     GPU_VIV_MUTEX_OTHER));
 
     /* Walk all command buffers. */
     for (buffer = Kernel->virtualBufferHead; buffer != gcvNULL; buffer = buffer->next)
@@ -4323,7 +4323,7 @@ gckKERNEL_AllocateIntegerId(
     gcmkVERIFY_OK(gckOS_AcquireMutex(os,
                                      database->mutex,
                                      gcvINFINITE,
-                                     GPU_VIV_MUTEX_NORMAL));
+                                     GPU_VIV_MUTEX_DATABASE));
     acquired = gcvTRUE;
 
     if (database->unused < 1)
@@ -4416,7 +4416,7 @@ gckKERNEL_FreeIntegerId(
     gcmkVERIFY_OK(gckOS_AcquireMutex(os,
                                      database->mutex,
                                      gcvINFINITE,
-                                     GPU_VIV_MUTEX_NORMAL));
+                                     GPU_VIV_MUTEX_DATABASE));
     acquired = gcvTRUE;
 
     if (!(Id > 0 && Id <= database->tableLen))
@@ -4468,7 +4468,7 @@ gckKERNEL_QueryIntegerId(
     gcmkVERIFY_OK(gckOS_AcquireMutex(os,
                                      database->mutex,
                                      gcvINFINITE,
-                                     GPU_VIV_MUTEX_NORMAL));
+                                     GPU_VIV_MUTEX_DATABASE));
     acquired = gcvTRUE;
 
     if (!(Id > 0 && Id <= database->tableLen))

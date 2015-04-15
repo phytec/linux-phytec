@@ -1320,7 +1320,7 @@ gckCOMMAND_Commit(
 
     /* Acquire the context switching mutex. */
     gcmkONERROR(gckOS_AcquireMutex(
-        Command->os, Command->mutexContext, gcvINFINITE, GPU_VIV_MUTEX_NORMAL
+        Command->os, Command->mutexContext, gcvINFINITE, GPU_VIV_MUTEX_COMMAND
         ));
     contextAcquired = gcvTRUE;
 
@@ -3012,7 +3012,7 @@ gckCOMMAND_Attach(
 
     /* Acquire the context switching mutex. */
     gcmkONERROR(gckOS_AcquireMutex(
-        Command->os, Command->mutexContext, gcvINFINITE, GPU_VIV_MUTEX_NORMAL
+        Command->os, Command->mutexContext, gcvINFINITE, GPU_VIV_MUTEX_COMMAND
         ));
     acquired = gcvTRUE;
 
@@ -3084,7 +3084,7 @@ gckCOMMAND_Detach(
 
     /* Acquire the context switching mutex. */
     gcmkONERROR(gckOS_AcquireMutex(
-        Command->os, Command->mutexContext, gcvINFINITE, GPU_VIV_MUTEX_NORMAL
+        Command->os, Command->mutexContext, gcvINFINITE, GPU_VIV_MUTEX_COMMAND
         ));
     acquired = gcvTRUE;
 

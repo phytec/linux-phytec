@@ -446,7 +446,7 @@ _FillFlatMapping(
     gcmkONERROR(gckOS_AcquireMutex(Mmu->os,
                                    Mmu->pageTableMutex,
                                    gcvINFINITE,
-                                   GPU_VIV_MUTEX_NORMAL));
+                                   GPU_VIV_MUTEX_OTHER));
     mutex = gcvTRUE;
 
     while (mStart <= mEnd)
@@ -766,7 +766,7 @@ _SetupDynamicSpace(
     gcmkONERROR(gckOS_AcquireMutex(Mmu->os,
                                    Mmu->pageTableMutex,
                                    gcvINFINITE,
-                                   GPU_VIV_MUTEX_NORMAL));
+                                   GPU_VIV_MUTEX_OTHER));
     acquired = gcvTRUE;
 
     /* Map to Master TLB. */
@@ -1443,7 +1443,7 @@ _AllocatePages(
     gcmkONERROR(gckOS_AcquireMutex(Mmu->os,
                                    Mmu->pageTableMutex,
                                    gcvINFINITE,
-                                   GPU_VIV_MUTEX_NORMAL));
+                                   GPU_VIV_MUTEX_OTHER));
     mutex = gcvTRUE;
 
     /* Cast pointer to page table. */
@@ -1651,7 +1651,7 @@ _FreePages(
     gcmkONERROR(gckOS_AcquireMutex(Mmu->os,
                                    Mmu->pageTableMutex,
                                    gcvINFINITE,
-                                   GPU_VIV_MUTEX_NORMAL));
+                                   GPU_VIV_MUTEX_OTHER));
     acquired = gcvTRUE;
 
 #if gcdMMU_CLEAR_VALUE
@@ -2108,7 +2108,7 @@ gckMMU_FreePagesEx(
     gcmkONERROR(gckOS_AcquireMutex(Mmu->os,
                                    Mmu->pageTableMutex,
                                    gcvINFINITE,
-                                   GPU_VIV_MUTEX_NORMAL));
+                                   GPU_VIV_MUTEX_OTHER));
 
     if (PageCount == 1)
     {

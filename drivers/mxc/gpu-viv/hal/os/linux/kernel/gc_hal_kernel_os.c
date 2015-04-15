@@ -51,7 +51,7 @@
     gcmkVERIFY_OK(gckOS_AcquireMutex( \
                                 (os), \
                                 (os)->memoryLock, \
-                                gcvINFINITE, GPU_VIV_MUTEX_NORMAL))
+                                gcvINFINITE, GPU_VIV_MUTEX_OS_MEMORY))
 
 #define MEMORY_UNLOCK(os) \
     gcmkVERIFY_OK(gckOS_ReleaseMutex((os), (os)->memoryLock))
@@ -60,7 +60,7 @@
     gcmkVERIFY_OK(gckOS_AcquireMutex( \
                                 (os), \
                                 (os)->memoryMapLock, \
-                                gcvINFINITE, GPU_VIV_MUTEX_NORMAL))
+                                gcvINFINITE, GPU_VIV_MUTEX_OS_MEMORY))
 
 #define MEMORY_MAP_UNLOCK(os) \
     gcmkVERIFY_OK(gckOS_ReleaseMutex((os), (os)->memoryMapLock))
@@ -7084,7 +7084,7 @@ gckOS_DestroySignal(
     gcmkONERROR(gckOS_AcquireMutex(Os,
                                    Os->signalMutex,
                                    gcvINFINITE,
-                                   GPU_VIV_MUTEX_NORMAL));
+                                   GPU_VIV_MUTEX_OTHER));
     acquired = gcvTRUE;
 
     gcmkONERROR(_QueryIntegerId(&Os->signalDB, (gctUINT32)(gctUINTPTR_T)Signal, (gctPOINTER)&signal));
@@ -7159,7 +7159,7 @@ gckOS_Signal(
     gcmkONERROR(gckOS_AcquireMutex(Os,
                                    Os->signalMutex,
                                    gcvINFINITE,
-                                   GPU_VIV_MUTEX_NORMAL));
+                                   GPU_VIV_MUTEX_OTHER));
     acquired = gcvTRUE;
 
     gcmkONERROR(_QueryIntegerId(&Os->signalDB, (gctUINT32)(gctUINTPTR_T)Signal, (gctPOINTER)&signal));
