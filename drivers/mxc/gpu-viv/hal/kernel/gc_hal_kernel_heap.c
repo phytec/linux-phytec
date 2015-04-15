@@ -283,7 +283,10 @@ _CompactKernelHeap(
 
         /* Acquire the mutex again. */
         gcmkVERIFY_OK(
-            gckOS_AcquireMutex(Heap->os, Heap->mutex, gcvINFINITE));
+            gckOS_AcquireMutex(Heap->os,
+                               Heap->mutex,
+                               gcvINFINITE,
+                               GPU_VIV_MUTEX_NORMAL));
     }
 
     /* Success. */
@@ -485,7 +488,10 @@ gckHEAP_Allocate(
 
     /* Acquire the mutex. */
     gcmkONERROR(
-        gckOS_AcquireMutex(Heap->os, Heap->mutex, gcvINFINITE));
+        gckOS_AcquireMutex(Heap->os,
+                           Heap->mutex,
+                           gcvINFINITE,
+                           GPU_VIV_MUTEX_NORMAL));
 
     acquired = gcvTRUE;
 
@@ -587,7 +593,10 @@ gckHEAP_Allocate(
 
     /* Acquire the mutex. */
     gcmkONERROR(
-        gckOS_AcquireMutex(Heap->os, Heap->mutex, gcvINFINITE));
+        gckOS_AcquireMutex(Heap->os,
+                           Heap->mutex,
+                           gcvINFINITE,
+                           GPU_VIV_MUTEX_NORMAL));
 
     acquired = gcvTRUE;
 
@@ -769,7 +778,10 @@ gckHEAP_Free(
 
     /* Acquire the mutex. */
     gcmkONERROR(
-        gckOS_AcquireMutex(Heap->os, Heap->mutex, gcvINFINITE));
+        gckOS_AcquireMutex(Heap->os,
+                           Heap->mutex,
+                           gcvINFINITE,
+                           GPU_VIV_MUTEX_NORMAL));
 
     /* Pointer to structure. */
     node = (gcskNODE_PTR) Memory - 1;

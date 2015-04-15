@@ -149,7 +149,7 @@ _IncrementCommitAtom(
 
     /* Grab the power mutex. */
     gcmkONERROR(gckOS_AcquireMutex(
-        Command->os, hardware->powerMutex, gcvINFINITE
+        Command->os, hardware->powerMutex, gcvINFINITE, GPU_VIV_MUTEX_NORMAL
         ));
     powerAcquired = gcvTRUE;
 
@@ -840,7 +840,8 @@ gckCOMMAND_EnterCommit(
     /* Grab the conmmand queue mutex. */
     gcmkONERROR(gckOS_AcquireMutex(Command->os,
                                    Command->mutexQueue,
-                                   gcvINFINITE));
+                                   gcvINFINITE,
+                                   GPU_VIV_MUTEX_NORMAL));
 
     /* Success. */
     gcmkFOOTER();
@@ -1296,7 +1297,10 @@ gckCOMMAND_Commit(
     {
         /* Acquire the context sequnence mutex. */
         gcmkONERROR(gckOS_AcquireMutex(
-            Command->os, Command->mutexContextSeq, gcvINFINITE
+            Command->os,
+            Command->mutexContextSeq,
+            gcvINFINITE,
+            GPU_VIV_MUTEX_NORMAL
             ));
         sequenceAcquired = gcvTRUE;
     }
@@ -1308,7 +1312,7 @@ gckCOMMAND_Commit(
 
     /* Acquire the context switching mutex. */
     gcmkONERROR(gckOS_AcquireMutex(
-        Command->os, Command->mutexContext, gcvINFINITE
+        Command->os, Command->mutexContext, gcvINFINITE, GPU_VIV_MUTEX_NORMAL
         ));
     contextAcquired = gcvTRUE;
 
@@ -2979,7 +2983,7 @@ gckCOMMAND_Attach(
 
     /* Acquire the context switching mutex. */
     gcmkONERROR(gckOS_AcquireMutex(
-        Command->os, Command->mutexContext, gcvINFINITE
+        Command->os, Command->mutexContext, gcvINFINITE, GPU_VIV_MUTEX_NORMAL
         ));
     acquired = gcvTRUE;
 
@@ -3050,7 +3054,7 @@ gckCOMMAND_Detach(
 
     /* Acquire the context switching mutex. */
     gcmkONERROR(gckOS_AcquireMutex(
-        Command->os, Command->mutexContext, gcvINFINITE
+        Command->os, Command->mutexContext, gcvINFINITE, GPU_VIV_MUTEX_NORMAL
         ));
     acquired = gcvTRUE;
 
