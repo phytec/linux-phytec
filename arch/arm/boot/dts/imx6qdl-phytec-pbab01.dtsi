@@ -13,6 +13,10 @@
 #include "imx6qdl-phytec-lcd-018.dtsi"
 
 / {
+	aliases {
+		ipu0 = &ipu1;
+	};
+
 	chosen {
 		linux,stdout-path = &uart4;
 	};
@@ -33,6 +37,13 @@
 			regulator-min-microvolt = <3300000>;
 			regulator-max-microvolt = <3300000>;
 		};
+
+		reg_vcc_cam0: regulator@4 {
+			compatible = "regulator-fixed";
+			regulator-name = "VCC_CAM0";
+			regulator-min-microvolt = <2800000>;
+			regulator-max-microvolt = <2800000>;
+		};
 	};
 
 	user_leds_pca9533: leds2 {
@@ -45,6 +56,71 @@
 		#clock-cells = <0>;
 		clock-frequency = <19200000>;
 		clock-output-names = "tlv320-mclk";
+	};
+
+	phytec_mediabus: phytec_mediabus {
+		compatible = "phytec,media-bus";
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_cam0data
+				&pinctrl_cam0clk
+				&pinctrl_cam0switch>;
+
+		#gpio-cells = <3>;
+		#clock-cells = <1>;
+
+		phytec,cam0_data_en-gpio = <&gpio5 20 GPIO_ACTIVE_LOW>;
+		phytec,cam0_npwrdn-gpio  = <&gpio1 24 GPIO_ACTIVE_LOW>;
+
+		/* clock setup part #1: setup clock parents */
+		assigned-clocks =
+		<&clks IMX6QDL_CLK_CKO1_SEL>,           /* camera0-clk-sel */
+		<&clks IMX6QDL_CLK_CKO2_SEL>,           /* camera1-clk-sel */
+		<&clks IMX6QDL_CLK_ESAI_SEL>,           /* esai-sel */
+		<&clks IMX6QDL_CLK_CKO>;                /* ck01 */
+
+		assigned-clock-parents =
+		<&clks IMX6QDL_CLK_PLL4_AUDIO>,         /* camera0-clk-parent */
+		<&clks IMX6QDL_CLK_ESAI_EXTAL>,         /* camera1-clk-parent */
+		<&clks IMX6QDL_CLK_PLL4_AUDIO_DIV>,     /* esai-sel */
+		<&clks IMX6QDL_CLK_CKO1>;
+
+		/* clock setup part #2: select the clocks */
+		clocks = <
+			&clks IMX6QDL_CLK_CKO1  /* camera0-clk (cko) */
+			&clks IMX6QDL_CLK_CKO2  /* camera1-clk (cko2) */
+		>;
+		clock-names = "camera0-clk", "camera1-clk";
+
+		/* clock setup part #3: define output clocks */
+		clock-output-names = "camera0-clk", "camera1-clk";
+
+		color_shifter: sensor@0 {
+			compatible = "phytec,color-shifter";
+
+			phytec,shift = <4>;
+
+			ports {
+				#address-cells = <1>;
+				#size-cells = <0>;
+
+				port@0 {
+					reg = <0>;
+					cshift0_sink_ep0: endpoint {
+						phytec,role = "sink";
+						/* MEDIA_BUS_FMT_SGRBG12_1X12 */
+						phytec,default-mbus-code = <0x3011>;
+						remote-endpoint = <&mt9p031_ep>;
+					};
+				};
+
+				port@1 {
+					reg = <1>;
+					cshift0_source_ep1: endpoint {
+						phytec,role = "source";
+					};
+				};
+			};
+		};
 	};
 
 	sound {
@@ -202,6 +278,36 @@
 
 &i2c3 {
 	status = "okay";
+
+	mt9p031: mt9p031@48 {
+		compatible = "aptina,mt9p031";
+		reg = <0x48>;
+
+		vdd-supply = <&reg_vcc_cam0>;
+		vdd_io-supply = <&reg_vcc_cam0>;
+		vaa-supply = <&reg_vcc_cam0>;
+
+		clocks = <&phytec_mediabus 0>;
+
+		port {
+			mt9p031_ep: endpoint {
+				input-clock-frequency = <48000000>;
+				pixel-clock-frequency = <48000000>;
+				pclk-sample = <1>;
+			};
+		};
+	};
+};
+
+&ipu1_csi0 {
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	/* Parallel bus */
+	csi0_ep: endpoint {
+		bus-width = <8>;
+		remote-endpoint = <&cshift0_source_ep1>;
+	};
 };
 
 &ldb {
