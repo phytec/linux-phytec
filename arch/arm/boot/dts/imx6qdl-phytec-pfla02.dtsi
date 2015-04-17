@@ -16,7 +16,7 @@
 	compatible = "phytec,imx6q-pfla02", "fsl,imx6q";
 
 	memory {
-		reg = <0x10000000 0x80000000>;
+		reg = <0x0 0x0>; /* will be filled by bootloader */
 	};
 
 	aliases {

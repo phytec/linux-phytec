@@ -15,6 +15,10 @@
 	model = "Phytec phyCARD-i.MX6 Quad";
 	compatible = "phytec,imx6q-pcaaxl3", "fsl,imx6q";
 
+	memory {
+		reg = <0x0 0x0>; /* will be filled by bootloader */
+	};
+
 	regulators {
 		compatible = "simple-bus";
 		#address-cells = <1>;
