@@ -76,13 +76,16 @@
 		<&clks IMX6QDL_CLK_CKO1_SEL>,           /* camera0-clk-sel */
 		<&clks IMX6QDL_CLK_CKO2_SEL>,           /* camera1-clk-sel */
 		<&clks IMX6QDL_CLK_ESAI_SEL>,           /* esai-sel */
-		<&clks IMX6QDL_CLK_CKO>;                /* ck01 */
+		<&clks IMX6QDL_CLK_CKO>,                /* ck01 */
+		<&clks IMX6QDL_CLK_PLL4_AUDIO_DIV>;
 
 		assigned-clock-parents =
-		<&clks IMX6QDL_CLK_PLL4_AUDIO>,         /* camera0-clk-parent */
+		<&clks IMX6QDL_CLK_PLL4_AUDIO_DIV>,         /* camera0-clk-parent */
 		<&clks IMX6QDL_CLK_ESAI_EXTAL>,         /* camera1-clk-parent */
 		<&clks IMX6QDL_CLK_PLL4_AUDIO_DIV>,     /* esai-sel */
 		<&clks IMX6QDL_CLK_CKO1>;
+
+		assigned-clock-rates = <0>, <0>, <0>, <0>, <216000000>;
 
 		/* clock setup part #2: select the clocks */
 		clocks = <
