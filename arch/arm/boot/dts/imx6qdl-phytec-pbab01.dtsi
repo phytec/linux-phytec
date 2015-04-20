@@ -294,8 +294,8 @@
 
 		port {
 			mt9p031_ep: endpoint {
-				input-clock-frequency = <48000000>;
-				pixel-clock-frequency = <48000000>;
+				input-clock-frequency = <54000000>;
+				pixel-clock-frequency = <54000000>;
 				pclk-sample = <1>;
 			};
 		};
