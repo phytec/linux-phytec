@@ -266,6 +266,7 @@ dtb-$(CONFIG_SOC_IMX6Q) += \
 	imx6dl-hummingboard.dtb \
 	imx6dl-nitrogen6x.dtb \
 	imx6dl-phytec-pbab01.dtb \
+	imx6dl-phytec-pbab01-nonor.dtb \
 	imx6dl-phytec-phyboard-subra.dtb \
 	imx6dl-rex-basic.dtb \
 	imx6dl-riotboard.dtb \
