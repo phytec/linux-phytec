@@ -184,6 +184,7 @@ static int phytec_media_drv_probe(struct platform_device *pdev)
 	struct regmap			*gpr;
 	size_t				i;
 	bool				have_provider = false;
+	int count;
 
 	media = devm_kzalloc(&pdev->dev, sizeof *media, GFP_KERNEL);
 	if (!media)
@@ -191,9 +192,14 @@ static int phytec_media_drv_probe(struct platform_device *pdev)
 
 	media->dev = &pdev->dev;
 
+
+	count = device_get_child_node_count(media->dev);
+	if (!count)
+		return -ENODEV;
+
 	/* iterate through ports */
 	rc = 0;
-	for (i = 0; i < ARRAY_SIZE(media->port) && !rc; ++i)
+	for (i = 0; i < count && i < ARRAY_SIZE(media->port) && !rc; ++i)
 		rc = phytec_media_init_port(media, i);
 
 	if (rc) {
