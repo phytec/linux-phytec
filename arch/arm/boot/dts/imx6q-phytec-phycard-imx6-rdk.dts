@@ -38,6 +38,14 @@
 			regulator-min-microvolt = <1800000>;
 			regulator-max-microvolt = <1800000>;
 		};
+
+		reg_vcc_cam0: regulator@6 {
+			compatible = "regulator-fixed";
+			reg = <6>;
+			regulator-name = "VCC_CAM0";
+			regulator-min-microvolt = <2800000>;
+			regulator-max-microvolt = <2800000>;
+		};
 	};
 
 	tlv320_mclk: oscillator {
@@ -46,6 +54,67 @@
 		clock-frequency = <19200000>;
 		clock-output-names = "tlv320-mclk";
 	};
+
+        phytec_mediabus: phytec_mediabus {
+		compatible = "phytec,media-bus";
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_cam0data
+				&pinctrl_cam0clk
+				&pinctrl_cam0switch>;
+
+		#gpio-cells = <3>;
+		#clock-cells = <1>;
+
+		phytec,cam0_data_en-gpio = <&gpio5 20 GPIO_ACTIVE_LOW>;
+		phytec,cam0_npwrdn-gpio  = <&gpio5 27 GPIO_ACTIVE_LOW>;
+
+		phytec,cam0_serial;
+
+		assigned-clocks =
+		<&clks IMX6QDL_CLK_CKO1_SEL>,
+		<&clks IMX6QDL_CLK_CKO>,
+		<&clks IMX6QDL_CLK_PLL4_AUDIO_DIV>;
+
+		assigned-clock-parents =
+		<&clks IMX6QDL_CLK_PLL4_AUDIO_DIV>,
+		<&clks IMX6QDL_CLK_CKO1>;
+
+		assigned-clock-rates = <0>, <0>, <216000000>;
+
+		clocks = <&clks IMX6QDL_CLK_CKO1>;
+		clock-names = "camera0-clk";
+
+		clock-output-names = "camera0-clk";
+
+		color_shifter: sensor@0 {
+			compatible = "phytec,color-shifter";
+
+			phytec,shift = <2>;
+
+			ports {
+				#address-cells = <1>;
+				#size-cells = <0>;
+
+				port@0 {
+					reg = <0>;
+					cshift0_sink_ep0: endpoint {
+						phytec,role = "sink";
+						/* MEDIA_BUS_FMT_SGRBG12_1X12 */
+						phytec,default-mbus-code = <0x2001>;
+						remote-endpoint = <&mt9v024m_ep>;
+					};
+				};
+
+				port@1 {
+					reg = <1>;
+					cshift0_source_ep1: endpoint {
+						phytec,role = "source";
+					};
+				};
+			};
+		};
+	};
+
 
 	sound {
 		compatible = "simple-audio-card";
@@ -135,6 +204,21 @@
 		interrupts = <29 0>;
 	};
 
+	mt9v024m: mt9v024m@48 {
+		compatible = "aptina,mt9v024m";
+		reg = <0x48>;
+
+		clocks = <&phytec_mediabus 0>;
+
+		port {
+			mt9v024m_ep: endpoint {
+				link-frequencies = /bits/ 64
+					<27000000>;
+				pclk-sample = <1>;
+			};
+		};
+        };
+
 	rtc@51 {
 		compatible = "nxp,rtc8564";
 		reg = <0x51>;
@@ -155,6 +239,17 @@
 		reg = <0x64>;
 	};
 	
+};
+
+&ipu1_csi0 {
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	/* Parallel bus */
+	csi0_ep: endpoint {
+		bus-width = <8>;
+		remote-endpoint = <&cshift0_source_ep1>;
+	};
 };
 
 &ldb {
