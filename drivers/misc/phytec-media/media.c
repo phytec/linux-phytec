@@ -111,7 +111,7 @@ static int phytec_media_init_port(struct phytec_media_system *media,
 
 	port->gpio_npwrdn = devm_gpiod_get(
 		media->dev, name,
-		port->is_lvds ? GPIOD_OUT_HIGH : GPIOD_OUT_LOW);
+		port->is_lvds ? GPIOD_OUT_LOW : GPIOD_OUT_HIGH);
 
 	rc = PTR_ERR_OR_ZERO(port->gpio_npwrdn);
 	if (rc == -EPROBE_DEFER)
