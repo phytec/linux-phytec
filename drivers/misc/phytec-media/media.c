@@ -157,10 +157,10 @@ static int phytec_media_init_port(struct phytec_media_system *media,
 	}
 
 	/* when debugging is enabled; export the gpios into the sysfs */
-	if (IS_ENABLED(DEBUG) && port->gpio_enable)
+	if (port->gpio_enable)
 		gpiod_export(port->gpio_enable, false);
 
-	if (IS_ENABLED(DEBUG) && port->gpio_npwrdn)
+	if (port->gpio_npwrdn)
 		gpiod_export(port->gpio_npwrdn, false);
 
 	dev_info(media->dev, "initialized port #%u (%s), GPIOs %d + %d\n", idx,
