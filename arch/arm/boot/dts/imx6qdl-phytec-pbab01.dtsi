@@ -136,7 +136,7 @@
 &hdmi {
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_hdmicec>;
-	dc-i2c-bus = <&hdmi_ddc>;
+	ddc-i2c-bus = <&hdmi_ddc>;
 	status = "okay";
 };
 
