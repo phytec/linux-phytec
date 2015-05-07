@@ -13,6 +13,10 @@
 #include "imx6qdl-phytec-lcd-018.dtsi"
 
 / {
+	aliases {
+		rtc0 = &i2c_rtc;
+	};
+
 	chosen {
 		linux,stdout-path = &uart4;
 	};
@@ -180,7 +184,7 @@
 		};
 	};
 
-	rtc@51 {
+	i2c_rtc:rtc@51 {
 		compatible = "nxp,rtc8564";
 		reg = <0x51>;
 	};
