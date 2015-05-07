@@ -15,6 +15,7 @@
 / {
 	aliases {
 		ipu0 = &ipu1;
+		rtc0 = &i2c_rtc;
 	};
 
 	chosen {
@@ -259,7 +260,7 @@
 		};
 	};
 
-	rtc@51 {
+	i2c_rtc:rtc@51 {
 		compatible = "nxp,rtc8564";
 		reg = <0x51>;
 	};

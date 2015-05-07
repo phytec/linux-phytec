@@ -16,6 +16,10 @@
 	model = "Phytec phyBOARD SUBRA";
 	compatible = "phytec,imx6q-pbab05", "phytec,imx6dl-pfla02", "fsl,imx6dl";
 
+	aliases {
+		rtc0 = &i2c_rtc;
+	};
+
 	chosen {
 		stdout-path = &uart4;
 	};
@@ -37,7 +41,7 @@
 &i2c2 {
 	status = "okay";
 
-	rtc@68 {
+	i2c_rtc: rtc@68 {
 		compatible = "mc,rv4162";
 		reg = <0x68>;
 	};

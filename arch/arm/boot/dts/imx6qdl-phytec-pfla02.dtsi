@@ -21,6 +21,8 @@
 
 	aliases {
 		i2c3 = &hdmi_ddc;
+		rtc1 = &pmic;
+		rtc2 = &snvs_rtc;
 	};
 
 	regulators {
@@ -199,7 +201,7 @@
 		reg = <0x50>;
 	};
 
-	pmic@58 {
+	pmic: pmic@58 {
 		compatible = "dlg,da9063";
 		reg = <0x58>;
 		interrupt-parent = <&gpio2>;

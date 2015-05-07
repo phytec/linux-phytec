@@ -17,6 +17,10 @@
 	model = "Phytec phyBOARD ALCOR";
 	compatible = "phytec,imx6q-pbab02", "phytec,imx6q-pfla02", "fsl,imx6q";
 
+	aliases {
+		rtc0 = &i2c_rtc;
+	};
+
 	chosen {
 		stdout-path = &uart4;
 	};
@@ -66,7 +70,7 @@
 		interrupts = <12 0>;
 	};
 
-	rtc@68 {
+	i2c_rtc: rtc@68 {
 		compatible = "mc,rv4162";
 		reg = <0x68>;
 	};
