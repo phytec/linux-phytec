@@ -923,6 +923,7 @@ static void cshift_registered_work(struct work_struct *work)
 	struct cshift_device	*cshift =
 		container_of(work, struct cshift_device, register_work);
 	int			rc;
+	struct v4l2_subdev *subdev = &cshift->subdev;
 
 	if (test_and_clear_bit(CSHIFT_STATE_UNREGISTER, &cshift->flags)) {
 		clear_bit(CSHIFT_STATE_REGISTER, &cshift->flags);
@@ -938,6 +939,8 @@ static void cshift_registered_work(struct work_struct *work)
 		if (rc < 0) {
 			v4l2_err(cshift->v4l2,
 				 "v4l2_async_notifier_register() failed: %d\n", rc);
+			v4l2_device_unregister_subdev(subdev);
+			media_entity_cleanup(&subdev->entity);
 			return;
 		}
 
