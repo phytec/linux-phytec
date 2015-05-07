@@ -115,6 +115,7 @@
 };
 
 &usbotg {
+	dr_mode = "peripheral";
 	status = "okay";
 };
 
