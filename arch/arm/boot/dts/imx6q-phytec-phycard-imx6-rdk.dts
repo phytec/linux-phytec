@@ -18,6 +18,10 @@
 	model = "Phytec phyCARD-i.MX6 Quad Carrier-Board";
 	compatible = "phytec,imx6q-pbaa03", "phytec,imx6q-pcaaxl3", "fsl,imx6q";
 
+	aliases {
+		rtc0 = &i2c_rtc;
+	};
+
 	chosen {
 		linux,stdout-path = &uart3;
 	};
@@ -135,7 +139,7 @@
 		interrupts = <29 0>;
 	};
 
-	rtc@51 {
+	i2c_rtc: rtc@51 {
 		compatible = "nxp,rtc8564";
 		reg = <0x51>;
 	};
