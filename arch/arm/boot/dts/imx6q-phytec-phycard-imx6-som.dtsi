@@ -23,6 +23,8 @@
 	aliases {
 		ipu0 = &ipu1;
 		ipu1 = &ipu2;
+		rtc1 = &pmic;
+		rtc2 = &snvs_rtc;
 	};
 
 	regulators {
@@ -90,7 +92,7 @@
 		reg = <0x50>;
 	};
 
-	pmic@58 {
+	pmic: pmic@58 {
 		compatible = "dialog,da9063";
 		reg = <0x58>;
 		interrupt-parent = <&gpio2>;
