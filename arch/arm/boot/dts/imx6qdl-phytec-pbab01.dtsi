@@ -128,7 +128,7 @@
 &gpio_leds {
 	user_led_gpio {
 		label = "phyflex:user_led_gpio";
-		gpios = <&gpio2 24 1>;
+		gpios = <&gpio2 24 GPIO_ACTIVE_HIGH>;
 		linux,default-trigger = "gpio";
 	};
 };
