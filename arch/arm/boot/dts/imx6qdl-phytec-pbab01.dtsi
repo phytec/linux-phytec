@@ -241,10 +241,12 @@
 	dr_mode = "peripheral";
 };
 
+/* SD1 on baseboard */
 &usdhc2 {
 	status = "okay";
 };
 
+/* SD0 on baseboard */
 &usdhc3 {
 	status = "okay";
 };
