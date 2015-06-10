@@ -614,6 +614,8 @@
 	pinctrl-0 = <&pinctrl_usdhc2>;
 	cd-gpios = <&gpio1 4 0>;
 	wp-gpios = <&gpio1 2 0>;
+
+	vmmc-supply = <&vdd_sd1_reg>;
 	status = "disabled";
 };
 
