@@ -28,8 +28,8 @@
 	backlight {
 		compatible = "pwm-backlight";
 		pwms = <&pwm1 0 5000000 PWM_POLARITY_INVERTED>;
-		brightness-levels = <0 4 8 16 32 64 128 255>;
-		default-brightness-level = <0>;
+		brightness-levels = <255 128 64 32 16 8 4 0>;
+		default-brightness-level = <7>;
 		enable-gpios = <&gpio1 8 GPIO_ACTIVE_LOW>;
 		power-supply = <&lcd_3v3>;
 	};
