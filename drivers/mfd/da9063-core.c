@@ -112,7 +112,7 @@ static const struct mfd_cell da9063_devs[] = {
 int da9063_device_init(struct da9063 *da9063, unsigned int irq)
 {
 	struct da9063_pdata *pdata = da9063->dev->platform_data;
-	int model, variant_id, variant_code;
+	int model, variant_id, variant_code, config_j;
 	int ret;
 
 	if (pdata) {
@@ -177,6 +177,22 @@ int da9063_device_init(struct da9063 *da9063, unsigned int irq)
 			      NULL);
 	if (ret)
 		dev_err(da9063->dev, "Cannot add MFD cells\n");
+
+	/* Set bit 6 (IF_TO) of register 0x10F (DA9063_REG_CONFIG_J) to 0:
+	 *    Disables automatic reset of 2-WIRE-IF
+	 */
+	ret = regmap_read(da9063->regmap, DA9063_REG_CONFIG_J, &config_j);
+	if (ret) {
+		dev_err(da9063->dev, "Cannot read register DA9063_REG_CONFIG_J.\n");
+		return ret;
+	}
+
+	config_j &= ~0x40;
+	ret = regmap_write(da9063->regmap, DA9063_REG_CONFIG_J, config_j);
+	if (ret) {
+		dev_err(da9063->dev, "Cannot write register DA9063_REG_CONFIG_J.\n");
+		return ret;
+	}
 
 	return ret;
 }
