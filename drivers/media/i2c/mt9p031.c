@@ -122,6 +122,23 @@ enum mt9p031_model {
 	MT9P031_MODEL_MONOCHROME,
 };
 
+struct mt9p031_datafmt {
+	u32 code;
+	enum v4l2_colorspace colorspace;
+};
+
+static const struct mt9p031_datafmt mt9p031_color_fmts[] = {
+	{MEDIA_BUS_FMT_SGRBG12_1X12, V4L2_COLORSPACE_SRGB},
+	{MEDIA_BUS_FMT_SGRBG10_1X10, V4L2_COLORSPACE_SRGB},
+	{MEDIA_BUS_FMT_SGRBG8_1X8, V4L2_COLORSPACE_SRGB},
+};
+
+static const struct mt9p031_datafmt mt9p031_monochrome_fmts[] = {
+	{MEDIA_BUS_FMT_Y12_1X12, V4L2_COLORSPACE_SRGB},
+	{MEDIA_BUS_FMT_Y10_1X10, V4L2_COLORSPACE_SRGB},
+	{MEDIA_BUS_FMT_Y8_1X8, V4L2_COLORSPACE_SRGB},
+};
+
 struct mt9p031 {
 	struct v4l2_subdev subdev;
 	struct media_pad pad;
@@ -144,6 +161,9 @@ struct mt9p031 {
 	struct v4l2_ctrl *blc_auto;
 	struct v4l2_ctrl *blc_offset;
 
+	const struct mt9p031_datafmt *fmts;
+	int num_fmts;
+
 	/* Registers cache */
 	u16 output_control;
 	u16 mode2;
@@ -152,6 +172,17 @@ struct mt9p031 {
 static struct mt9p031 *to_mt9p031(struct v4l2_subdev *sd)
 {
 	return container_of(sd, struct mt9p031, subdev);
+}
+
+static const u32 mt9p031_find_datafmt(struct mt9p031 *mt9p031, u32 code)
+{
+	int i;
+
+	for (i=0; i < mt9p031->num_fmts; i++)
+		if (mt9p031->fmts[i].code == code)
+			return mt9p031->fmts[i].code;
+
+	return 0;
 }
 
 static int mt9p031_read(struct i2c_client *client, u8 reg)
@@ -509,10 +540,11 @@ static int mt9p031_enum_mbus_code(struct v4l2_subdev *subdev,
 {
 	struct mt9p031 *mt9p031 = to_mt9p031(subdev);
 
-	if (code->pad || code->index)
+	if (code->pad || code->index  >= mt9p031->num_fmts)
 		return -EINVAL;
 
-	code->code = mt9p031->format.code;
+	code->code = mt9p031->fmts[code->index].code;
+
 	return 0;
 }
 
@@ -605,6 +637,8 @@ static int mt9p031_set_format(struct v4l2_subdev *subdev,
 					    format->which);
 	__format->width = __crop->width / hratio;
 	__format->height = __crop->height / vratio;
+
+	__format->code = mt9p031_find_datafmt(mt9p031, format->format.code);
 
 	format->format = *__format;
 
@@ -1190,10 +1224,15 @@ static int mt9p031_probe(struct i2c_client *client,
 	mt9p031->crop.left = MT9P031_COLUMN_START_DEF;
 	mt9p031->crop.top = MT9P031_ROW_START_DEF;
 
-	if (mt9p031->model == MT9P031_MODEL_MONOCHROME)
+	if (mt9p031->model == MT9P031_MODEL_MONOCHROME) {
 		mt9p031->format.code = MEDIA_BUS_FMT_Y12_1X12;
-	else
+		mt9p031->fmts = mt9p031_monochrome_fmts;
+		mt9p031->num_fmts = ARRAY_SIZE(mt9p031_monochrome_fmts);
+	} else {
 		mt9p031->format.code = MEDIA_BUS_FMT_SGRBG12_1X12;
+		mt9p031->fmts = mt9p031_color_fmts;
+		mt9p031->num_fmts = ARRAY_SIZE(mt9p031_color_fmts);
+	}
 
 	mt9p031->format.width = MT9P031_WINDOW_WIDTH_DEF;
 	mt9p031->format.height = MT9P031_WINDOW_HEIGHT_DEF;
