@@ -16,12 +16,12 @@
 
 #include <linux/linkage.h>
 #include <linux/ti-emif-sram.h>
-#include <asm/asm-offsets.h>
 #include <asm/assembler.h>
 #include <asm/memory.h>
 
 #include "iomap.h"
 #include "cm33xx.h"
+#include "pm-asm-offsets.h"
 
 #define AM33XX_CM_CLKCTRL_MODULESTATE_DISABLED			0x00030000
 #define AM33XX_CM_CLKCTRL_MODULEMODE_DISABLE			0x0003
@@ -204,7 +204,6 @@ phys_emif_clkctrl:
 .align 3
 /* DDR related defines */
 am33xx_emif_sram_table:
-	.space EMIF_PM_FUNCTIONS_SIZE
 
 ENTRY(am33xx_pm_sram)
 .word am33xx_do_wfi
