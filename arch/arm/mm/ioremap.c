@@ -419,6 +419,22 @@ __arm_ioremap_exec(phys_addr_t phys_addr, size_t size, bool cached)
 			__builtin_return_address(0));
 }
 
+void *arch_memremap_exec(phys_addr_t phys_addr, size_t size)
+{
+	return (__force void *)arch_ioremap_caller(phys_addr, size,
+						   MT_MEMORY_RWX,
+						   __builtin_return_address(0));
+}
+EXPORT_SYMBOL(arch_memremap_exec);
+
+void *arch_memremap_exec_nocache(phys_addr_t phys_addr, size_t size)
+{
+	return (__force void *)arch_ioremap_caller(phys_addr, size,
+						   MT_MEMORY_RWX_NONCACHED,
+						   __builtin_return_address(0));
+}
+EXPORT_SYMBOL(arch_memremap_exec_nocache);
+
 void *arch_memremap_wb(phys_addr_t phys_addr, size_t size)
 {
 	return (__force void *)arch_ioremap_caller(phys_addr, size,
