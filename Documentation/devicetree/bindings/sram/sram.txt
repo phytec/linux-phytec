@@ -29,6 +29,8 @@ Optional properties in the sram node:
 
 - no-memory-wc : the flag indicating, that SRAM memory region has not to
                  be remapped as write combining. WC is used by default.
+- memory-exec : map range to allow code execution
+- memory-exec-nocache : map range to allow code execution and also non-cached
 
 Required properties in the area nodes:
 
