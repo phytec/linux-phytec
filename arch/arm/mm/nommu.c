@@ -390,6 +390,18 @@ void *arch_memremap_wb(phys_addr_t phys_addr, size_t size)
 	return (void *)phys_addr;
 }
 
+void *arch_memremap_exec(phys_addr_t phys_addr, size_t size)
+{
+	return (void *)phys_addr;
+}
+EXPORT_SYMBOL(arch_memremap_exec);
+
+void *arch_memremap_exec_nocache(phys_addr_t phys_addr, size_t size)
+{
+	return (void *)phys_addr;
+}
+EXPORT_SYMBOL(arch_memremap_exec_nocache);
+
 void __iounmap(volatile void __iomem *addr)
 {
 }
