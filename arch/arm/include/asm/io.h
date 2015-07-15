@@ -411,6 +411,11 @@ void __iomem *ioremap_wc(resource_size_t res_cookie, size_t size);
 void iounmap(volatile void __iomem *iomem_cookie);
 #define iounmap iounmap
 
+void *arch_memremap_exec(phys_addr_t phys_addr, size_t size);
+void *arch_memremap_exec_nocache(phys_addr_t phys_addr, size_t size);
+#define arch_memremap_exec arch_memremap_exec
+#define arch_memremap_exec_nocache arch_memremap_exec_nocache
+
 void *arch_memremap_wb(phys_addr_t phys_addr, size_t size);
 #define arch_memremap_wb arch_memremap_wb
 
