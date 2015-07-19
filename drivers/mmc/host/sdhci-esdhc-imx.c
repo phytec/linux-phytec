@@ -912,6 +912,8 @@ sdhci_esdhc_imx_probe_dt(struct platform_device *pdev,
 	if (!IS_ERR_VALUE(mmc_gpio_get_cd(host->mmc)))
 		host->quirks &= ~SDHCI_QUIRK_BROKEN_CARD_DETECTION;
 
+	boarddata->id = of_alias_get_id(np, "mmc");
+
 	return 0;
 }
 #else
@@ -1090,6 +1092,8 @@ static int sdhci_esdhc_imx_probe(struct platform_device *pdev)
 	} else {
 		host->quirks2 |= SDHCI_QUIRK2_NO_1_8_V;
 	}
+
+	host->mmc->index = boarddata->id;
 
 	err = sdhci_add_host(host);
 	if (err)
