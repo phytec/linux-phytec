@@ -1618,7 +1618,11 @@ gckOS_AllocateNonPagedMemory(
 
     kernel = Os->device->kernels[gcvCORE_MAJOR] != gcvNULL ?
                 Os->device->kernels[gcvCORE_MAJOR] : Os->device->kernels[gcvCORE_2D];
+    /* Kernels in Os->device->kernels can be null pointers. This function is
+     * called in the startup code, when the kernels aren't constructed yet!
+     */
     if (((Os->device->baseAddress & 0x80000000) != (mdl->dmaHandle & 0x80000000)) &&
+          kernel != gcvNULL && kernel->hardware != gcvNULL &&
           kernel->hardware->mmuVersion == 0)
     {
         mdl->dmaHandle = (mdl->dmaHandle & ~0x80000000)
