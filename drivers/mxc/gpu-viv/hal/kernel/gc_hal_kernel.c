@@ -336,10 +336,17 @@ gckKERNEL_Construct(
     kernel->command      = gcvNULL;
     kernel->eventObj     = gcvNULL;
     kernel->mmu          = gcvNULL;
+    kernel->atomClients  = gcvNULL;
+    kernel->virtualBufferLock = gcvNULL;
+    kernel->db           = gcvNULL;
 #if gcdDVFS
     kernel->dvfs         = gcvNULL;
 #endif
     kernel->monitorTimer = gcvNULL;
+#if gcdANDROID_NATIVE_FENCE_SYNC
+    kernel->timeline     = gcvNULL;
+#endif
+
 
     /* Initialize the gckKERNEL object. */
     kernel->object.type = gcvOBJ_KERNEL;
