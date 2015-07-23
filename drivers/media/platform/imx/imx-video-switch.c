@@ -165,32 +165,33 @@ static const struct v4l2_subdev_video_ops vidsw_subdev_video_ops = {
 };
 
 static struct v4l2_mbus_framefmt *
-__vidsw_get_pad_format(struct vidsw *vidsw, struct v4l2_subdev_fh *fh,
-		       unsigned int pad, u32 which)
+__vidsw_get_pad_format(struct vidsw *vidsw,
+		       struct v4l2_subdev_pad_config *cfg,
+		       struct v4l2_subdev_format *format)
 {
-	switch (which) {
+	switch (format->which) {
 	case V4L2_SUBDEV_FORMAT_TRY:
-		return v4l2_subdev_get_try_format(fh, pad);
+		return v4l2_subdev_get_try_format(&vidsw->subdev, cfg,
+						  format->pad);
 	case V4L2_SUBDEV_FORMAT_ACTIVE:
-		return &vidsw->format_mbus[pad];
+		return &vidsw->format_mbus[format->pad];
 	default:
 		return NULL;
 	}
 }
 
 static int vidsw_get_format(struct v4l2_subdev *sd,
-			    struct v4l2_subdev_fh *fh,
+			    struct v4l2_subdev_pad_config *cfg,
 			    struct v4l2_subdev_format *sdformat)
 {
 	struct vidsw *vidsw = container_of(sd, struct vidsw, subdev);
 
-	sdformat->format = *__vidsw_get_pad_format(vidsw, fh, sdformat->pad,
-						   sdformat->which);
+	sdformat->format = *__vidsw_get_pad_format(vidsw, cfg, sdformat);
 	return 0;
 }
 
 static int vidsw_set_format(struct v4l2_subdev *sd,
-			    struct v4l2_subdev_fh *fh,
+			    struct v4l2_subdev_pad_config *cfg,
 			    struct v4l2_subdev_format *sdformat)
 {
 	struct vidsw *vidsw = container_of(sd, struct vidsw, subdev);
@@ -199,8 +200,7 @@ static int vidsw_set_format(struct v4l2_subdev *sd,
 	if (sdformat->pad >= PAD_NUM)
 		return -EINVAL;
 
-	mbusformat = __vidsw_get_pad_format(vidsw, fh, sdformat->pad,
-					    sdformat->which);
+	mbusformat = __vidsw_get_pad_format(vidsw, cfg, sdformat);
 	if (!mbusformat)
 		return -EINVAL;
 
