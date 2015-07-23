@@ -20,6 +20,9 @@
 
 
 #include "gc_hal_kernel_precomp.h"
+#if defined(LINUX)
+#include "gc_hal_kernel_os.h"
+#endif
 
 #define _GC_OBJ_ZONE    gcvZONE_MMU
 
@@ -868,6 +871,9 @@ _Construct(
     gctUINT32 physBase;
     gctUINT32 physSize;
     gctUINT32 gpuAddress;
+#if defined(LINUX)
+    PLINUX_MDL mdl;
+#endif
 
     gcmkHEADER_ARG("Kernel=0x%x MmuSize=%lu", Kernel, MmuSize);
 
@@ -921,6 +927,16 @@ _Construct(
                     &mmu->pageTablePhysical,
                     (gctPOINTER)&mmu->pageTableLogical));
 
+#if defined(LINUX)
+        /* dmaHandle for GPU must be in the lower half of the physical memory */
+        mdl = ((PLINUX_MDL) mmu->pageTablePhysical);
+        if (mdl->dmaHandle >= 0x80000000) {
+            gcmkPRINT("galcore: DMA memory must be below 2GiB (dmaHandle=0x%08x)!",
+                      mdl->dmaHandle);
+            gcmkPRINT("galcore: Use kernel parameter 'cma=256M@1G'.");
+            gcmkONERROR(gcvSTATUS_OUT_OF_RESOURCES);
+        }
+#endif
 
         /* Compute number of entries in page table. */
         gcmkSAFECASTSIZET(mmu->pageTableEntries, mmu->pageTableSize / sizeof(gctUINT32));
