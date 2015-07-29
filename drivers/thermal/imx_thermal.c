@@ -303,10 +303,19 @@ static int imx_bind(struct thermal_zone_device *tz,
 		    struct thermal_cooling_device *cdev)
 {
 	int ret;
+	unsigned long max_state;
+
+	/* HACK:
+	 * Above the passive trip point force the maximum cooling state of the
+	 * cooling device. Currently there is only the cooling device cpufreg.
+	 */
+	ret = cdev->ops->get_max_state(cdev, &max_state);
+	if (ret)
+		return ret;
 
 	ret = thermal_zone_bind_cooling_device(tz, IMX_TRIP_PASSIVE, cdev,
-					       THERMAL_NO_LIMIT,
-					       THERMAL_NO_LIMIT);
+					       max_state,
+					       max_state);
 	if (ret) {
 		dev_err(&tz->device,
 			"binding zone %s with cdev %s failed:%d\n",
