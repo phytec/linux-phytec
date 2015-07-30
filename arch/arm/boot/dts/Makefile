@@ -228,7 +228,6 @@ dtb-$(CONFIG_ARCH_MXC) += \
 	imx6dl-phytec-pbab01.dtb \
 	imx6dl-phytec-pbab01-nonor.dtb \
 	imx6dl-phytec-phyboard-subra.dtb \
-	imx6dl-phytec-mira-rdk.dtb \
 	imx6dl-rex-basic.dtb \
 	imx6dl-riotboard.dtb \
 	imx6dl-sabreauto.dtb \
