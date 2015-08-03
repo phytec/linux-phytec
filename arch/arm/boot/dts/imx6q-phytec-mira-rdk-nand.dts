@@ -66,6 +66,10 @@
 	status = "okay";
 };
 
+&mt9v024m {
+	status = "okay";
+};
+
 &pcie {
 	status = "okay";
 };
