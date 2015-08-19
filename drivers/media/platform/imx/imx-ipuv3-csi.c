@@ -1389,6 +1389,38 @@ static int ipucsi_subscribe_event(struct v4l2_fh *fh,
 	return -EINVAL;
 }
 
+static int ipucsi_enum_input(struct file *file, void *fh,
+			     struct v4l2_input *inp)
+{
+	if (inp->index > 0)
+		return -EINVAL;
+
+	strcpy(inp->name, "IPUv3-CSI");
+	inp->type         = V4L2_INPUT_TYPE_CAMERA;
+	inp->std          = V4L2_STD_UNKNOWN;
+	inp->audioset     = 0;
+	inp->tuner        = 0;
+	inp->status       = 0;
+	inp->capabilities = 0;
+
+	return 0;
+}
+
+static int ipucsi_s_input(struct file *file, void *fh, unsigned int i)
+{
+	if (i != 0)
+		return -EINVAL;
+
+	return 0;
+}
+
+static int ipucsi_g_input(struct file *file, void *fh, unsigned int *i)
+{
+	*i = 0;
+
+	return 0;
+}
+
 static const struct v4l2_ioctl_ops ipucsi_capture_ioctl_ops = {
 	.vidioc_querycap		= ipucsi_querycap,
 
@@ -1411,6 +1443,10 @@ static const struct v4l2_ioctl_ops ipucsi_capture_ioctl_ops = {
 
 	.vidioc_subscribe_event		= ipucsi_subscribe_event,
 	.vidioc_unsubscribe_event	= v4l2_event_unsubscribe,
+
+	.vidioc_enum_input		= ipucsi_enum_input,
+	.vidioc_s_input			= ipucsi_s_input,
+	.vidioc_g_input			= ipucsi_g_input,
 };
 
 static int ipucsi_subdev_s_ctrl(struct v4l2_ctrl *ctrl)
