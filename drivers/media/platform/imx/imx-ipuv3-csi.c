@@ -238,6 +238,7 @@ struct ipucsi {
 	struct device			*dev;
 	struct v4l2_device		*v4l2_dev;
 	struct video_device		vdev;
+	struct completion		vdev_released;
 	struct media_pad		pad;
 	/* The currently active buffer, set by NFACK and cleared by EOF interrupt */
 	struct ipucsi_buffer		*active;
@@ -1523,6 +1524,13 @@ static int ipucsi_subdev_init(struct ipucsi *ipucsi, struct device_node *node)
 	return 0;
 }
 
+static void ipucsi_video_device_release(struct video_device *vdev)
+{
+	struct ipucsi	*ipu = container_of(vdev, struct ipucsi, vdev);
+
+	complete(&ipu->vdev_released);
+}
+
 static int ipucsi_video_device_init(struct platform_device *pdev,
 		struct ipucsi *ipucsi)
 {
@@ -1530,7 +1538,7 @@ static int ipucsi_video_device_init(struct platform_device *pdev,
 	int ret;
 
 	snprintf(vdev->name, sizeof(vdev->name), "%s-video", ipucsi->name);
-	vdev->release	= video_device_release_empty;
+	vdev->release	= ipucsi_video_device_release;
 	vdev->fops	= &ipucsi_capture_fops;
 	vdev->ioctl_ops	= &ipucsi_capture_ioctl_ops;
 	vdev->v4l2_dev	= ipucsi->v4l2_dev;
@@ -1633,6 +1641,8 @@ static int ipucsi_probe(struct platform_device *pdev)
 	INIT_LIST_HEAD(&ipucsi->capture);
 	spin_lock_init(&ipucsi->lock);
 	mutex_init(&ipucsi->mutex);
+
+	init_completion(&ipucsi->vdev_released);
 
 	ipucsi->csi_id = pdata->csi;
 	ipucsi->csi = ipu_csi_get(ipu, pdata->csi);
@@ -1752,6 +1762,7 @@ failed:
 static int ipucsi_remove(struct platform_device *pdev)
 {
 	struct ipucsi *ipucsi = platform_get_drvdata(pdev);
+	int rc;
 
 	if (ipucsi->link)
 		/* can be NULL for unused CSI devices */
@@ -1775,7 +1786,9 @@ static int ipucsi_remove(struct platform_device *pdev)
 
 	mutex_destroy(&ipucsi->mutex);
 
-	return 0;
+	rc = wait_for_completion_killable(&ipucsi->vdev_released);
+
+	return rc;
 }
 
 static struct platform_driver ipucsi_driver = {
