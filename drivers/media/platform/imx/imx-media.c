@@ -12,6 +12,7 @@
 #include <linux/of_graph.h>
 #include <media/media-device.h>
 #include <media/v4l2-device.h>
+#include <media/imx.h>
 #include <video/imx-ipu-v3.h>
 
 struct ipu_media_controller {
