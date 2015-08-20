@@ -1739,9 +1739,6 @@ failed_video:
 
 	video_unregister_device(&ipucsi->vdev);
 failed:
-	media_entity_remove_links(&ipucsi->subdev.entity);
-	ipu_media_put_v4l2_dev(ipucsi->v4l2_dev);
-	of_node_put(node);
 	v4l2_ctrl_handler_free(&ipucsi->ctrls);
 	if (ipucsi->link)
 		ipu_media_entity_remove_link(ipucsi->link);
@@ -1751,6 +1748,10 @@ failed:
 		vb2_dma_contig_cleanup_ctx(ipucsi->alloc_ctx);
 	if (ipucsi->ipuch)
 		ipu_idmac_put(ipucsi->ipuch);
+
+	v4l2_device_unregister_subdev(&ipucsi->subdev);
+	ipu_media_put_v4l2_dev(ipucsi->v4l2_dev);
+	of_node_put(node);
 
 	if (!IS_ERR_OR_NULL(ipucsi->smfc))
 		ipu_smfc_put(ipucsi->smfc);
