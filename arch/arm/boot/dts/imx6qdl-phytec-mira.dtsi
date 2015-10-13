@@ -390,6 +390,7 @@
 	vbus-supply = <&reg_usb_h1_vbus>;
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_usbh1>;
+	disable-over-current;
 	status = "disabled";
 };
 
@@ -397,6 +398,7 @@
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_usbotg>;
 	vbus-supply = <&reg_usbotg_vbus>;
+	disable-over-current;
 	status = "disabled";
 };
 
