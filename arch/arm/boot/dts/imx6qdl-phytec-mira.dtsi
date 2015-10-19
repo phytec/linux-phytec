@@ -162,6 +162,8 @@
 		reg = <0x44>;
 		interrupts = <12 0x0>;
 		interrupt-parent = <&gpio7>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_stmpe>;
 		status = "disabled";
 
 		stmpe_touchscreen {
@@ -253,7 +255,6 @@
 			fsl,pins = <
 				MX6QDL_PAD_EIM_D21__I2C1_SCL		0x4001b8b1
 				MX6QDL_PAD_EIM_D28__I2C1_SDA		0x4001b8b1
-				MX6QDL_PAD_GPIO_17__GPIO7_IO12		0x80000000
 			>;
 		};
 
@@ -271,6 +272,10 @@
 
 		pinctrl_rtc_int: rtcintgrp {
 			fsl,pins = <MX6QDL_PAD_SD3_RST__GPIO7_IO08	0x80000000>;
+		};
+
+		pinctrl_stmpe: stmpe {
+			fsl,pins = <MX6QDL_PAD_GPIO_17__GPIO7_IO12	0x80000000>;
 		};
 
 		pinctrl_uart3: uart3grp {
