@@ -270,7 +270,7 @@
 		};
 
 		pinctrl_rtc_int: rtcintgrp {
-			fsl,pins = <MX6QDL_PAD_SD3_RST__SD3_RESET	0x80000000>;
+			fsl,pins = <MX6QDL_PAD_SD3_RST__GPIO7_IO08	0x80000000>;
 		};
 
 		pinctrl_uart3: uart3grp {
