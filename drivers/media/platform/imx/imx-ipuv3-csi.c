@@ -547,22 +547,17 @@ static void ipucsi_v4l2_dev_notify(struct v4l2_subdev *sd,
 	}
 }
 
-static irqreturn_t ipucsi_new_frame_handler(int irq, void *context)
+static irqreturn_t ipucsi_eof_frame_handler(int irq, void *context)
 {
 	struct ipucsi *ipucsi = context;
-	struct ipucsi_buffer *buf;
-	struct vb2_buffer *vb;
 	unsigned long flags;
-
-	/* The IDMAC just started to write pixel data into the current buffer */
 
 	spin_lock_irqsave(&ipucsi->lock, flags);
 
-	/*
-	 * If there is a previously active frame, mark it as done to hand it off
-	 * to userspace. Or, if there are no further frames queued, hold on to it.
-	 */
 	if (ipucsi->active) {
+		struct ipucsi_buffer *buf;
+		struct vb2_buffer *vb;
+
 		vb = &ipucsi->active->vb;
 		buf = to_ipucsi_vb(vb);
 
@@ -576,7 +571,27 @@ static irqreturn_t ipucsi_new_frame_handler(int irq, void *context)
 
 			vb2_buffer_done(vb, VB2_BUF_STATE_DONE);
 		}
+
+		ipucsi->active = NULL;
 	}
+
+	spin_unlock_irqrestore(&ipucsi->lock, flags);
+
+	return IRQ_HANDLED;
+}
+
+static irqreturn_t ipucsi_new_frame_handler(int irq, void *context)
+{
+	struct ipucsi *ipucsi = context;
+	struct ipucsi_buffer *buf;
+	struct vb2_buffer *vb;
+	unsigned long flags;
+
+	/* The IDMAC just started to write pixel data into the current buffer */
+
+	spin_lock_irqsave(&ipucsi->lock, flags);
+
+	WARN_ON(ipucsi->active);
 
 	if (list_empty(&ipucsi->capture))
 		goto out;
@@ -728,7 +743,8 @@ static int ipucsi_videobuf_start_streaming(struct vb2_queue *vq, unsigned int co
 	int burstsize;
 	struct vb2_buffer *vb;
 	struct ipucsi_buffer *buf;
-	int nfack_irq;
+	int nfack_irq = -1;
+	int eof_irq = -1;
 	int ret;
 	struct v4l2_rect w = {
 		.width	= xres,
@@ -743,6 +759,15 @@ static int ipucsi_videobuf_start_streaming(struct vb2_queue *vq, unsigned int co
 			"ipucsi-nfack", ipucsi);
 	if (ret) {
 		dev_err(dev, "Failed to request NFACK interrupt: %d\n", nfack_irq);
+		return ret;
+	}
+
+	eof_irq = ipu_idmac_channel_irq(ipucsi->ipu, ipucsi->ipuch,
+			IPU_IRQ_EOF);
+	ret = request_threaded_irq(eof_irq, NULL, ipucsi_eof_frame_handler, IRQF_ONESHOT,
+			"ipucsi-eof", ipucsi);
+	if (ret) {
+		dev_err(dev, "Failed to request EOF interrupt: %d\n", eof_irq);
 		return ret;
 	}
 
@@ -864,7 +889,12 @@ static int ipucsi_videobuf_start_streaming(struct vb2_queue *vq, unsigned int co
 	return 0;
 
 free_irq:
-	free_irq(nfack_irq, ipucsi);
+	if (eof_irq >= 0)
+		free_irq(eof_irq, ipucsi);
+
+	if (nfack_irq >= 0)
+		free_irq(nfack_irq, ipucsi);
+
 	return ret;
 }
 
@@ -874,7 +904,10 @@ static void ipucsi_videobuf_stop_streaming(struct vb2_queue *vq)
 	unsigned long flags;
 	int nfack_irq = ipu_idmac_channel_irq(ipucsi->ipu, ipucsi->ipuch,
 				IPU_IRQ_NFACK);
+	int eof_irq = ipu_idmac_channel_irq(ipucsi->ipu, ipucsi->ipuch,
+				IPU_IRQ_EOF);
 
+	free_irq(eof_irq, ipucsi);
 	free_irq(nfack_irq, ipucsi);
 	ipu_csi_disable(ipucsi->csi);
 	ipu_idmac_disable_channel(ipucsi->ipuch);
