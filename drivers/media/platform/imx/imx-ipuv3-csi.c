@@ -696,13 +696,6 @@ static void ipucsi_videobuf_queue(struct vb2_buffer *vb)
 
 	spin_lock_irqsave(&ipucsi->lock, flags);
 
-	/*
-	 * If there is no next buffer queued, point the inactive buffer
-	 * address to the incoming buffer
-	 */
-	if (vb2_is_streaming(vb->vb2_queue) && list_is_singular(&ipucsi->capture))
-		ipucsi_set_inactive_buffer(ipucsi, vb);
-
 	list_add_tail(&buf->queue, &ipucsi->capture);
 
 	spin_unlock_irqrestore(&ipucsi->lock, flags);
