@@ -559,8 +559,7 @@ static bool ipucsi_finish_frame(struct ipucsi *ipucsi)
 	buf = to_ipucsi_vb(vb);
 
 	if (vb2_is_streaming(vb->vb2_queue) && list_is_singular(&ipucsi->capture)) {
-		pr_debug("%s: reusing 0x%08x\n", __func__,
-			 vb2_dma_contig_plane_dma_addr(vb, 0));
+		dev_dbg(ipucsi->dev, "no buffers available on EOF!\n");
 		/* DEBUG: check if buf == EBA(active) */
 	} else {
 		/* Otherwise, mark buffer as finished */
@@ -599,6 +598,10 @@ static irqreturn_t ipucsi_new_frame_handler(int irq, void *context)
 	if (ipucsi_finish_frame(ipucsi))
 		dev_dbg(ipucsi->dev,
 			"new-frame with active buffer; lost EOF?\n");
+
+	if (vb2_is_streaming(&ipucsi->vb2_vidq) && list_empty(&ipucsi->capture))
+		dev_dbg(ipucsi->dev,
+			"no buffers available on NF; expect frame drop!\n");
 
 	if (list_empty(&ipucsi->capture))
 		goto out;
