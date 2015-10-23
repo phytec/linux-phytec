@@ -547,34 +547,39 @@ static void ipucsi_v4l2_dev_notify(struct v4l2_subdev *sd,
 	}
 }
 
+static bool ipucsi_finish_frame(struct ipucsi *ipucsi)
+{
+	struct ipucsi_buffer *buf;
+	struct vb2_buffer *vb;
+
+	if (!ipucsi->active)
+		return false;
+
+	vb = &ipucsi->active->vb;
+	buf = to_ipucsi_vb(vb);
+
+	if (vb2_is_streaming(vb->vb2_queue) && list_is_singular(&ipucsi->capture)) {
+		pr_debug("%s: reusing 0x%08x\n", __func__,
+			 vb2_dma_contig_plane_dma_addr(vb, 0));
+		/* DEBUG: check if buf == EBA(active) */
+	} else {
+		/* Otherwise, mark buffer as finished */
+		list_del_init(&buf->queue);
+
+		vb2_buffer_done(vb, VB2_BUF_STATE_DONE);
+	}
+
+	ipucsi->active = NULL;
+	return true;
+}
+
 static irqreturn_t ipucsi_eof_frame_handler(int irq, void *context)
 {
 	struct ipucsi *ipucsi = context;
 	unsigned long flags;
 
 	spin_lock_irqsave(&ipucsi->lock, flags);
-
-	if (ipucsi->active) {
-		struct ipucsi_buffer *buf;
-		struct vb2_buffer *vb;
-
-		vb = &ipucsi->active->vb;
-		buf = to_ipucsi_vb(vb);
-
-		if (vb2_is_streaming(vb->vb2_queue) && list_is_singular(&ipucsi->capture)) {
-			pr_debug("%s: reusing 0x%08x\n", __func__,
-				vb2_dma_contig_plane_dma_addr(vb, 0));
-			/* DEBUG: check if buf == EBA(active) */
-		} else {
-			/* Otherwise, mark buffer as finished */
-			list_del_init(&buf->queue);
-
-			vb2_buffer_done(vb, VB2_BUF_STATE_DONE);
-		}
-
-		ipucsi->active = NULL;
-	}
-
+	ipucsi_finish_frame(ipucsi);
 	spin_unlock_irqrestore(&ipucsi->lock, flags);
 
 	return IRQ_HANDLED;
@@ -591,7 +596,9 @@ static irqreturn_t ipucsi_new_frame_handler(int irq, void *context)
 
 	spin_lock_irqsave(&ipucsi->lock, flags);
 
-	WARN_ON(ipucsi->active);
+	if (ipucsi_finish_frame(ipucsi))
+		dev_dbg(ipucsi->dev,
+			"new-frame with active buffer; lost EOF?\n");
 
 	if (list_empty(&ipucsi->capture))
 		goto out;
