@@ -22,6 +22,22 @@
 	};
 };
 
+&ecspi5 {
+	status = "okay";
+
+	spi@0 {
+		compatible = "spidev";
+		spi-max-frequency = <57600000>;
+		reg = <0>;
+	};
+
+	spi@1 {
+		compatible = "spidev";
+		spi-max-frequency = <57600000>;
+		reg = <1>;
+	};
+};
+
 &sata {
         status = "okay";
 };
