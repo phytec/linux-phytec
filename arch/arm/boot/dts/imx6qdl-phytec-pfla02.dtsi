@@ -98,12 +98,15 @@
 	soc-supply = <&vddsoc_reg>;
 };
 
+/* SPI0 on module */
 &ecspi3 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_ecspi3>;
 	status = "okay";
-	fsl,spi-num-chipselects = <1>;
-	cs-gpios = <&gpio4 24 0>;
+	fsl,spi-num-chipselects = <3>;
+	cs-gpios = <&gpio4 24 GPIO_ACTIVE_HIGH
+		&gpio4 25 GPIO_ACTIVE_HIGH
+		&gpio4 26 GPIO_ACTIVE_HIGH>;
 
 	flash@0 {
 		compatible = "m25p80";
@@ -316,7 +319,6 @@
 		pinctrl_hog: hoggrp {
 			fsl,pins = <
 				MX6QDL_PAD_EIM_D23__GPIO3_IO23		0x80000000
-				MX6QDL_PAD_DISP0_DAT3__GPIO4_IO24	0x80000000 /* SPI NOR chipselect */
 				MX6QDL_PAD_SD4_DAT1__GPIO2_IO09		0x80000000 /* PMIC interrupt */
 				MX6QDL_PAD_ENET_TXD0__GPIO1_IO30	0x80000000 /* Green LED */
 				MX6QDL_PAD_EIM_EB3__GPIO2_IO31		0x80000000 /* Red LED */
@@ -338,9 +340,12 @@
 
 		pinctrl_ecspi3: ecspi3grp {
 			fsl,pins = <
+				MX6QDL_PAD_DISP0_DAT0__ECSPI3_SCLK	0x100b1
 				MX6QDL_PAD_DISP0_DAT2__ECSPI3_MISO	0x100b1
 				MX6QDL_PAD_DISP0_DAT1__ECSPI3_MOSI	0x100b1
-				MX6QDL_PAD_DISP0_DAT0__ECSPI3_SCLK	0x100b1
+				MX6QDL_PAD_DISP0_DAT3__GPIO4_IO24	0x80000000
+				MX6QDL_PAD_DISP0_DAT4__GPIO4_IO25	0x80000000
+				MX6QDL_PAD_DISP0_DAT5__GPIO4_IO26	0x80000000
 			>;
 		};
 
