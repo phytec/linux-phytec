@@ -16,3 +16,27 @@
 	model = "Phytec phyFLEX-i.MX6 Quad";
 	compatible = "phytec,imx6q-pfla02", "fsl,imx6q";
 };
+
+/* SPI1 on module */
+&ecspi5 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_ecspi5>;
+	status = "disabled";
+	fsl,spi-num-chipselects = <2>;
+	cs-gpios = <&gpio1 17 GPIO_ACTIVE_HIGH
+		&gpio1 19 GPIO_ACTIVE_HIGH>;
+};
+
+&iomuxc {
+	imx6q-phytec-pfla02 {
+		pinctrl_ecspi5: ecspi5grp {
+			fsl,pins = <
+				MX6QDL_PAD_SD1_CLK__ECSPI5_SCLK		0x100b1
+				MX6QDL_PAD_SD1_DAT0__ECSPI5_MISO	0x100b1
+				MX6QDL_PAD_SD1_CMD__ECSPI5_MOSI 	0x100b1
+				MX6QDL_PAD_SD1_DAT1__GPIO1_IO17		0x80000000
+				MX6QDL_PAD_SD1_DAT2__GPIO1_IO19		0x80000000
+			>;
+		};
+	};
+};
