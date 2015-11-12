@@ -6,6 +6,13 @@
  * published by the Free Software Foundation.
  */
 
+/*
+ * The board specific DTS file have to:
+ *  - Specify pwms and enable gpios for backlight
+ *  - Mux the display enable pins if available
+*/
+
+
 / {
 	backlight: backlight {
 		compatible = "pwm-backlight";
