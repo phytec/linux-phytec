@@ -44,7 +44,7 @@
 
 		display-timings {
 			native-mode = <&timing0>;
-			timing0: etm0700g0dh6 {
+			timing0: ETM0700G0DH6 {
 				clock-frequency = <33260000>;
 				hactive = <800>;
 				vactive = <480>;
@@ -54,6 +54,45 @@
 				vback-porch = <35>;
 				vfront-porch = <10>;
 				vsync-len = <2>;
+			};
+			timing1: ETMV570G2DHU {
+				clock-frequency	= <25175000>;
+				hactive = <640>;
+				vactive = <480>;
+				hfront-porch = <16>;
+				hback-porch = <114>;
+				hsync-len = <30>;
+				vback-porch = <35>;
+				vfront-porch = <10>;
+				vsync-len = <3>;
+				hsync-active = <1>;
+				vsync-active = <1>;
+			};
+			timing2: ETM0430G0DH6 {
+				clock-frequency	= <9000000>;
+				hactive = <480>;
+				vactive = <272>;
+				hfront-porch = <2>;
+				hback-porch = <2>;
+				hsync-len = <41>;
+				vback-porch = <2>;
+				vfront-porch = <2>;
+				vsync-len = <10>;
+				hsync-active = <1>;
+				vsync-active = <1>;
+			};
+			timing3: ETM0350G0DH6 {
+				clock-frequency = <6520000>;
+				hactive = <320>;
+				vactive = <240>;
+				hfront-porch = <20>;
+				hback-porch = <68>;
+				hsync-len = <88>;
+				vfront-porch = <4>;
+				vback-porch = <18>;
+				vsync-len = <22>;
+				hsync-active = <1>;
+				vsync-active = <1>;
 			};
 		};
 	};
