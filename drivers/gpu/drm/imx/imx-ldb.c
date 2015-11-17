@@ -27,6 +27,7 @@
 #include <video/of_videomode.h>
 #include <linux/regmap.h>
 #include <linux/videodev2.h>
+#include <video/of_display_timing.h>
 
 #include "imx-drm.h"
 
@@ -607,7 +608,8 @@ static int imx_ldb_bind(struct device *dev, struct device *master, void *data)
 			channel->edid = kmemdup(edidp, channel->edid_len,
 						GFP_KERNEL);
 		} else if (!channel->panel) {
-			ret = of_get_drm_display_mode(child, &channel->mode, 0);
+			ret = of_get_drm_display_mode(child, &channel->mode,
+							OF_USE_NATIVE_MODE);
 			if (!ret)
 				channel->mode_valid = 1;
 		}
