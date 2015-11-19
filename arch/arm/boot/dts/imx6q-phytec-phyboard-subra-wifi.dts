@@ -1,0 +1,29 @@
+/*
+ * Copyright (C) 2015 PHYTEC Messtechnik GmbH,
+ * Author: Stefan Christ <s.christ@phytec.de>
+ *
+ * The code contained herein is licensed under the GNU General Public
+ * License. You may obtain a copy of the GNU General Public License
+ * Version 2 or later at the following locations:
+ *
+ * http://www.opensource.org/licenses/gpl-license.html
+ * http://www.gnu.org/copyleft/gpl.html
+ */
+
+/dts-v1/;
+#include "imx6q-phytec-pfla02.dtsi"
+#include "imx6qdl-phytec-phyboard-subra.dtsi"
+#include "imx6qdl-phytec-peb-b-001.dtsi"
+
+/ {
+	model = "Phytec phyBOARD SUBRA Wifi";
+	compatible = "phytec,imx6q-pbab05", "phytec,imx6q-pfla02", "fsl,imx6q";
+};
+
+&reg_wlan_en {
+	status = "okay";
+};
+
+&usdhc3 {
+	status = "okay";
+};
