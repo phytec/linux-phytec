@@ -57,6 +57,7 @@
 
 &usbotg {
 	status = "okay";
+	dr_mode = "host";
 };
 
 &usdhc3 {
