@@ -1,0 +1,87 @@
+/*
+ * Copyright (C) 2015 PHYTEC Messtechnik GmbH,
+ * Author: Stefan Christ <s.christ@phytec.de>
+ *
+ * The code contained herein is licensed under the GNU General Public
+ * License. You may obtain a copy of the GNU General Public License
+ * Version 2 or later at the following locations:
+ *
+ * http://www.opensource.org/licenses/gpl-license.html
+ * http://www.gnu.org/copyleft/gpl.html
+ */
+
+#include <include/dt-bindings/gpio/gpio.h>
+#include <include/dt-bindings/interrupt-controller/irq.h>
+
+/ {
+	regulators {
+		reg_wlan_en: regulator@3 {
+			compatible = "regulator-fixed";
+			reg = <3>;
+			regulator-name = "wlan_en";
+			regulator-min-microvolt = <3300000>;
+			regulator-max-microvolt = <3300000>;
+			gpio = <&gpio6 18 GPIO_ACTIVE_HIGH>;
+			startup-delay-us = <70000>; /* card specific delay */
+			enable-active-high;
+			status = "disabled";
+		};
+	};
+};
+
+&iomuxc {
+	imx6qdl-phytec-peb-b-001 {
+		pinctrl_usdhc3_wlan: usdhc3grp_wlan {
+			fsl,pins = <
+				MX6QDL_PAD_SD3_CMD__SD3_CMD	0x17059
+				MX6QDL_PAD_SD3_CLK__SD3_CLK	0x10059
+				MX6QDL_PAD_SD3_DAT0__SD3_DATA0	0x17059
+				MX6QDL_PAD_SD3_DAT1__SD3_DATA1	0x17059
+				MX6QDL_PAD_SD3_DAT2__SD3_DATA2	0x17059
+				MX6QDL_PAD_SD3_DAT3__SD3_DATA3	0x17059
+			>;
+		};
+
+		pinctrl_wlan: wlangrp {
+			fsl,pins = <
+				MX6QDL_PAD_SD3_DAT6__GPIO6_IO18	0x80000000 /* WLAN ENABLE */
+				MX6QDL_PAD_SD3_DAT7__GPIO6_IO17	0x80000000 /* WLAN IRQ */
+			>;
+		};
+	};
+};
+
+&usdhc3 {
+	/* HACK:
+	 * Delete all existing properties from file imx6qdl-phytec-pfla02.dtsi.
+	 * The usdhc3 interface isn't used for sd-cards anymore.
+	 */
+	/delete-property/ pinctrl-names;
+	/delete-property/ pinctrl-0;
+	/delete-property/ pinctrl-1;
+	/delete-property/ pinctrl-2;
+	/delete-property/ cd-gpios;
+	/delete-property/ wp-gpios;
+	/delete-property/ no-1-8-v;
+	/delete-property/ vmmc-supply;
+
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_usdhc3_wlan &pinctrl_wlan>;
+	vmmc-supply = <&reg_wlan_en>;
+	bus-width = <4>;
+	non-removable;
+	cap-power-off-card;
+	keep-power-in-suspend;
+	status = "disabled";
+
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	wlcore: wlcore@2 {
+		compatible = "ti,wl1271", "ti,wlcore";
+		reg = <2>;
+		interrupt-parent = <&gpio6>;
+		interrupts = <17 IRQ_TYPE_EDGE_RISING>;
+		ref-clock-frequency = <38400000>; /* Hz = 38.4 MHz */
+	};
+};
