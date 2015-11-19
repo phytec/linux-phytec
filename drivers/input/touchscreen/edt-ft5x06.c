@@ -90,6 +90,8 @@ struct edt_ft5x06_ts_data {
 	struct input_dev *input;
 	u16 num_x;
 	u16 num_y;
+	u32 max_x;
+	u32 max_y;
 
 	int reset_pin;
 	int irq_pin;
@@ -107,6 +109,10 @@ struct edt_ft5x06_ts_data {
 	int gain;
 	int offset;
 	int report_rate;
+
+	bool invert_x;
+	bool invert_y;
+	bool swap_x_y;
 
 	char name[EDT_NAME_LEN];
 
@@ -243,8 +249,19 @@ static irqreturn_t edt_ft5x06_ts_isr(int irq, void *dev_id)
 		if (!down)
 			continue;
 
-		input_report_abs(tsdata->input, ABS_MT_POSITION_X, x);
-		input_report_abs(tsdata->input, ABS_MT_POSITION_Y, y);
+		if (tsdata->invert_x)
+			x = tsdata->max_x - x;
+
+		if (tsdata->invert_y)
+			y = tsdata->max_y - y;
+
+		if (!tsdata->swap_x_y) {
+			input_report_abs(tsdata->input, ABS_MT_POSITION_X, x);
+			input_report_abs(tsdata->input, ABS_MT_POSITION_Y, y);
+		} else {
+			input_report_abs(tsdata->input, ABS_MT_POSITION_X, y);
+			input_report_abs(tsdata->input, ABS_MT_POSITION_Y, x);
+		}
 	}
 
 	input_mt_report_pointer_emulation(tsdata->input, true);
@@ -945,6 +962,10 @@ static int edt_ft5x06_i2c_ts_probe_dt(struct device *dev,
 	tsdata->reset_pin = of_get_named_gpio(np, "reset-gpios", 0);
 	tsdata->wake_pin = of_get_named_gpio(np, "wake-gpios", 0);
 
+	tsdata->invert_x = of_property_read_bool(np, "touchscreen-inverted-x");
+	tsdata->invert_y = of_property_read_bool(np, "touchscreen-inverted-y");
+	tsdata->swap_x_y = of_property_read_bool(np, "touchscreen-swapped-x-y");
+
 	return 0;
 }
 #else
@@ -984,6 +1005,9 @@ static int edt_ft5x06_ts_probe(struct i2c_client *client,
 		tsdata->reset_pin = pdata->reset_pin;
 		tsdata->irq_pin = pdata->irq_pin;
 		tsdata->wake_pin = -EINVAL;
+		tsdata->invert_x = false;
+		tsdata->invert_y = false;
+		tsdata->swap_x_y = false;
 	}
 
 	error = edt_ft5x06_ts_reset(client, tsdata);
@@ -1038,12 +1062,30 @@ static int edt_ft5x06_ts_probe(struct i2c_client *client,
 	__set_bit(EV_KEY, input->evbit);
 	__set_bit(EV_ABS, input->evbit);
 	__set_bit(BTN_TOUCH, input->keybit);
-	input_set_abs_params(input, ABS_X, 0, tsdata->num_x * 64 - 1, 0, 0);
-	input_set_abs_params(input, ABS_Y, 0, tsdata->num_y * 64 - 1, 0, 0);
-	input_set_abs_params(input, ABS_MT_POSITION_X,
-			     0, tsdata->num_x * 64 - 1, 0, 0);
-	input_set_abs_params(input, ABS_MT_POSITION_Y,
-			     0, tsdata->num_y * 64 - 1, 0, 0);
+
+	if (!tsdata->num_x || !tsdata->num_y) {
+		dev_err(&client->dev, "size of sensors cannot be zero!\n");
+		return -EINVAL;
+	}
+
+	tsdata->max_x = tsdata->num_x * 64 - 1;
+	tsdata->max_y = tsdata->num_y * 64 - 1;
+
+	if (!tsdata->swap_x_y) {
+		input_set_abs_params(input, ABS_X, 0, tsdata->max_x, 0, 0);
+		input_set_abs_params(input, ABS_Y, 0, tsdata->max_y, 0, 0);
+		input_set_abs_params(input, ABS_MT_POSITION_X,
+				     0, tsdata->max_x, 0, 0);
+		input_set_abs_params(input, ABS_MT_POSITION_Y,
+				     0, tsdata->max_y, 0, 0);
+	} else {
+		input_set_abs_params(input, ABS_X, 0, tsdata->max_y, 0, 0);
+		input_set_abs_params(input, ABS_Y, 0, tsdata->max_x, 0, 0);
+		input_set_abs_params(input, ABS_MT_POSITION_X,
+				     0, tsdata->max_y, 0, 0);
+		input_set_abs_params(input, ABS_MT_POSITION_Y,
+				     0, tsdata->max_x, 0, 0);
+	}
 
 	if (!pdata)
 		touchscreen_parse_of_params(input);
