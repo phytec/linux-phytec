@@ -42,6 +42,13 @@ Optional properties:
  - offset:      allows setting the edge compensation in the range from
                 0 to 31.
 
+ - touchscreen-inverted-x: X axis is inverted (boolean)
+
+ - touchscreen-inverted-y: Y axis is inverted (boolean)
+
+ - touchscreen-swapped-x-y: X and Y axis are swapped (boolean)
+                            Swapping is done after inverting the axis
+
 Example:
 	polytouch: edt-ft5x06@38 {
 		compatible = "edt,edt-ft5406", "edt,edt-ft5x06";
