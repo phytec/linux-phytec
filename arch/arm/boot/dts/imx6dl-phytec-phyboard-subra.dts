@@ -14,7 +14,7 @@
 
 / {
 	model = "Phytec phyBOARD SUBRA";
-	compatible = "phytec,imx6q-pbab05", "phytec,imx6dl-pfla02", "fsl,imx6dl";
+	compatible = "phytec,imx6dl-pbab05", "phytec,imx6dl-pfla02", "fsl,imx6dl";
 
 	aliases {
 		rtc0 = &i2c_rtc;
