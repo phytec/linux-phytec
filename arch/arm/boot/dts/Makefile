@@ -296,6 +296,7 @@ dtb-$(CONFIG_SOC_IMX6Q) += \
 	imx6q-nitrogen6x.dtb \
 	imx6q-phytec-phycard-imx6-rdk.dtb \
 	imx6q-phytec-pbab01.dtb \
+	imx6q-phytec-phyboard-subra.dtb \
 	imx6q-phytec-phyboard-alcor.dtb \
 	imx6q-phytec-mira-rdk-emmc.dtb \
 	imx6q-phytec-mira-rdk-nand.dtb \
