@@ -77,12 +77,12 @@
 };
 
 &ldb {
-	status = "okay";
+	status = "disabled";
 
 	lvds-channel@0 {
 		fsl,data-mapping = "spwg";
 		fsl,data-width = <18>;
-		status = "okay";
+		status = "disabled";
 
 		display-timings {
 			native-mode = <&timing0>;
@@ -100,7 +100,6 @@
 		};
 	};
 };
-
 
 /* RS485 */
 &uart3 {
