@@ -51,6 +51,7 @@ struct coda_video_device;
 
 struct coda_devtype {
 	char			*firmware;
+	char			*firmware_legacy;
 	enum coda_product	product;
 	const struct coda_codec	*codecs;
 	unsigned int		num_codecs;
