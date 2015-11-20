@@ -55,11 +55,15 @@
 #define W_ALIGN		1 /* multiple of 2 */
 #define H_ALIGN		1 /* multiple of 2 */
 
+#define FIRMWARE_LEGACY_HEADER_SIZE	16
+
 #define fh_to_ctx(__fh)	container_of(__fh, struct coda_ctx, fh)
 
 int coda_debug;
 module_param(coda_debug, int, 0644);
 MODULE_PARM_DESC(coda_debug, "Debug level (0-2)");
+
+static int coda_firmware_legacy_request(struct coda_dev *dev);
 
 struct coda_fmt {
 	char *name;
@@ -1932,25 +1936,71 @@ static int coda_register_device(struct coda_dev *dev, int i)
 	return video_register_device(vfd, VFL_TYPE_GRABBER, 0);
 }
 
+static void coda_memcopy_legacy(void *dest, const void *src, size_t n)
+{
+	unsigned int i;
+	const u32 *s = src;
+	u32 *d = dest;
+
+	/* Skip header of firmware (16 Bytes) */
+	s += FIRMWARE_LEGACY_HEADER_SIZE / 4;
+	n -= FIRMWARE_LEGACY_HEADER_SIZE;
+
+	/* Swap u16 blobs */
+	for (i = 0; i < n / 4; i += 2) {
+		d[i] = s[i + 1] >> 16 | s[i + 1] << 16;
+		d[i + 1] = s[i] << 16 | s[i] >> 16;
+	}
+}
+
+static bool use_firmware_legacy;
+
 static void coda_fw_callback(const struct firmware *fw, void *context)
 {
 	struct coda_dev *dev = context;
 	struct platform_device *pdev = dev->plat_dev;
+	size_t alloc_size;
 	int i, ret;
 
 	if (!fw) {
-		v4l2_err(&dev->v4l2_dev, "firmware request failed\n");
-		goto put_pm;
+		if (!use_firmware_legacy) {
+			use_firmware_legacy = true;
+			ret = coda_firmware_legacy_request(dev);
+			if (ret)
+				v4l2_err(&dev->v4l2_dev,
+					"legacy firmware request failed: %d\n",
+					ret);
+			v4l2_warn(&dev->v4l2_dev, "Try to request legacy firmware\n");
+			return;
+		} else {
+			v4l2_err(&dev->v4l2_dev, "firmware request failed\n");
+			goto put_pm;
+		}
 	}
 
+	if (!use_firmware_legacy)
+		alloc_size = fw->size;
+	else
+		alloc_size = fw->size - FIRMWARE_LEGACY_HEADER_SIZE;
+
 	/* allocate auxiliary per-device code buffer for the BIT processor */
-	ret = coda_alloc_aux_buf(dev, &dev->codebuf, fw->size, "codebuf",
+	ret = coda_alloc_aux_buf(dev, &dev->codebuf, alloc_size, "codebuf",
 				 dev->debugfs_root);
 	if (ret < 0)
 		goto put_pm;
 
 	/* Copy the whole firmware image to the code buffer */
-	memcpy(dev->codebuf.vaddr, fw->data, fw->size);
+	if (!use_firmware_legacy) {
+		memcpy(dev->codebuf.vaddr, fw->data, fw->size);
+	} else {
+		if ((fw->size - FIRMWARE_LEGACY_HEADER_SIZE) % 64 != 0) {
+			v4l2_err(&dev->v4l2_dev,
+				"legacy firmware has bad length\n");
+			release_firmware(fw);
+			goto put_pm;
+		}
+		coda_memcopy_legacy(dev->codebuf.vaddr, fw->data, fw->size);
+	}
 	release_firmware(fw);
 
 	ret = coda_hw_init(dev);
@@ -2012,6 +2062,23 @@ static int coda_firmware_request(struct coda_dev *dev)
 		fw, &dev->plat_dev->dev, GFP_KERNEL, dev, coda_fw_callback);
 }
 
+static int coda_firmware_legacy_request(struct coda_dev *dev)
+{
+	char *fw_legacy = dev->devtype->firmware_legacy;
+
+	if (!fw_legacy) {
+		v4l2_warn(&dev->v4l2_dev,
+			"Cannot request legacy firmware. Not defined.\n");
+		return -EINVAL;
+	}
+
+	dev_dbg(&dev->plat_dev->dev, "requesting firmware '%s' for %s\n",
+		fw_legacy, coda_product_name(dev->devtype->product));
+
+	return request_firmware_nowait(THIS_MODULE, true, fw_legacy,
+		&dev->plat_dev->dev, GFP_KERNEL, dev, coda_fw_callback);
+}
+
 enum coda_platform {
 	CODA_IMX27,
 	CODA_IMX53,
@@ -2022,6 +2089,9 @@ enum coda_platform {
 static const struct coda_devtype coda_devdata[] = {
 	[CODA_IMX27] = {
 		.firmware     = "v4l-codadx6-imx27.bin",
+		/* vpu_fw_imx27_TO1.bin or vpu_fw_imx27_TO2.bin
+		   based on chip revision */
+		.firmware_legacy = "vpu_fw_imx27_TO2.bin",
 		.product      = CODA_DX6,
 		.codecs       = codadx6_codecs,
 		.num_codecs   = ARRAY_SIZE(codadx6_codecs),
@@ -2032,6 +2102,7 @@ static const struct coda_devtype coda_devdata[] = {
 	},
 	[CODA_IMX53] = {
 		.firmware     = "v4l-coda7541-imx53.bin",
+		.firmware_legacy = "vpu_fw_imx53.bin",
 		.product      = CODA_7541,
 		.codecs       = coda7_codecs,
 		.num_codecs   = ARRAY_SIZE(coda7_codecs),
@@ -2043,6 +2114,7 @@ static const struct coda_devtype coda_devdata[] = {
 	},
 	[CODA_IMX6Q] = {
 		.firmware     = "v4l-coda960-imx6q.bin",
+		.firmware_legacy = "vpu_fw_imx6q.bin",
 		.product      = CODA_960,
 		.codecs       = coda9_codecs,
 		.num_codecs   = ARRAY_SIZE(coda9_codecs),
@@ -2054,6 +2126,7 @@ static const struct coda_devtype coda_devdata[] = {
 	},
 	[CODA_IMX6DL] = {
 		.firmware     = "v4l-coda960-imx6dl.bin",
+		.firmware_legacy = "vpu_fw_imx6d.bin",
 		.product      = CODA_960,
 		.codecs       = coda9_codecs,
 		.num_codecs   = ARRAY_SIZE(coda9_codecs),
