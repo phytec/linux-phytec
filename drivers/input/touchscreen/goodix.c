@@ -34,6 +34,9 @@ struct goodix_ts_data {
 	int abs_y_max;
 	unsigned int max_touch_num;
 	unsigned int int_trigger_type;
+	bool swap_x_y;
+	bool invert_x;
+	bool invert_y;
 };
 
 #define GOODIX_MAX_HEIGHT		4096
@@ -128,8 +131,20 @@ static void goodix_ts_report_touch(struct goodix_ts_data *ts, u8 *coor_data)
 
 	input_mt_slot(ts->input_dev, id);
 	input_mt_report_slot_state(ts->input_dev, MT_TOOL_FINGER, true);
-	input_report_abs(ts->input_dev, ABS_MT_POSITION_X, input_x);
-	input_report_abs(ts->input_dev, ABS_MT_POSITION_Y, input_y);
+
+	if (ts->invert_x)
+		input_x = ts->abs_x_max - input_x;
+
+	if (ts->invert_y)
+		input_y = ts->abs_y_max - input_y;
+
+	if (!ts->swap_x_y) {
+		input_report_abs(ts->input_dev, ABS_MT_POSITION_X, input_x);
+		input_report_abs(ts->input_dev, ABS_MT_POSITION_Y, input_y);
+	} else {
+		input_report_abs(ts->input_dev, ABS_MT_POSITION_X, input_y);
+		input_report_abs(ts->input_dev, ABS_MT_POSITION_Y, input_x);
+	}
 	input_report_abs(ts->input_dev, ABS_MT_TOUCH_MAJOR, input_w);
 	input_report_abs(ts->input_dev, ABS_MT_WIDTH_MAJOR, input_w);
 }
@@ -293,10 +308,17 @@ static int goodix_request_input_dev(struct goodix_ts_data *ts)
 				  BIT_MASK(EV_KEY) |
 				  BIT_MASK(EV_ABS);
 
-	input_set_abs_params(ts->input_dev, ABS_MT_POSITION_X, 0,
-				ts->abs_x_max, 0, 0);
-	input_set_abs_params(ts->input_dev, ABS_MT_POSITION_Y, 0,
-				ts->abs_y_max, 0, 0);
+	if (!ts->swap_x_y) {
+		input_set_abs_params(ts->input_dev, ABS_MT_POSITION_X, 0,
+					ts->abs_x_max, 0, 0);
+		input_set_abs_params(ts->input_dev, ABS_MT_POSITION_Y, 0,
+					ts->abs_y_max, 0, 0);
+	} else {
+		input_set_abs_params(ts->input_dev, ABS_MT_POSITION_X, 0,
+					ts->abs_y_max, 0, 0);
+		input_set_abs_params(ts->input_dev, ABS_MT_POSITION_Y, 0,
+					ts->abs_x_max, 0, 0);
+	}
 	input_set_abs_params(ts->input_dev, ABS_MT_WIDTH_MAJOR, 0, 255, 0, 0);
 	input_set_abs_params(ts->input_dev, ABS_MT_TOUCH_MAJOR, 0, 255, 0, 0);
 
@@ -324,6 +346,7 @@ static int goodix_ts_probe(struct i2c_client *client,
 			   const struct i2c_device_id *id)
 {
 	struct goodix_ts_data *ts;
+	struct device_node *np = client->dev.of_node;
 	unsigned long irq_flags;
 	int error;
 	u16 version_info;
@@ -341,6 +364,10 @@ static int goodix_ts_probe(struct i2c_client *client,
 
 	ts->client = client;
 	i2c_set_clientdata(client, ts);
+
+	ts->swap_x_y = of_property_read_bool(np, "touchscreen-swapped-x-y");
+	ts->invert_x = of_property_read_bool(np, "touchscreen-inverted-x");
+	ts->invert_y = of_property_read_bool(np, "touchscreen-inverted-y");
 
 	error = goodix_i2c_test(client);
 	if (error) {
