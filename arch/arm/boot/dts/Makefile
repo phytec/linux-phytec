@@ -270,6 +270,7 @@ dtb-$(CONFIG_SOC_IMX6Q) += \
 	imx6dl-phytec-phyboard-subra.dtb \
 	imx6dl-phytec-phyboard-subra-wifi.dtb \
 	imx6dl-phytec-mira-rdk-nand.dtb \
+	imx6dl-phytec-mira-rdk-emmc.dtb \
 	imx6dl-rex-basic.dtb \
 	imx6dl-riotboard.dtb \
 	imx6dl-sabreauto.dtb \
