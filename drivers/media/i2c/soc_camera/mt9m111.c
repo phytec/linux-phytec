@@ -216,6 +216,8 @@ struct mt9m111 {
 	int power_count;
 	const struct mt9m111_datafmt *fmt;
 	int lastpage;	/* PageMap cache value */
+
+	bool				invert_pixclk:1;
 };
 
 /* Find a data format by a pixel code */
@@ -477,7 +479,8 @@ static int mt9m111_set_pixfmt(struct mt9m111 *mt9m111,
 		MT9M111_OUTFMT_RGB565 | MT9M111_OUTFMT_RGB555 |
 		MT9M111_OUTFMT_RGB444x | MT9M111_OUTFMT_RGBx444 |
 		MT9M111_OUTFMT_SWAP_YCbCr_C_Y_RGB_EVEN |
-		MT9M111_OUTFMT_SWAP_YCbCr_Cb_Cr_RGB_R_B;
+		MT9M111_OUTFMT_SWAP_YCbCr_Cb_Cr_RGB_R_B |
+		MT9M111_OUTFMT_INV_PIX_CLOCK;
 	int ret;
 
 	switch (code) {
@@ -528,6 +531,9 @@ static int mt9m111_set_pixfmt(struct mt9m111 *mt9m111,
 		dev_err(&client->dev, "Pixel format not handled: %x\n", code);
 		return -EINVAL;
 	}
+
+	if (mt9m111->invert_pixclk)
+		data_outfmt2 |= MT9M111_OUTFMT_INV_PIX_CLOCK;
 
 	ret = mt9m111_reg_mask(client, context_a.output_fmt_ctrl2,
 			       data_outfmt2, mask_outfmt2);
@@ -872,12 +878,16 @@ static int mt9m111_enum_mbus_code(struct v4l2_subdev *sd,
 static int mt9m111_g_mbus_config(struct v4l2_subdev *sd,
 				struct v4l2_mbus_config *cfg)
 {
+	struct mt9m111 *mt9m111 = container_of(sd, struct mt9m111, subdev);
 	struct i2c_client *client = v4l2_get_subdevdata(sd);
 	struct soc_camera_subdev_desc *ssdd = soc_camera_i2c_to_desc(client);
 
-	cfg->flags = V4L2_MBUS_MASTER | V4L2_MBUS_PCLK_SAMPLE_RISING |
+	cfg->flags = V4L2_MBUS_MASTER |
 		V4L2_MBUS_HSYNC_ACTIVE_HIGH | V4L2_MBUS_VSYNC_ACTIVE_HIGH |
 		V4L2_MBUS_DATA_ACTIVE_HIGH;
+	cfg->flags |= (mt9m111->invert_pixclk ?
+		       V4L2_MBUS_PCLK_SAMPLE_RISING :
+		       V4L2_MBUS_PCLK_SAMPLE_FALLING);
 	cfg->type = V4L2_MBUS_PARALLEL;
 	cfg->flags = soc_camera_apply_board_flags(ssdd, cfg);
 
@@ -982,6 +992,8 @@ static int mt9m111_probe(struct i2c_client *client,
 	/* Default HIGHPOWER context */
 	mt9m111->ctx = &context_b;
 
+	mt9m111->invert_pixclk = of_property_read_bool(client->dev.of_node,
+						       "phytec,invert-pixclk");
 	v4l2_i2c_subdev_init(&mt9m111->subdev, client, &mt9m111_subdev_ops);
 	v4l2_ctrl_handler_init(&mt9m111->hdl, 5);
 	v4l2_ctrl_new_std(&mt9m111->hdl, &mt9m111_ctrl_ops,
