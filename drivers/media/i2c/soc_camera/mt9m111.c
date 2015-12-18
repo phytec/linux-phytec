@@ -235,6 +235,8 @@ struct mt9m111 {
 	bool				invert_pixclk:1;
 	bool				allow_10bit:1;
 	bool				allow_burst:1;
+
+	bool				is_streaming:1;
 };
 
 /* Find a data format by a pixel code */
@@ -974,15 +976,64 @@ static int mt9m111_g_mbus_config(struct v4l2_subdev *sd,
 	return 0;
 }
 
+static int mt9m111_s_stream_on(struct mt9m111 *mt9m111)
+{
+	mt9m111->is_streaming = true;
+	return 0;
+}
+
+static int mt9m111_s_stream_off(struct mt9m111 *mt9m111)
+{
+	mt9m111->is_streaming = false;
+	return 0;
+}
+
+static int mt9m111_s_stream(struct v4l2_subdev *sd, int enable)
+{
+	struct mt9m111 *mt9m111 = container_of(sd, struct mt9m111, subdev);
+
+	/* TODO: is 'is_streaming' protected by locks in the upper layers? */
+
+	if (enable && mt9m111->is_streaming)
+		return -EBUSY;
+	else if (!enable && !mt9m111->is_streaming)
+		return -EINVAL;
+	else if (enable)
+		return mt9m111_s_stream_on(mt9m111);
+	else
+		return mt9m111_s_stream_off(mt9m111);
+}
+
 static struct v4l2_subdev_video_ops mt9m111_subdev_video_ops = {
 	.s_crop		= mt9m111_s_crop,
 	.g_crop		= mt9m111_g_crop,
 	.cropcap	= mt9m111_cropcap,
 	.g_mbus_config	= mt9m111_g_mbus_config,
+	.s_stream	= mt9m111_s_stream,
 };
+
+static int mt9m111_pad_enum_frame_size(struct v4l2_subdev *sd,
+				       struct v4l2_subdev_pad_config *cfg,
+				       struct v4l2_subdev_frame_size_enum *fse)
+{
+	struct mt9m111 *mt9m111 = container_of(sd, struct mt9m111, subdev);
+	struct mt9m111_datafmt const *fmt =
+		mt9m111_fmt_by_idx(mt9m111, fse->index);
+
+	if (fse->pad != 0 || !fmt)
+		return -EINVAL;
+
+	fse->min_width = 2;
+	fse->max_width = 1280;
+	fse->min_height = 2;
+	fse->max_height = 1024;
+
+	return 0;
+}
 
 static const struct v4l2_subdev_pad_ops mt9m111_subdev_pad_ops = {
 	.enum_mbus_code = mt9m111_enum_mbus_code,
+	.enum_frame_size= mt9m111_pad_enum_frame_size,
 	.get_fmt	= mt9m111_get_fmt,
 	.set_fmt	= mt9m111_set_fmt,
 };
