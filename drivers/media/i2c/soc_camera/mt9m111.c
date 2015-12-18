@@ -223,6 +223,7 @@ static const struct mt9m111_datafmt mt9m111_processed_fmts[] = {
 
 struct mt9m111 {
 	struct v4l2_subdev subdev;
+	struct media_pad pad;
 	struct v4l2_ctrl_handler hdl;
 	struct v4l2_ctrl *gain;
 	struct mt9m111_context *ctx;
@@ -1360,6 +1361,12 @@ static int mt9m111_probe(struct i2c_client *client,
 		goto out_clkput;
 	}
 
+	mt9m111->subdev.flags |= V4L2_SUBDEV_FL_HAS_DEVNODE;
+	mt9m111->pad.flags = MEDIA_PAD_FL_SOURCE;
+	ret = media_entity_init(&mt9m111->subdev.entity, 1, &mt9m111->pad, 0);
+	if (ret < 0)
+		goto out_hdlfree;
+
 	/* Second stage probe - when a capture adapter is there */
 	mt9m111->rect.left	= MT9M111_MIN_DARK_COLS;
 	mt9m111->rect.top	= MT9M111_MIN_DARK_ROWS;
@@ -1388,6 +1395,9 @@ static int mt9m111_probe(struct i2c_client *client,
 	return 0;
 
 out_hdlfree:
+	if (mt9m111->subdev.entity.links)
+		media_entity_cleanup(&mt9m111->subdev.entity);
+
 	v4l2_ctrl_handler_free(&mt9m111->hdl);
 out_clkput:
 	v4l2_clk_put(mt9m111->clk);
@@ -1401,6 +1411,7 @@ static int mt9m111_remove(struct i2c_client *client)
 
 	v4l2_async_unregister_subdev(&mt9m111->subdev);
 	v4l2_clk_put(mt9m111->clk);
+	media_entity_cleanup(&mt9m111->subdev.entity);
 	v4l2_ctrl_handler_free(&mt9m111->hdl);
 
 	return 0;
