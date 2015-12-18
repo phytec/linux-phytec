@@ -128,6 +128,7 @@
 
 #define V4L2_CID_SKIP_X		(V4L2_CID_USER_BASE | 0x1000)
 #define V4L2_CID_SKIP_Y		(V4L2_CID_USER_BASE | 0x1001)
+#define V4L2_CID_X_PIXEL_RATE	(V4L2_CID_USER_BASE | 0x1002)
 
 /*
  * Camera control register addresses (0x200..0x2ff not implemented)
@@ -720,6 +721,14 @@ static int mt9m111_s_ctrl(struct v4l2_ctrl *ctrl)
 		return _mt9m111_set_selection(mt9m111, &mt9m111->rect,
 					      mt9m111->fmt,
 					      mt9m111->width, mt9m111->height);
+
+	case V4L2_CID_X_PIXEL_RATE:
+		if (mt9m111->clk) {
+			v4l2_clk_set_rate(mt9m111->clk, ctrl->val);
+			ctrl->val = v4l2_clk_get_rate(mt9m111->clk);
+		}
+
+		return 0;
 	}
 
 	return -EINVAL;
@@ -1291,7 +1300,16 @@ static struct v4l2_ctrl_config const	mt9m111_ctrls[] = {
 		.min		= 0,
 		.max		= ARRAY_SIZE(mt9m111_menu_skip) - 1,
 		.qmenu		= mt9m111_menu_skip,
-	},
+	}, {
+		.ops		= &mt9m111_ctrl_ops,
+		.id		= V4L2_CID_X_PIXEL_RATE,
+		.type		= V4L2_CTRL_TYPE_INTEGER,
+		.name		= "X Pixel Rate",
+		.min		=  2000000,
+		.max		= 54000000,
+		.def		= 27000000,
+		.step		= 1,
+	}
 };
 
 static int mt9m111_probe(struct i2c_client *client,
@@ -1328,6 +1346,10 @@ static int mt9m111_probe(struct i2c_client *client,
 	if (IS_ERR(mt9m111->clk))
 		return -EPROBE_DEFER;
 
+
+	if (mt9m111->clk)
+		/* setup a valid initial rate */
+		v4l2_clk_set_rate(mt9m111->clk, 27000000);
 	/* Default HIGHPOWER context */
 	mt9m111->ctx = &context_b;
 
