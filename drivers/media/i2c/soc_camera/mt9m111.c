@@ -236,6 +236,7 @@ struct mt9m111 {
 	bool				allow_10bit:1;
 	bool				allow_burst:1;
 
+	bool				dirty_dim:1;
 	bool				is_streaming:1;
 };
 
@@ -397,6 +398,98 @@ static int mt9m111_setup_geometry(struct mt9m111 *mt9m111, struct v4l2_rect *rec
 		width, height, ret);
 
 	return ret;
+}
+
+static int _mt9m111_set_selection(struct mt9m111 *mt9m111,
+				  struct v4l2_rect const *r,
+				  struct mt9m111_datafmt const *fmt,
+				  unsigned int width, unsigned int height)
+{
+	struct i2c_client	*client = v4l2_get_subdevdata(&mt9m111->subdev);
+	int			rc;
+	bool			allow_scaling;
+	struct mt9m111_context	*ctx = mt9m111->ctx;
+
+	struct regval {
+		unsigned int	reg;
+		unsigned int	val;
+	};
+
+	struct regval		setup[12];
+	struct regval		*s = setup;
+	struct regval const	*reg;
+
+
+	if (!fmt  || !ctx ||
+	    mt9m111->width == 0 || mt9m111->height == 0)
+		return -EINVAL;
+
+	allow_scaling = mt9m111->allow_burst && !fmt->bypass_ifp;
+
+	dev_dbg(&client->dev,
+		"setting selection %ux%u+%ux%u -> %ux%u\n",
+		r->left, r->top, r->width, r->height,
+		width, height);
+
+	/* cropping parameters */
+
+	*s++ = (struct regval){ MT9M111_COLUMN_START,  r->left };
+	*s++ = (struct regval){ MT9M111_ROW_START,     r->top };
+	*s++ = (struct regval){ MT9M111_WINDOW_WIDTH,  r->width };
+	*s++ = (struct regval){ MT9M111_WINDOW_HEIGHT, r->height };
+
+
+	/* output parameters */
+
+	/* note: this can be rejected/ignored because constraints are
+	 * violated; write it again below */
+	if (mt9m111->dirty_dim || width != mt9m111->width)
+		*s++ = (struct regval){ ctx->reducer_xsize,
+					width };
+
+	if (mt9m111->dirty_dim || r->width != mt9m111->rect.width)
+		*s++ = (struct regval){ ctx->reducer_xzoom,    r->width };
+
+	/* set reduxer_size twice to handle the case when the (new_)size <
+	 * (old_)zoom constraint is violated */
+	if (mt9m111->dirty_dim || width != mt9m111->width)
+		*s++ = (struct regval){ ctx->reducer_xsize,
+					width };
+
+
+	/* note: this can be rejected/ignored because constraints are
+	 * violated; write it again below */
+	if (mt9m111->dirty_dim || height != mt9m111->height)
+		*s++ = (struct regval){ ctx->reducer_ysize,
+					height };
+
+	if (mt9m111->dirty_dim || r->height != mt9m111->rect.height)
+		*s++ = (struct regval){ ctx->reducer_yzoom, r->height };
+
+	/* set reduxer_size twice to handle the case when the (new_)size <
+	 * (old_)zoom constraint is violated */
+	if (mt9m111->dirty_dim || height != mt9m111->height)
+		*s++ = (struct regval){ ctx->reducer_ysize,
+					height };
+
+	for (reg = &setup[0]; reg < s; ++reg) {
+		rc = mt9m111_reg_write(client, reg->reg, reg->val);
+		if (rc < 0)
+			break;
+	}
+
+	if (rc < 0)
+		goto out;
+
+	mt9m111->width = width;
+	mt9m111->height = height;
+	mt9m111->rect = *r;
+	mt9m111->dirty_dim = false;
+
+	rc = 0;
+
+out:
+	return rc;
 }
 
 static int mt9m111_enable(struct mt9m111 *mt9m111)
@@ -789,10 +882,13 @@ static int mt9m111_suspend(struct mt9m111 *mt9m111)
 
 static void mt9m111_restore_state(struct mt9m111 *mt9m111)
 {
+	mt9m111->dirty_dim = true;
+
 	mt9m111_set_context(mt9m111, mt9m111->ctx);
 	mt9m111_set_pixfmt(mt9m111, mt9m111->fmt->code);
-	mt9m111_setup_geometry(mt9m111, &mt9m111->rect,
-			mt9m111->width, mt9m111->height, mt9m111->fmt->code);
+	_mt9m111_set_selection(mt9m111, &mt9m111->rect,
+			       mt9m111->fmt,
+			       mt9m111->width, mt9m111->height);
 	v4l2_ctrl_handler_setup(&mt9m111->hdl);
 }
 
@@ -1031,11 +1127,235 @@ static int mt9m111_pad_enum_frame_size(struct v4l2_subdev *sd,
 	return 0;
 }
 
+static struct v4l2_rect *
+_mt9m111_get_pad_crop(struct mt9m111 *sensor,
+		      struct v4l2_subdev_pad_config *cfg,
+		      unsigned int pad,
+		      enum v4l2_subdev_format_whence which)
+{
+	switch (which) {
+	case V4L2_SUBDEV_FORMAT_TRY:
+		return v4l2_subdev_get_try_crop(&sensor->subdev, cfg, pad);
+	case V4L2_SUBDEV_FORMAT_ACTIVE:
+		return &sensor->rect;
+	default:
+		return NULL;
+	}
+}
+
+static int mt9m111_get_selection(struct v4l2_subdev *subdev,
+				 struct v4l2_subdev_pad_config *cfg,
+				 struct v4l2_subdev_selection *sel)
+{
+	struct mt9m111 *mt9m111 = container_of(subdev, struct mt9m111, subdev);
+	int			rc;
+	struct v4l2_rect	*r;
+
+	if (sel->pad != 0)
+		return -EINVAL;
+
+	switch (sel->target) {
+	case V4L2_SEL_TGT_CROP_DEFAULT:
+		sel->r = (struct v4l2_rect){
+			.left	= 30,
+			.width	= 1280,
+			.top	= 12,
+			.height = 1024,
+		};
+		rc = 0;
+		break;
+
+	case V4L2_SEL_TGT_CROP_BOUNDS:
+		sel->r = (struct v4l2_rect){
+			.left	= 0,
+			.width	= 1316,
+			.top	= 0,
+			.height = 1048,
+		};
+		rc = 0;
+		break;
+
+	case V4L2_SEL_TGT_CROP:
+		r = _mt9m111_get_pad_crop(mt9m111, cfg, sel->pad, sel->which);
+		if (!r) {
+			rc = -EINVAL;
+			break;
+		}
+
+		sel->r = *r;
+		rc = 0;
+		break;
+
+	default:
+		rc = -EINVAL;
+		break;
+	}
+
+	return rc;
+}
+
+static void mt9m111_clamp(unsigned int *pos, unsigned int *len,
+			  unsigned int min_pos, unsigned  int max_len,
+			  unsigned int alignment)
+{
+	unsigned int	p = *pos;
+	unsigned int	l = *len;
+
+	l = clamp_val(l, 0, max_len);
+	l = ALIGN(l, alignment);
+
+	p = clamp_val(p, min_pos, min_pos + max_len - l);
+
+	*len = l;
+	*pos = p;
+}
+
+static int _mt9m111_try_selection(struct mt9m111 *mt9m111, struct v4l2_rect *r,
+				  unsigned int *width, unsigned int *height,
+				  struct mt9m111_datafmt const *fmt)
+{
+	bool			allow_scaling;
+	struct i2c_client	*client = v4l2_get_subdevdata(&mt9m111->subdev);
+
+	dev_dbg(&client->dev, "%s([%ux%u+%ux%u], %dx%d, %04x\n", __func__,
+		r->left, r->top, r->width, r->height,
+		width ? (int)*width : -1,
+		height ? (int)*height : -1,
+		fmt->code);
+
+	if (!fmt || (width && *width == 0) || (height && *height == 0))
+		return -EINVAL;
+
+	allow_scaling = mt9m111->allow_burst && !fmt->bypass_ifp;
+
+	mt9m111_clamp(&r->left, &r->width,
+		      MT9M111_MIN_DARK_COLS, MT9M111_MAX_WIDTH,
+		      (fmt->is_bayer ? 2 : 1));
+
+	if (!allow_scaling && width)
+		*width = r->width;
+
+	mt9m111_clamp(&r->top, &r->height,
+		      MT9M111_MIN_DARK_ROWS, MT9M111_MAX_HEIGHT,
+		      (fmt->is_bayer ? 2 : 1));
+
+	if (!allow_scaling && height)
+		*height  = r->height;
+
+	dev_dbg(&client->dev, "--> ([%ux%u+%ux%u], %dx%d, %04x\n",
+		r->left, r->top, r->width, r->height,
+		width ? (int)*width : -1,
+		height ? (int)*height : -1,
+		fmt->code);
+
+	return 0;
+}
+
+static int mt9m111_set_selection(struct v4l2_subdev *subdev,
+				 struct v4l2_subdev_pad_config *cfg,
+				 struct v4l2_subdev_selection *sel)
+{
+	struct mt9m111 *mt9m111 = container_of(subdev, struct mt9m111, subdev);
+	int			rc;
+	struct v4l2_rect	r = sel->r;
+
+	if (sel->pad != 0)
+		return -EINVAL;
+
+	switch (sel->target) {
+	case V4L2_SEL_TGT_CROP_DEFAULT:
+	case V4L2_SEL_TGT_CROP_BOUNDS:
+		/* readonly properties; can not be set */
+		rc = -EINVAL;
+		break;
+
+	case V4L2_SEL_TGT_CROP:
+		rc = _mt9m111_try_selection(mt9m111, &r, NULL, NULL,
+					    mt9m111->fmt);
+		if (rc < 0)
+			break;
+
+		if (mt9m111->is_streaming &&
+		    (r.width != mt9m111->rect.width ||
+		     r.height != mt9m111->rect.height)) {
+			/* forbid change of output dimension when streaming is
+			 * active */
+			rc = -EBUSY;
+		} else if (sel->which == V4L2_SUBDEV_FORMAT_ACTIVE) {
+			rc = _mt9m111_set_selection(mt9m111, &r, mt9m111->fmt,
+						    mt9m111->width,
+						    mt9m111->height);
+		} else {
+			*v4l2_subdev_get_try_crop(subdev, cfg, sel->pad) = r;
+			rc = 0;
+		}
+
+		break;
+
+	default:
+		rc = -EINVAL;
+		break;
+	}
+
+	return rc;
+}
+
+static int mt9m111_set_fmt(struct v4l2_subdev *sd,
+			   struct v4l2_subdev_pad_config *cfg,
+			   struct v4l2_subdev_format *format)
+{
+	struct mt9m111 *mt9m111 = container_of(sd, struct mt9m111, subdev);
+	struct v4l2_mbus_framefmt	*mf = &format->format;
+	struct mt9m111_datafmt const	*fmt;
+	struct v4l2_rect		r = mt9m111->rect;
+	int				rc;
+	/* we are working with unscaled values internally */
+	unsigned int			width = mf->width;
+	unsigned int			height = mf->height;
+
+	if (format->pad != 0)
+		return -EINVAL;
+
+	if (format->which == V4L2_SUBDEV_FORMAT_ACTIVE && mt9m111->is_streaming)
+		return -EBUSY;
+
+	fmt = mt9m111_find_datafmt(mt9m111, mf->code);
+
+	rc = _mt9m111_try_selection(mt9m111, &r, &width, &height, fmt);
+	if (rc < 0)
+		return rc;
+
+	mf->width  = width;
+	mf->height = height;
+	mf->code   = fmt->code;
+
+	if (format->which == V4L2_SUBDEV_FORMAT_TRY) {
+		cfg->try_fmt = *mf;
+		return 0;
+	}
+
+	rc = _mt9m111_set_selection(mt9m111, &r, fmt, width, height);
+	if (rc < 0)
+		goto out;
+
+	rc = mt9m111_set_pixfmt(mt9m111, fmt->code);
+	if (rc < 0)
+		goto out;
+
+	mt9m111->fmt = fmt;
+	rc = 0;
+
+out:
+	return rc;
+}
+
 static const struct v4l2_subdev_pad_ops mt9m111_subdev_pad_ops = {
 	.enum_mbus_code = mt9m111_enum_mbus_code,
 	.enum_frame_size= mt9m111_pad_enum_frame_size,
 	.get_fmt	= mt9m111_get_fmt,
 	.set_fmt	= mt9m111_set_fmt,
+	.get_selection	= mt9m111_get_selection,
+	.set_selection	= mt9m111_set_selection,
 };
 
 static struct v4l2_subdev_ops mt9m111_subdev_ops = {
@@ -1154,7 +1474,10 @@ static int mt9m111_probe(struct i2c_client *client,
 	mt9m111->rect.top	= MT9M111_MIN_DARK_ROWS;
 	mt9m111->rect.width	= MT9M111_MAX_WIDTH;
 	mt9m111->rect.height	= MT9M111_MAX_HEIGHT;
+	mt9m111->width		= mt9m111->rect.width;
+	mt9m111->height		= mt9m111->rect.height;
 	mt9m111->fmt		= &mt9m111_colour_fmts[0];
+	mt9m111->dirty_dim	= true;
 	mt9m111->lastpage	= -1;
 	mutex_init(&mt9m111->power_lock);
 
