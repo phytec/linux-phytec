@@ -126,6 +126,9 @@
 #define MT9M111_OUTFMT_SWAP_YCbCr_C_Y_RGB_EVEN	(1 << 1)
 #define MT9M111_OUTFMT_SWAP_YCbCr_Cb_Cr_RGB_R_B	(1 << 0)
 
+#define V4L2_CID_SKIP_X		(V4L2_CID_USER_BASE | 0x1000)
+#define V4L2_CID_SKIP_Y		(V4L2_CID_USER_BASE | 0x1001)
+
 /*
  * Camera control register addresses (0x200..0x2ff not implemented)
  */
@@ -231,6 +234,9 @@ struct mt9m111 {
 	int power_count;
 	const struct mt9m111_datafmt *fmt;
 	int lastpage;	/* PageMap cache value */
+
+	unsigned char			skip_x; /* shift count */
+	unsigned char			skip_y; /* shift count */
 
 	bool				invert_pixclk:1;
 	bool				allow_10bit:1;
@@ -379,9 +385,10 @@ static int _mt9m111_set_selection(struct mt9m111 *mt9m111,
 	allow_scaling = mt9m111->allow_burst && !fmt->bypass_ifp;
 
 	dev_dbg(&client->dev,
-		"setting selection %ux%u+%ux%u -> %ux%u\n",
+		"setting selection %ux%u+%ux%u -> %ux%u >> (%d,%d)\n",
 		r->left, r->top, r->width, r->height,
-		width, height);
+		width, height,
+		mt9m111->skip_x, mt9m111->skip_y);
 
 	/* cropping parameters */
 
@@ -397,7 +404,7 @@ static int _mt9m111_set_selection(struct mt9m111 *mt9m111,
 	 * violated; write it again below */
 	if (mt9m111->dirty_dim || width != mt9m111->width)
 		*s++ = (struct regval){ ctx->reducer_xsize,
-					width };
+					width >> mt9m111->skip_x };
 
 	if (mt9m111->dirty_dim || r->width != mt9m111->rect.width)
 		*s++ = (struct regval){ ctx->reducer_xzoom,    r->width };
@@ -406,14 +413,14 @@ static int _mt9m111_set_selection(struct mt9m111 *mt9m111,
 	 * (old_)zoom constraint is violated */
 	if (mt9m111->dirty_dim || width != mt9m111->width)
 		*s++ = (struct regval){ ctx->reducer_xsize,
-					width };
+					width >> mt9m111->skip_x };
 
 
 	/* note: this can be rejected/ignored because constraints are
 	 * violated; write it again below */
 	if (mt9m111->dirty_dim || height != mt9m111->height)
 		*s++ = (struct regval){ ctx->reducer_ysize,
-					height };
+					height >> mt9m111->skip_y };
 
 	if (mt9m111->dirty_dim || r->height != mt9m111->rect.height)
 		*s++ = (struct regval){ ctx->reducer_yzoom, r->height };
@@ -422,13 +429,25 @@ static int _mt9m111_set_selection(struct mt9m111 *mt9m111,
 	 * (old_)zoom constraint is violated */
 	if (mt9m111->dirty_dim || height != mt9m111->height)
 		*s++ = (struct regval){ ctx->reducer_ysize,
-					height };
+					height >> mt9m111->skip_y };
 
 	for (reg = &setup[0]; reg < s; ++reg) {
 		rc = mt9m111_reg_write(client, reg->reg, reg->val);
 		if (rc < 0)
 			break;
 	}
+
+	if (rc < 0)
+		goto out;
+
+	rc = mt9m111_reg_mask(client, ctx->read_mode,
+			      ((mt9m111->skip_x == 0 ? 0 :
+				mt9m111->skip_x == 1 ? 1 :
+				mt9m111->skip_x == 2 ? 4 : 5) << 3) |
+			      ((mt9m111->skip_y == 0 ? 0 :
+				mt9m111->skip_y == 1 ? 1 :
+				mt9m111->skip_y == 2 ? 4 : 5) << 2),
+			      0x0f << 2);
 
 	if (rc < 0)
 		goto out;
@@ -475,8 +494,8 @@ static int mt9m111_get_fmt(struct v4l2_subdev *sd,
 	if (format->pad)
 		return -EINVAL;
 
-	mf->width	= mt9m111->width;
-	mf->height	= mt9m111->height;
+	mf->width	= mt9m111->width >> mt9m111->skip_x;
+	mf->height	= mt9m111->height >> mt9m111->skip_y;
 	mf->code	= mt9m111->fmt->code;
 	mf->colorspace	= mt9m111->fmt->colorspace;
 	mf->field	= V4L2_FIELD_NONE;
@@ -684,6 +703,22 @@ static int mt9m111_s_ctrl(struct v4l2_ctrl *ctrl)
 		return mt9m111_set_autoexposure(mt9m111, ctrl->val);
 	case V4L2_CID_AUTO_WHITE_BALANCE:
 		return mt9m111_set_autowhitebalance(mt9m111, ctrl->val);
+
+	case V4L2_CID_SKIP_X:
+	case V4L2_CID_SKIP_Y:
+		if (mt9m111->is_streaming)
+			return -EBUSY;
+
+		if (ctrl->id == V4L2_CID_SKIP_X)
+			mt9m111->skip_x = ctrl->val;
+		else
+			mt9m111->skip_y = ctrl->val;
+
+		mt9m111->dirty_dim = true;
+
+		return _mt9m111_set_selection(mt9m111, &mt9m111->rect,
+					      mt9m111->fmt,
+					      mt9m111->width, mt9m111->height);
 	}
 
 	return -EINVAL;
@@ -944,9 +979,9 @@ static int mt9m111_pad_enum_frame_size(struct v4l2_subdev *sd,
 		return -EINVAL;
 
 	fse->min_width = 2;
-	fse->max_width = 1280;
+	fse->max_width = 1280 >> mt9m111->skip_x;
 	fse->min_height = 2;
-	fse->max_height = 1024;
+	fse->max_height = 1024 >> mt9m111->skip_y;
 
 	return 0;
 }
@@ -1054,14 +1089,14 @@ static int _mt9m111_try_selection(struct mt9m111 *mt9m111, struct v4l2_rect *r,
 
 	mt9m111_clamp(&r->left, &r->width,
 		      MT9M111_MIN_DARK_COLS, MT9M111_MAX_WIDTH,
-		      (fmt->is_bayer ? 2 : 1));
+		      (fmt->is_bayer ? 2 : 1) << mt9m111->skip_x);
 
 	if (!allow_scaling && width)
 		*width = r->width;
 
 	mt9m111_clamp(&r->top, &r->height,
 		      MT9M111_MIN_DARK_ROWS, MT9M111_MAX_HEIGHT,
-		      (fmt->is_bayer ? 2 : 1));
+		      (fmt->is_bayer ? 2 : 1) << mt9m111->skip_y);
 
 	if (!allow_scaling && height)
 		*height  = r->height;
@@ -1134,8 +1169,8 @@ static int mt9m111_set_fmt(struct v4l2_subdev *sd,
 	struct v4l2_rect		r = mt9m111->rect;
 	int				rc;
 	/* we are working with unscaled values internally */
-	unsigned int			width = mf->width;
-	unsigned int			height = mf->height;
+	unsigned int			width = mf->width << mt9m111->skip_x;
+	unsigned int			height = mf->height << mt9m111->skip_y;
 
 	if (format->pad != 0)
 		return -EINVAL;
@@ -1149,8 +1184,8 @@ static int mt9m111_set_fmt(struct v4l2_subdev *sd,
 	if (rc < 0)
 		return rc;
 
-	mf->width  = width;
-	mf->height = height;
+	mf->width  = width >> mt9m111->skip_x;
+	mf->height = height >> mt9m111->skip_y;
 	mf->code   = fmt->code;
 
 	if (format->which == V4L2_SUBDEV_FORMAT_TRY) {
@@ -1231,12 +1266,40 @@ done:
 	return ret;
 }
 
+static char const * const	mt9m111_menu_skip[] = {
+	"1x",
+	"2x",
+	"4x",
+	"8x",
+};
+
+static struct v4l2_ctrl_config const	mt9m111_ctrls[] = {
+	{
+		.ops		= &mt9m111_ctrl_ops,
+		.id		= V4L2_CID_SKIP_X,
+		.type		= V4L2_CTRL_TYPE_MENU,
+		.name		= "skip-x",
+		.min		= 0,
+		.max		= ARRAY_SIZE(mt9m111_menu_skip) - 1,
+		.qmenu		= mt9m111_menu_skip,
+	}, {
+		.ops		= &mt9m111_ctrl_ops,
+		.id		= V4L2_CID_SKIP_Y,
+		.type		= V4L2_CTRL_TYPE_MENU,
+		.name		= "skip-y",
+		.min		= 0,
+		.max		= ARRAY_SIZE(mt9m111_menu_skip) - 1,
+		.qmenu		= mt9m111_menu_skip,
+	},
+};
+
 static int mt9m111_probe(struct i2c_client *client,
 			 const struct i2c_device_id *did)
 {
 	struct mt9m111 *mt9m111;
 	struct i2c_adapter *adapter = to_i2c_adapter(client->dev.parent);
 	struct soc_camera_subdev_desc *ssdd = soc_camera_i2c_to_desc(client);
+	size_t i;
 	int ret;
 
 	if (client->dev.of_node) {
@@ -1275,7 +1338,7 @@ static int mt9m111_probe(struct i2c_client *client,
 						     "phytec,allow-burst");
 
 	v4l2_i2c_subdev_init(&mt9m111->subdev, client, &mt9m111_subdev_ops);
-	v4l2_ctrl_handler_init(&mt9m111->hdl, 5);
+	v4l2_ctrl_handler_init(&mt9m111->hdl, ARRAY_SIZE(mt9m111_ctrls) + 5);
 	v4l2_ctrl_new_std(&mt9m111->hdl, &mt9m111_ctrl_ops,
 			V4L2_CID_VFLIP, 0, 1, 1, 0);
 	v4l2_ctrl_new_std(&mt9m111->hdl, &mt9m111_ctrl_ops,
@@ -1287,6 +1350,10 @@ static int mt9m111_probe(struct i2c_client *client,
 	v4l2_ctrl_new_std_menu(&mt9m111->hdl,
 			&mt9m111_ctrl_ops, V4L2_CID_EXPOSURE_AUTO, 1, 0,
 			V4L2_EXPOSURE_AUTO);
+
+	for (i = 0; i < ARRAY_SIZE(mt9m111_ctrls); ++i)
+		v4l2_ctrl_new_custom(&mt9m111->hdl, &mt9m111_ctrls[i], NULL);
+
 	mt9m111->subdev.ctrl_handler = &mt9m111->hdl;
 	if (mt9m111->hdl.error) {
 		ret = mt9m111->hdl.error;
