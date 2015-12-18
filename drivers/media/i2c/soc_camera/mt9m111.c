@@ -352,54 +352,6 @@ static int mt9m111_set_context(struct mt9m111 *mt9m111,
 	return reg_write(CONTEXT_CONTROL, ctx->control);
 }
 
-static int mt9m111_setup_rect_ctx(struct mt9m111 *mt9m111,
-			struct mt9m111_context *ctx, struct v4l2_rect *rect,
-			unsigned int width, unsigned int height)
-{
-	struct i2c_client *client = v4l2_get_subdevdata(&mt9m111->subdev);
-	int ret = mt9m111_reg_write(client, ctx->reducer_xzoom, rect->width);
-	if (!ret)
-		ret = mt9m111_reg_write(client, ctx->reducer_yzoom, rect->height);
-	if (!ret)
-		ret = mt9m111_reg_write(client, ctx->reducer_xsize, width);
-	if (!ret)
-		ret = mt9m111_reg_write(client, ctx->reducer_ysize, height);
-	return ret;
-}
-
-static int mt9m111_setup_geometry(struct mt9m111 *mt9m111, struct v4l2_rect *rect,
-			int width, int height, u32 code)
-{
-	struct i2c_client *client = v4l2_get_subdevdata(&mt9m111->subdev);
-	int ret;
-	struct mt9m111_datafmt const *fmt = mt9m111_find_datafmt(mt9m111, code);
-
-	ret = reg_write(COLUMN_START, rect->left);
-	if (!ret)
-		ret = reg_write(ROW_START, rect->top);
-
-	if (!ret)
-		ret = reg_write(WINDOW_WIDTH, rect->width);
-	if (!ret)
-		ret = reg_write(WINDOW_HEIGHT, rect->height);
-
-	if (!fmt->bypass_ifp && mt9m111->allow_burst) {
-		/* IFP in use, down-scaling possible */
-		if (!ret)
-			ret = mt9m111_setup_rect_ctx(mt9m111, &context_b,
-						     rect, width, height);
-		if (!ret)
-			ret = mt9m111_setup_rect_ctx(mt9m111, &context_a,
-						     rect, width, height);
-	}
-
-	dev_dbg(&client->dev, "%s(%x): %ux%u@%u:%u -> %ux%u = %d\n",
-		__func__, code, rect->width, rect->height, rect->left, rect->top,
-		width, height, ret);
-
-	return ret;
-}
-
 static int _mt9m111_set_selection(struct mt9m111 *mt9m111,
 				  struct v4l2_rect const *r,
 				  struct mt9m111_datafmt const *fmt,
@@ -513,69 +465,6 @@ static int mt9m111_reset(struct mt9m111 *mt9m111)
 	return ret;
 }
 
-static int mt9m111_s_crop(struct v4l2_subdev *sd, const struct v4l2_crop *a)
-{
-	struct v4l2_rect rect = a->c;
-	struct mt9m111 *mt9m111 = container_of(sd, struct mt9m111, subdev);
-	int width, height;
-	int ret;
-
-	if (a->type != V4L2_BUF_TYPE_VIDEO_CAPTURE)
-		return -EINVAL;
-
-	if (mt9m111->fmt->is_bayer) {
-		/* Bayer format - even size lengths */
-		rect.width	= ALIGN(rect.width, 2);
-		rect.height	= ALIGN(rect.height, 2);
-		/* Let the user play with the starting pixel */
-	}
-
-	/* FIXME: the datasheet doesn't specify minimum sizes */
-	soc_camera_limit_side(&rect.left, &rect.width,
-		     MT9M111_MIN_DARK_COLS, 2, MT9M111_MAX_WIDTH);
-
-	soc_camera_limit_side(&rect.top, &rect.height,
-		     MT9M111_MIN_DARK_ROWS, 2, MT9M111_MAX_HEIGHT);
-
-	width = min(mt9m111->width, rect.width);
-	height = min(mt9m111->height, rect.height);
-
-	ret = mt9m111_setup_geometry(mt9m111, &rect, width, height, mt9m111->fmt->code);
-	if (!ret) {
-		mt9m111->rect = rect;
-		mt9m111->width = width;
-		mt9m111->height = height;
-	}
-
-	return ret;
-}
-
-static int mt9m111_g_crop(struct v4l2_subdev *sd, struct v4l2_crop *a)
-{
-	struct mt9m111 *mt9m111 = container_of(sd, struct mt9m111, subdev);
-
-	a->c	= mt9m111->rect;
-	a->type	= V4L2_BUF_TYPE_VIDEO_CAPTURE;
-
-	return 0;
-}
-
-static int mt9m111_cropcap(struct v4l2_subdev *sd, struct v4l2_cropcap *a)
-{
-	if (a->type != V4L2_BUF_TYPE_VIDEO_CAPTURE)
-		return -EINVAL;
-
-	a->bounds.left			= MT9M111_MIN_DARK_COLS;
-	a->bounds.top			= MT9M111_MIN_DARK_ROWS;
-	a->bounds.width			= MT9M111_MAX_WIDTH;
-	a->bounds.height		= MT9M111_MAX_HEIGHT;
-	a->defrect			= a->bounds;
-	a->pixelaspect.numerator	= 1;
-	a->pixelaspect.denominator	= 1;
-
-	return 0;
-}
-
 static int mt9m111_get_fmt(struct v4l2_subdev *sd,
 		struct v4l2_subdev_pad_config *cfg,
 		struct v4l2_subdev_format *format)
@@ -677,68 +566,6 @@ static int mt9m111_set_pixfmt(struct mt9m111 *mt9m111,
 	if (!ret)
 		ret = mt9m111_reg_mask(client, context_b.output_fmt_ctrl2,
 				       data_outfmt2, mask_outfmt2);
-
-	return ret;
-}
-
-static int mt9m111_set_fmt(struct v4l2_subdev *sd,
-		struct v4l2_subdev_pad_config *cfg,
-		struct v4l2_subdev_format *format)
-{
-	struct v4l2_mbus_framefmt *mf = &format->format;
-	struct i2c_client *client = v4l2_get_subdevdata(sd);
-	struct mt9m111 *mt9m111 = container_of(sd, struct mt9m111, subdev);
-	const struct mt9m111_datafmt *fmt;
-	struct v4l2_rect *rect = &mt9m111->rect;
-	bool bayer;
-	int ret;
-
-	if (format->pad)
-		return -EINVAL;
-
-	fmt = mt9m111_find_datafmt(mt9m111, mf->code);
-	bayer = fmt->is_bayer;
-
-	/*
-	 * With Bayer format enforce even side lengths, but let the user play
-	 * with the starting pixel
-	 */
-	if (bayer) {
-		rect->width = ALIGN(rect->width, 2);
-		rect->height = ALIGN(rect->height, 2);
-	}
-
-	if (fmt->bypass_ifp || !mt9m111->allow_burst) {
-		/* IFP bypass mode, no scaling */
-		mf->width = rect->width;
-		mf->height = rect->height;
-	} else {
-		/* No upscaling */
-		if (mf->width > rect->width)
-			mf->width = rect->width;
-		if (mf->height > rect->height)
-			mf->height = rect->height;
-	}
-
-	dev_dbg(&client->dev, "%s(): %ux%u, code=%x\n", __func__,
-		mf->width, mf->height, fmt->code);
-
-	mf->code = fmt->code;
-	mf->colorspace = fmt->colorspace;
-
-	if (format->which == V4L2_SUBDEV_FORMAT_TRY) {
-		cfg->try_fmt = *mf;
-		return 0;
-	}
-
-	ret = mt9m111_setup_geometry(mt9m111, rect, mf->width, mf->height, mf->code);
-	if (!ret)
-		ret = mt9m111_set_pixfmt(mt9m111, mf->code);
-	if (!ret) {
-		mt9m111->width	= mf->width;
-		mt9m111->height	= mf->height;
-		mt9m111->fmt	= fmt;
-	}
 
 	return ret;
 }
@@ -1101,9 +928,6 @@ static int mt9m111_s_stream(struct v4l2_subdev *sd, int enable)
 }
 
 static struct v4l2_subdev_video_ops mt9m111_subdev_video_ops = {
-	.s_crop		= mt9m111_s_crop,
-	.g_crop		= mt9m111_g_crop,
-	.cropcap	= mt9m111_cropcap,
 	.g_mbus_config	= mt9m111_g_mbus_config,
 	.s_stream	= mt9m111_s_stream,
 };
