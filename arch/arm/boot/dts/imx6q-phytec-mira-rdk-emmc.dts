@@ -50,7 +50,15 @@
 	status = "okay";
 };
 
+&i2c_rtc {
+	status = "okay";
+};
+
 &pcie {
+	status = "okay";
+};
+
+&stmpe {
 	status = "okay";
 };
 
