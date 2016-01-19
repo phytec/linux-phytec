@@ -345,6 +345,7 @@
 				clock-names = "per", "ahb";
 				resets = <&src 1>;
 				iram = <&ocram>;
+				power-domains = <&gpc 1>;
 			};
 
 			aipstz@0207c000 { /* AIPSTZ1 */
