@@ -1,0 +1,33 @@
+* Aptina 1/2-Inch SXGA CMOS Digital Image Sensor
+
+The Aptina MT9M001 is a 1/2-inch CMOS active pixel digital image sensor with
+an active array size of 1312H x 1048V. It is programmable through a simple
+two-wire serial interface.
+
+Required Properties:
+
+- compatible: value should be either one among the following
+	(a) "aptina,mt9m001" for MT9M001 color sensor
+	(b) "aptina,mt9m001m" for MT9M001 monochrome sensor
+
+Optional Properties:
+
+- link-frequencies: List of allowed link frequencies in Hz. Each frequency is
+	expressed as a 64-bit big-endian integer.
+
+For further reading on port node refer to
+Documentation/devicetree/bindings/media/video-interfaces.txt.
+
+Example:
+
+	mt9m001@5d {
+		compatible = "aptina,mt9m001";
+		reg = <0x5d>;
+
+		port {
+			mt9v032_out: endpoint {
+				link-frequencies = /bits/ 64
+					<13000000 26600000 27000000>;
+			};
+		};
+	};
