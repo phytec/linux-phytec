@@ -1,0 +1,32 @@
+* Techwell TW9910 - Low Power NTSC/PAL/SECAM Video Decoder
+
+
+The Techwell TW9910 is a low power NTSC/PAL/SECAM Video decoder with VBI slicer
+It is programmable through a simple two-wire serial interface.
+
+Required Properties:
+
+- compatible: value should be "techwell,tw9910"
+- link-frequencies: List of allowed link frequencies in Hz. Each frequency is
+	expressed as a 64-bit big-endian integer.
+- mpout: Value between 0 and 7.
+
+
+For further reading on port node refer to
+Documentation/devicetree/bindings/media/video-interfaces.txt.
+
+Example:
+
+	tw9910@45 {
+		compatible = "techwell,tw9910";
+		reg = <0x45>;
+
+		port {
+			tw9910_ep0: endpoint {
+				bus-width = <8>;
+				mpout = <7>;
+				link-frequencies = /bits/ 64 <27000000>;
+				remote-endpoint = <&csi0_ep>;
+			};
+		};
+	};
