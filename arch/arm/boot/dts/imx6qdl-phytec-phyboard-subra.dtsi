@@ -57,4 +57,5 @@
 
 &usdhc3 {
 	status = "okay";
+	max-frequency = <25000000>; /* 25 Mhz */
 };
