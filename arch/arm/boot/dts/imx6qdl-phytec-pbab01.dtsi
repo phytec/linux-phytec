@@ -10,7 +10,7 @@
  */
 
 #include <dt-bindings/sound/fsl-imx-audmux.h>
-#include "imx6qdl-phytec-lcd-018.dtsi"
+#include "imx6qdl-phytec-lcd.dtsi"
 
 / {
 	aliases {
