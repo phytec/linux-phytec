@@ -12,7 +12,7 @@
 /dts-v1/;
 #include <dt-bindings/sound/fsl-imx-audmux.h>
 #include "imx6q-phytec-phycard-imx6-som.dtsi"
-#include "imx6qdl-phytec-lcd-018.dtsi"
+#include "imx6qdl-phytec-lcd.dtsi"
 
 / {
 	model = "Phytec phyCARD-i.MX6 Quad Carrier-Board";
