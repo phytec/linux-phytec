@@ -104,6 +104,10 @@
 	};
 };
 
+/* The phyCARD-i.MX6 baseboard doesn't use a direct PWM signal from the i.MX6
+ * to the LCD-018. Therefore we don't configure a backlight node here.
+ */
+
 &fec {
 	status = "okay";
 };
