@@ -10,6 +10,9 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include "imx6qdl-phytec-lcd.dtsi"
+#include <dt-bindings/pwm/pwm.h>
+
 / {
 	aliases {
 		rtc0 = &i2c_rtc;
@@ -17,6 +20,12 @@
 
 	chosen {
 		stdout-path = &uart4;
+	};
+
+	backlight {
+		pwms = <&pwm1 0 5000000 PWM_POLARITY_INVERTED>;
+		brightness-levels = <255 128 64 32 16 8 4 0>;
+		enable-gpios = <&gpio1 8 GPIO_ACTIVE_LOW>;
 	};
 };
 
@@ -35,6 +44,15 @@
 
 &i2c2 {
 	status = "okay";
+
+	polytouch: edt-ft5x06@38 {
+		compatible = "edt,edt-ft5406", "edt,edt-ft5x06";
+		reg = <0x38>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_edt_ft5x06>;
+		interrupt-parent = <&gpio7>;
+		interrupts = <12 0>;
+	};
 
 	i2c_rtc: rtc@68 {
 		compatible = "mc,rv4162";

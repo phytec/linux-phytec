@@ -11,6 +11,7 @@
 
 /dts-v1/;
 #include "imx6q-phytec-pfla02.dtsi"
+#include "imx6qdl-phytec-lcd.dtsi"
 #include <dt-bindings/pwm/pwm.h>
 
 / {
@@ -26,22 +27,9 @@
 	};
 
 	backlight {
-		compatible = "pwm-backlight";
 		pwms = <&pwm1 0 5000000 PWM_POLARITY_INVERTED>;
 		brightness-levels = <255 128 64 32 16 8 4 0>;
-		default-brightness-level = <7>;
 		enable-gpios = <&gpio1 8 GPIO_ACTIVE_LOW>;
-		power-supply = <&lcd_3v3>;
-	};
-
-	regulators {
-		lcd_3v3: regulator@2 {
-			compatible = "regulator-fixed";
-			reg = <2>;
-			regulator-name = "lcd_3v3";
-			regulator-min-microvolt = <3300000>;
-			regulator-max-microvolt = <3300000>;
-		};
 	};
 };
 
@@ -73,31 +61,6 @@
 	i2c_rtc: rtc@68 {
 		compatible = "mc,rv4162";
 		reg = <0x68>;
-	};
-};
-
-&ldb {
-	status = "disabled";
-
-	lvds-channel@0 {
-		fsl,data-mapping = "spwg";
-		fsl,data-width = <18>;
-		status = "disabled";
-
-		display-timings {
-			native-mode = <&timing0>;
-			timing0: etm0700g0dh6 {
-				clock-frequency = <33260000>;
-				hactive = <800>;
-				vactive = <480>;
-				hback-porch = <216>;
-				hfront-porch = <40>;
-				hsync-len = <128>;
-				vback-porch = <35>;
-				vfront-porch = <10>;
-				vsync-len = <2>;
-			};
-		};
 	};
 };
 
