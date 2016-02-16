@@ -16,7 +16,6 @@
 / {
 	backlight: backlight {
 		compatible = "pwm-backlight";
-		brightness-levels = <0 4 8 16 32 64 128 255>;
 		default-brightness-level = <7>;
 		power-supply = <&lcd_3v3>;
 		status = "disabled";
