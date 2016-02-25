@@ -22,6 +22,10 @@
 	model = "Phytec phyBOARD-MIRA Quad Carrier-Board with eMMC";
 	compatible = "phytec,imx6q-pbac06", "phytec,imx6qdl-pcm058", "fsl,imx6q";
 
+	aliases {
+		ipu1 = &ipu2;
+	};
+
 	chosen {
 		linux,stdout-path = &uart2;
 	};
