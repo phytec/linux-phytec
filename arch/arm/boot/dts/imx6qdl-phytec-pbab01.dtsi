@@ -183,6 +183,7 @@
 		reg = <0x41>;
 		interrupts = <8 0x8>;
 		interrupt-parent = <&gpio5>;
+		status = "disabled";
 
 		stmpe_touchscreen {
 			compatible = "st,stmpe-ts";
