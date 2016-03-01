@@ -27,6 +27,68 @@
 		brightness-levels = <255 128 64 32 16 8 4 0>;
 		enable-gpios = <&gpio1 8 GPIO_ACTIVE_LOW>;
 	};
+
+	regulators {
+		reg_vcc_cam0: regulator@5 {
+			compatible = "regulator-fixed";
+			regulator-name = "VCC_CAM0";
+			regulator-min-microvolt = <2800000>;
+			regulator-max-microvolt = <2800000>;
+		};
+
+		reg_vcc_cam1: regulator@5 {
+			compatible = "regulator-fixed";
+			regulator-name = "VCC_CAM1";
+			regulator-min-microvolt = <2800000>;
+			regulator-max-microvolt = <2800000>;
+		};
+	};
+
+	phytec_mediabus: phytec_mediabus {
+		compatible = "phytec,media-bus";
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_cam0data
+				&pinctrl_cam0clk
+				&pinctrl_cam0switch>;
+
+		#gpio-cells = <3>;
+		#clock-cells = <1>;
+		status = "okay";
+		phytec,cam0_data_en-gpio = <&gpio5 20 GPIO_ACTIVE_LOW>;
+		phytec,cam0_npwrdn-gpio  = <&gpio1 24 GPIO_ACTIVE_LOW>;
+
+		/* clock setup part #1: setup clock parents */
+		assigned-clocks =
+		<&clks IMX6QDL_CLK_CKO1_SEL>,           /* camera0-clk-sel */
+		<&clks IMX6QDL_CLK_CKO2_SEL>,           /* camera1-clk-sel */
+		<&clks IMX6QDL_CLK_ESAI_SEL>,           /* esai-sel */
+		<&clks IMX6QDL_CLK_CKO>,                /* ck01 */
+		<&clks IMX6QDL_CLK_PLL4_AUDIO_DIV>,
+		<&clks IMX6QDL_CLK_ESAI_EXTAL>;
+
+		assigned-clock-parents =
+		<&clks IMX6QDL_CLK_PLL4_AUDIO_DIV>,         /* camera0-clk-parent */
+		<&clks IMX6QDL_CLK_ESAI_EXTAL>,         /* camera1-clk-parent */
+		<&clks IMX6QDL_CLK_PLL4_AUDIO_DIV>,     /* esai-sel */
+		<&clks IMX6QDL_CLK_CKO1>;
+
+		assigned-clock-rates = <0>, <0>, <0>, <0>, <216000000>, <216000000>;
+		/* clock setup part #2: select the clocks */
+		clocks = <
+			&clks IMX6QDL_CLK_CKO1  /* camera0-clk (cko) */
+			&clks IMX6QDL_CLK_CKO2  /* camera1-clk (cko2) */
+		>;
+		clock-names = "camera0-clk", "camera1-clk";
+
+		/* clock setup part #3: define output clocks */
+		clock-output-names = "camera0-clk", "camera1-clk";
+
+
+		camera0@0 {
+
+		};
+
+	};
 };
 
 &can1 {
@@ -59,6 +121,106 @@
 	i2c_rtc: rtc@68 {
 		compatible = "mc,rv4162";
 		reg = <0x68>;
+	};
+};
+
+&i2c3 {
+	status = "okay";
+
+	mt9p031_0: mt9p031@48 {
+		compatible = "aptina,mt9p031";
+		reg = <0x48>;
+		status = "disabled";
+		vdd-supply = <&reg_vcc_cam0>;
+		vdd_io-supply = <&reg_vcc_cam0>;
+		vaa-supply = <&reg_vcc_cam0>;
+
+		clocks = <&phytec_mediabus 0>;
+
+		port {
+			mt9p031_ep0: endpoint {
+				input-clock-frequency = <54000000>;
+				pixel-clock-frequency = <54000000>;
+				pclk-sample = <1>;
+			};
+		};
+	};
+
+	mt9v024m_0: mt9v024m@48 {
+		compatible = "aptina,mt9v024m";
+		reg = <0x48>;
+		status = "disabled";
+
+		clocks = <&phytec_mediabus 0>;
+
+		port {
+			mt9v024m_ep0: endpoint {
+				link-frequencies = /bits/ 64
+					<27000000>;
+				pclk-sample = <0>;
+				remote-endpoint = <&csi0_ep>;
+			};
+		};
+        };
+
+	mt9m111_0: mt9m111@48 {
+		compatible = "micron,mt9m111";
+		status = "disabled";
+		reg = <0x48>;
+
+		clocks = <&phytec_mediabus 0>;
+		clock-names = "mclk";
+		port {
+			mt9m111_ep0: endpoint {
+				bus-width = <8>;
+				remote-endpoint = <&csi0_ep>;
+			};
+		};
+	};
+
+	mt9m001_0: mt9m001@5d {
+		compatible = "aptina,mt9m001";
+		status = "disabled";
+		reg = <0x5d>;
+
+		clocks = <&phytec_mediabus 0>;
+
+		port {
+			mt9m001_ep0: endpoint {
+				bus-width = <8>;
+				link-frequencies = /bits/ 64
+					<36000000 43200000>;
+				remote-endpoint = <&csi0_ep>;
+			};
+		};
+	};
+
+	tw9910_0: tw9910@45 {
+		compatible = "techwell,tw9910";
+		status = "disabled";
+		reg = <0x45>;
+
+		clocks = <&phytec_mediabus 0>;
+
+		port {
+			tw9910_ep0: endpoint {
+				bus-width = <8>;
+				mpout = <7>;
+				link-frequencies = /bits/ 64 <27000000>;
+				remote-endpoint = <&csi0_ep>;
+			};
+		};
+	};
+};
+
+&ipu1_csi0 {
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	/* Parallel bus */
+	csi0_ep: endpoint {
+		bus-width = <8>;
+		remote-endpoint = <&mt9v024m_ep0>;
 	};
 };
 

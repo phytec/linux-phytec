@@ -20,6 +20,122 @@
 	compatible = "phytec,imx6q-pbab05", "phytec,imx6q-pfla02", "fsl,imx6q";
 };
 
+&i2c3 {
+	status = "okay";
+
+	mt9p031_1: mt9p031@5d {
+		compatible = "aptina,mt9p031";
+		status = "disabled";
+		reg = <0x5d>;
+		vdd-supply = <&reg_vcc_cam1>;
+		vdd_io-supply = <&reg_vcc_cam1>;
+		vaa-supply = <&reg_vcc_cam1>;
+
+		clocks = <&phytec_mediabus 1>;
+
+		port {
+			mt9p031_ep1: endpoint {
+				input-clock-frequency = <54000000>;
+				pixel-clock-frequency = <54000000>;
+				pclk-sample = <1>;
+			};
+		};
+	};
+
+	mt9v024m_1: mt9v024m@48 {
+		compatible = "aptina,mt9v024m";
+		reg = <0x48>;
+		status = "disabled";
+
+		clocks = <&phytec_mediabus 1>;
+
+		port {
+			mt9v024m_ep1: endpoint {
+				link-frequencies = /bits/ 64
+					<27000000>;
+				pclk-sample = <0>;
+				remote-endpoint = <&csi1_ep>;
+			};
+		};
+        };
+
+	mt9m111_1: mt9m111@5d {
+		compatible = "micron,mt9m111";
+		status = "disabled";
+		reg = <0x5d>;
+
+		clocks = <&phytec_mediabus 1>;
+		clock-names = "mclk";
+		port {
+			mt9m111_ep1: endpoint {
+				bus-width = <8>;
+				remote-endpoint = <&csi1_ep>;
+			};
+		};
+	};
+
+	mt9m001_1: mt9m001@5d_1 {
+		compatible = "aptina,mt9m001";
+		status = "disabled";
+		reg = <0x5d>;
+
+		clocks = <&phytec_mediabus 1>;
+		port {
+			mt9m001_ep1: endpoint {
+				bus-width = <8>;
+				link-frequencies = /bits/ 64
+					<36000000 43200000>;
+				remote-endpoint = <&csi1_ep>;
+			};
+		};
+	};
+
+	tw9910_1: tw9910@44 {
+		compatible = "techwell,tw9910";
+		status = "disbaled";
+		reg = <0x44>;
+
+		clocks = <&phytec_mediabus 1>;
+
+		port {
+			tw9910_ep1: endpoint {
+				bus-width = <8>;
+				mpout = <7>;
+				link-frequencies = /bits/ 64 <27000000>;
+				remote-endpoint = <&csi1_ep>;
+			};
+		};
+	};
+};
+
+&ipu2_csi1 {
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	/* Parallel bus */
+	csi1_ep: endpoint {
+		bus-width = <8>;
+		remote-endpoint = <&mt9p031_ep1>;
+	};
+};
+
+&phytec_mediabus {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_cam0data
+			&pinctrl_cam0clk
+			&pinctrl_cam0switch
+			&pinctrl_cam1data
+			&pinctrl_cam1clk
+			&pinctrl_cam1switch>;
+
+	phytec,cam1_data_en-gpio = <&gpio3 10 GPIO_ACTIVE_LOW>;
+	phytec,cam1_npwrdn-gpio  = <&gpio2 28 GPIO_ACTIVE_LOW>;
+
+	camera1@0 {
+
+	};
+};
+
 &reg_wlan_en {
 	status = "okay";
 };
