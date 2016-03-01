@@ -321,11 +321,8 @@ static int of_pmu_irq_cfg(struct platform_device *pdev)
 
 		dn = of_parse_phandle(pdev->dev.of_node, "interrupt-affinity",
 				      i);
-		if (!dn) {
-			pr_warn("Failed to parse %s/interrupt-affinity[%d]\n",
-				of_node_full_name(pdev->dev.of_node), i);
+		if (!dn)
 			break;
-		}
 
 		for_each_possible_cpu(cpu)
 			if (arch_find_n_match_cpu_physical_id(dn, cpu, NULL))
