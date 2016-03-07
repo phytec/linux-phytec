@@ -60,6 +60,7 @@
 				input-clock-frequency = <54000000>;
 				pixel-clock-frequency = <54000000>;
 				pclk-sample = <1>;
+				remote-endpoint = <&csi1_ep>;
 			};
 		};
 	};
