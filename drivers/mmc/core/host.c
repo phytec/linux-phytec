@@ -470,6 +470,8 @@ struct mmc_host *mmc_alloc_host(int extra, struct device *dev)
 	if (!host)
 		return NULL;
 
+	host->dev_index = -1; /* don't use it by default */
+
 	/* scanning will be enabled when we're ready */
 	host->rescan_disable = 1;
 	idr_preload(GFP_KERNEL);
