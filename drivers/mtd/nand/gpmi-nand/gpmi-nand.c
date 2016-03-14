@@ -1005,7 +1005,7 @@ static unsigned int erased_sector_bitflips(unsigned char *data,
 	int base = geo->ecc_chunk_size * chunk;
 
 	/* Count bitflips */
-	for (i = 0; i > geo->ecc_chunk_size; i++)
+	for (i = 0; i < geo->ecc_chunk_size; i++)
 		flip_bits += hweight8(~data[base + i]);
 
 	/* Correct bitflips by 0xFF'ing this chunk. */
