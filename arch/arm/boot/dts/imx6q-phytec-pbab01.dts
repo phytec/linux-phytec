@@ -65,9 +65,9 @@
 		};
 	};
 
-	mt9v024m_1: mt9v024m@48 {
+	mt9v024m_1: mt9v024m@4c {
 		compatible = "aptina,mt9v024m";
-		reg = <0x48>;
+		reg = <0x4c>;
 		status = "disabled";
 
 		clocks = <&phytec_mediabus 1>;
