@@ -514,6 +514,13 @@
 			>;
 		};
 
+		pinctrl_usdhc2_cdwp: usdhc2cdwp {
+			fsl,pins = <
+				MX6QDL_PAD_GPIO_4__GPIO1_IO04		0x80000000
+				MX6QDL_PAD_GPIO_2__GPIO1_IO02		0x80000000
+			>;
+		};
+
 		pinctrl_usdhc3: usdhc3grp {
 			fsl,pins = <
 				MX6QDL_PAD_SD3_CMD__SD3_CMD		0x17059
@@ -619,7 +626,8 @@
 
 &usdhc2 {
 	pinctrl-names = "default";
-	pinctrl-0 = <&pinctrl_usdhc2>;
+	pinctrl-0 = <&pinctrl_usdhc2
+		     &pinctrl_usdhc2_cdwp>;
 	cd-gpios = <&gpio1 4 GPIO_ACTIVE_LOW>;
 	wp-gpios = <&gpio1 2 GPIO_ACTIVE_HIGH>;
 
