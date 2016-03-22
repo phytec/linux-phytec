@@ -350,6 +350,10 @@
 	regulator-allow-bypass;
 };
 
+&snvs_poweroff {
+	status = "okay";
+};
+
 &uart3 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_uart3>;
