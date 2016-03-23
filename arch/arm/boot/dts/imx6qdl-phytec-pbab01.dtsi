@@ -237,6 +237,7 @@
 		pinctrl-0 = <&pinctrl_edt_ft5x06>;
 		interrupt-parent = <&gpio7>;
 		interrupts = <12 0>;
+		status = "disabled";
 	};
 
 	stmpe@41 {
