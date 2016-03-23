@@ -179,6 +179,7 @@
 		pinctrl-0 = <&pinctrl_edt_ft5x06>;
 		interrupt-parent = <&gpio1>;
 		interrupts = <6 0>;
+		status = "disabled";
 	};
 
 	stmpe@44 {
@@ -186,6 +187,7 @@
 		reg = <0x44>;
 		interrupt-parent = <&gpio4>;
 		interrupts = <29 0>;
+		status = "disabled";
 	};
 
 	mt9p031_0: mt9p031@48 {
