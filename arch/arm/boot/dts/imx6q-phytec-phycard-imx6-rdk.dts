@@ -186,8 +186,21 @@
 		compatible = "st,stmpe811";
 		reg = <0x44>;
 		interrupt-parent = <&gpio4>;
-		interrupts = <29 0>;
+		interrupts = <29 IRQ_TYPE_EDGE_FALLING>;
 		status = "disabled";
+
+		stmpe_touchscreen {
+			compatible = "st,stmpe-ts";
+			st,sample-time = <4>;
+			st,mod-12b = <0>;
+			st,ref-sel = <0>;
+			st,adc-freq = <3>;
+			st,ave-ctrl = <2>;
+			st,touch-det-delay = <4>;
+			st,settling = <3>;
+			st,fraction-z = <7>;
+			st,i-drive = <0>;
+		};
 	};
 
 	mt9p031_0: mt9p031@48 {
