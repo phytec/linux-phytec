@@ -164,6 +164,56 @@
 	dual_emac;
 };
 
+/* Display */
+&am33xx_pinmux {
+	ecap0_pins: pinmux_ecap0 {
+		pinctrl-single,pins = <
+			AM33XX_IOPAD(0x964, PIN_OUTPUT_PULLDOWN | MUX_MODE0)	/* ecap0_in_pwm0_out.ecap0_in_pwm0_out */
+		>;
+	};
+
+	ts_irq_pin: pinmux_ts_irq_pin {
+		pinctrl-single,pins = <
+			AM33XX_IOPAD(0x9B4, PIN_INPUT_PULLUP | MUX_MODE7)	/* xdma_event_intr1.gpio0_20 */
+		>;
+	};
+};
+
+&ecap0 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&ecap0_pins>;
+	status = "disabled";
+};
+
+&i2c0 {
+	i2c_ts: touchscreen@38 {
+		compatible = "edt,edt-ft5x06";
+		reg = <0x38>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&ts_irq_pin>;
+		interrupt-parent = <&gpio0>;
+		interrupts = <20 0>;
+		status = "disabled";
+	};
+};
+
+&tscadc {
+	status = "disabled";
+	tsc {
+		ti,wires = <4>;
+		ti,x-plate-resistance = <200>;
+		ti,coordinate-readouts = <5>;
+		ti,wire-config = <0x00 0x11 0x22 0x33>;
+		ti,charge-delay = <0x400>;
+	};
+};
+
+#include "am335x-phytec-lcd.dtsi"
+
+&backlight {
+	pwms = <&ecap0 0 100000 0>;
+};
+
 /* Misc */
 &am33xx_pinmux {
 	pinctrl-names = "default";
