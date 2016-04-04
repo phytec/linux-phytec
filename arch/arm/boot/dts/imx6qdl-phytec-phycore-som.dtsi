@@ -23,7 +23,12 @@
 	};
 
 	memory {
-		reg = <0x0 0x0>; /* will be filled by bootloader */
+		/*
+		 * Set the minimum memory size here and
+		 * let the bootloader set the real size.
+		 */
+		device_type = "memory";
+		reg = <0x10000000 0x8000000>; /* 128 MiB memory */
 	};
 
 	gpio_leds_som: somleds {
