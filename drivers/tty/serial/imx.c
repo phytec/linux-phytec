@@ -1996,6 +1996,9 @@ static int serial_imx_probe(struct platform_device *pdev)
 			return ret;
 	}
 
+	if (sport->port.rs485.flags & SER_RS485_ENABLED)
+		imx_rs485_config(&sport->port, &sport->port.rs485);
+
 	imx_ports[sport->port.line] = sport;
 
 	platform_set_drvdata(pdev, sport);
