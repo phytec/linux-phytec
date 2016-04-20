@@ -379,6 +379,10 @@ static void imx_stop_tx(struct uart_port *port)
 		else
 			imx_port_rts_inactive(sport, &temp);
 		temp |= UCR2_RXEN;
+
+		if (port->rs485.delay_rts_after_send > 0)
+			mdelay(port->rs485.delay_rts_after_send);
+
 		writel(temp, port->membase + UCR2);
 
 		temp = readl(port->membase + UCR4);
@@ -585,6 +589,9 @@ static void imx_start_tx(struct uart_port *port)
 			imx_port_rts_inactive(sport, &temp);
 		if (!(port->rs485.flags & SER_RS485_RX_DURING_TX))
 			temp &= ~UCR2_RXEN;
+		if (port->rs485.delay_rts_before_send > 0)
+			mdelay(port->rs485.delay_rts_before_send);
+
 		writel(temp, port->membase + UCR2);
 
 		/* enable transmitter and shifter empty irq */
@@ -1729,10 +1736,6 @@ static int imx_rs485_config(struct uart_port *port,
 	struct imx_port *sport = (struct imx_port *)port;
 	unsigned long temp;
 
-	/* unimplemented */
-	rs485conf->delay_rts_before_send = 0;
-	rs485conf->delay_rts_after_send = 0;
-
 	/* RTS is required to control the transmitter */
 	if (!sport->have_rtscts && !sport->have_rtsgpio)
 		rs485conf->flags &= ~SER_RS485_ENABLED;
@@ -2036,6 +2039,7 @@ static int serial_imx_probe_dt(struct imx_port *sport,
 		struct platform_device *pdev)
 {
 	struct device_node *np = pdev->dev.of_node;
+	u32 rs485_delay[2];
 	int ret;
 
 	sport->devdata = of_device_get_match_data(&pdev->dev);
@@ -2059,6 +2063,23 @@ static int serial_imx_probe_dt(struct imx_port *sport,
 
 	if (of_get_property(np, "rts-gpios", NULL))
 		sport->have_rtsgpio = 1;
+
+	if (of_property_read_bool(np, "linux,rs485-enabled-at-boot-time"))
+		sport->port.rs485.flags |= SER_RS485_ENABLED;
+
+	if (of_property_read_u32_array(np, "rs485-rts-delay",
+				rs485_delay, 2) == 0) {
+		sport->port.rs485.delay_rts_before_send = rs485_delay[0];
+		sport->port.rs485.delay_rts_after_send = rs485_delay[1];
+	}
+
+	if (of_property_read_bool(np, "rs485-rts-active-high"))
+		sport->port.rs485.flags |= SER_RS485_RTS_ON_SEND;
+	else
+		sport->port.rs485.flags |= SER_RS485_RTS_AFTER_SEND;
+
+	if (of_property_read_bool(np, "rs485-rx-during-tx"))
+		sport->port.rs485.flags |= SER_RS485_RX_DURING_TX;
 
 	return 0;
 }
@@ -2127,8 +2148,6 @@ static int serial_imx_probe(struct platform_device *pdev)
 	sport->port.fifosize = 32;
 	sport->port.ops = &imx_pops;
 	sport->port.rs485_config = imx_rs485_config;
-	sport->port.rs485.flags =
-		SER_RS485_RTS_ON_SEND | SER_RS485_RX_DURING_TX;
 	sport->port.flags = UPF_BOOT_AUTOCONF;
 	init_timer(&sport->timer);
 	sport->timer.function = imx_timeout;
