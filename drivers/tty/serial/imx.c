@@ -404,9 +404,10 @@ static void imx_stop_rx(struct uart_port *port)
 		}
 	}
 
-	temp = readl(sport->port.membase + UCR2);
-	writel(temp & ~UCR2_RXEN, sport->port.membase + UCR2);
-
+	if (!port->rs485.flags & SER_RS485_ENABLED) {
+		temp = readl(sport->port.membase + UCR2);
+		writel(temp & ~UCR2_RXEN, sport->port.membase + UCR2);
+	}
 	/* disable the `Receiver Ready Interrrupt` */
 	temp = readl(sport->port.membase + UCR1);
 	writel(temp & ~UCR1_RRDYEN, sport->port.membase + UCR1);
@@ -1221,6 +1222,9 @@ static void imx_shutdown(struct uart_port *port)
 	temp = readl(sport->port.membase + UCR1);
 	temp &= ~(UCR1_TXMPTYEN | UCR1_RRDYEN | UCR1_RTSDEN | UCR1_UARTEN);
 
+	if (port->rs485.flags & SER_RS485_ENABLED)
+		temp |= UCR1_UARTEN;
+
 	writel(temp, sport->port.membase + UCR1);
 	spin_unlock_irqrestore(&sport->port.lock, flags);
 
@@ -1567,11 +1571,16 @@ static int imx_rs485_config(struct uart_port *port,
 		/* disable transmitter */
 		temp = readl(sport->port.membase + UCR2);
 		temp &= ~UCR2_CTSC;
+		temp |= UCR2_RXEN;
 		if (rs485conf->flags & SER_RS485_RTS_AFTER_SEND)
 			temp &= ~UCR2_CTS;
 		else
 			temp |= UCR2_CTS;
 		writel(temp, sport->port.membase + UCR2);
+
+		temp = readl(sport->port.membase + UCR1);
+		temp |= UCR1_UARTEN;
+		writel(temp, sport->port.membase + UCR1);
 	}
 
 	port->rs485 = *rs485conf;
