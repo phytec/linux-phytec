@@ -358,6 +358,54 @@ static void imx_stop_tx(struct uart_port *port)
 	struct imx_port *sport = (struct imx_port *)port;
 	unsigned long temp;
 
+	if (port->rs485.flags & SER_RS485_ENABLED) {
+		/*
+		 * Disable all but UCR4_TCEN, next TXDC irq will recall
+		 * imx_stop_tx after end of transmission
+		 */
+		temp = readl(port->membase + UCR1);
+		temp &= ~(UCR1_TXMPTYEN | UCR1_TRDYEN);
+		writel(temp, port->membase + UCR1);
+
+		/*
+		 * half duplex - reactivate receive mode,
+		 */
+		if (readl(port->membase + USR2) & USR2_TXDC) {
+			temp = readl(port->membase + UCR2);
+			if (port->rs485.flags & SER_RS485_RTS_AFTER_SEND)
+				temp &= ~UCR2_CTS;
+			else
+				temp |= UCR2_CTS;
+			if (port->rs485.delay_rts_after_send > 0)
+				mdelay(port->rs485.delay_rts_after_send);
+
+			writel(temp, port->membase + UCR2);
+
+			temp = readl(port->membase + UCR4);
+			temp &= ~(UCR4_TCEN);
+			writel(temp, port->membase + UCR4);
+
+			while (readl(port->membase + URXD0) & URXD_CHARRDY)
+				barrier();
+
+			/*
+			 * Clear any pending ORE flag before enabling
+			 * interrupt
+			 */
+			temp = readl(port->membase + USR2);
+			writel(temp | USR2_ORE, port->membase + USR2);
+
+			temp = readl(port->membase + UCR1);
+			temp |= UCR1_RRDYEN;
+			writel(temp, port->membase + UCR1);
+
+			temp = readl(port->membase + UCR4);
+			temp |= UCR4_DREN | UCR4_OREN;
+			writel(temp, port->membase + UCR4);
+		}
+		return;
+	}
+
 	/*
 	 * We are maybe in the SMP context, so if the DMA TX thread is running
 	 * on other cpu, we have to wait for it to finish.
@@ -367,24 +415,6 @@ static void imx_stop_tx(struct uart_port *port)
 
 	temp = readl(port->membase + UCR1);
 	writel(temp & ~UCR1_TXMPTYEN, port->membase + UCR1);
-
-	/* in rs485 mode disable transmitter if shifter is empty */
-	if (port->rs485.flags & SER_RS485_ENABLED &&
-	    readl(port->membase + USR2) & USR2_TXDC) {
-		temp = readl(port->membase + UCR2);
-		if (port->rs485.flags & SER_RS485_RTS_AFTER_SEND)
-			temp &= ~UCR2_CTS;
-		else
-			temp |= UCR2_CTS;
-		if (port->rs485.delay_rts_after_send > 0)
-			mdelay(port->rs485.delay_rts_after_send);
-
-		writel(temp, port->membase + UCR2);
-
-		temp = readl(port->membase + UCR4);
-		temp &= ~UCR4_TCEN;
-		writel(temp, port->membase + UCR4);
-	}
 }
 
 /*
@@ -580,6 +610,30 @@ static void imx_start_tx(struct uart_port *port)
 	unsigned long temp;
 
 	if (port->rs485.flags & SER_RS485_ENABLED) {
+		/* half duplex; have to disable receive mode */
+		temp = readl(port->membase + UCR4);
+		temp &= ~(UCR4_DREN | UCR4_OREN);
+		writel(temp, port->membase + UCR4);
+
+		temp = readl(port->membase + UCR1);
+		temp &= ~(UCR1_RRDYEN);
+		writel(temp, port->membase + UCR1);
+	}
+
+	if (!sport->dma_is_enabled) {
+		temp = readl(sport->port.membase + UCR1);
+		writel(temp | UCR1_TXMPTYEN, sport->port.membase + UCR1);
+	}
+
+	if (port->rs485.flags & SER_RS485_ENABLED) {
+		temp = readl(port->membase + UCR1);
+		temp |= UCR1_TRDYEN;
+		writel(temp, port->membase + UCR1);
+
+		temp = readl(port->membase + UCR4);
+		temp |= UCR4_TCEN;
+		writel(temp, port->membase + UCR4);
+
 		/* enable transmitter and shifter empty irq */
 		temp = readl(port->membase + UCR2);
 		if (port->rs485.flags & SER_RS485_RTS_ON_SEND)
@@ -590,15 +644,6 @@ static void imx_start_tx(struct uart_port *port)
 			mdelay(port->rs485.delay_rts_before_send);
 
 		writel(temp, port->membase + UCR2);
-
-		temp = readl(port->membase + UCR4);
-		temp |= UCR4_TCEN;
-		writel(temp, port->membase + UCR4);
-	}
-
-	if (!sport->dma_is_enabled) {
-		temp = readl(sport->port.membase + UCR1);
-		writel(temp | UCR1_TXMPTYEN, sport->port.membase + UCR1);
 	}
 
 	if (sport->dma_is_enabled) {
