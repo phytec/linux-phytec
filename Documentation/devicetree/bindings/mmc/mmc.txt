@@ -86,6 +86,10 @@ to valid regulator nodes:
 - vqmmc-supply: supply node for IO line power
 - vmmc-supply: supply node for card's power
 
+Aliases (Optional):
+- If you want to use the fixed index for devices like mmcX / mmcblkX, should
+be represented in the aliases node using following format "mmc(X)".
+(X is an unique number for the alias.)
 
 MMC power sequences:
 --------------------
@@ -161,4 +165,11 @@ mmc3: mmc@01c12000 {
 		interrupts = <10 8>; /* PH10 / EINT10 */
 		interrupt-names = "host-wake";
 	};
+};
+
+Example with aliases nodes:
+
+aliases {
+	mmc0 = &mmc0;	/* Fixed to mmc0/mmcblk0 for &mmc0 */
+	mmc1 = &mmc2;	/* Fixed to mmc1/mmcblk1 for &mmc2 */
 };
