@@ -1112,7 +1112,7 @@ static const struct v4l2_subdev_internal_ops mt9p031_subdev_internal_ops = {
 static struct mt9p031_platform_data *
 mt9p031_get_pdata(struct i2c_client *client)
 {
-	struct mt9p031_platform_data *pdata;
+	struct mt9p031_platform_data *pdata = NULL;
 	struct v4l2_of_endpoint endpoint;
 	struct device_node *np;
 
