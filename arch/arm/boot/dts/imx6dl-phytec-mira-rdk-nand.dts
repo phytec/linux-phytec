@@ -54,10 +54,6 @@
 	status = "okay";
 };
 
-&stmpe {
-	status = "okay";
-};
-
 &uart3 {
 	status = "okay";
 };
