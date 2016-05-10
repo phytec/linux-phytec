@@ -115,7 +115,7 @@
 	clock-frequency = <400000>;
 	status = "okay";
 
-	eeprom@50 {
+	eeprom: eeprom@50 {
 		compatible = "cat,24c32";
 		reg = <0x50>;
 	};
