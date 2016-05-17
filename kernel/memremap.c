@@ -118,6 +118,12 @@ void *memremap(resource_size_t offset, size_t size, unsigned long flags)
 	if (!addr && (flags & MEMREMAP_WC))
 		addr = ioremap_wc(offset, size);
 
+	if (!addr && (flags & MEMREMAP_EXEC))
+		addr = arch_memremap_exec(offset, size);
+
+	if (!addr && (flags & MEMREMAP_EXEC_NOCACHE))
+		addr = arch_memremap_exec_nocache(offset, size);
+
 	return addr;
 }
 EXPORT_SYMBOL(memremap);
