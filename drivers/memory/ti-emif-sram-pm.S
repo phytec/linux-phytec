@@ -32,7 +32,7 @@
 
 #define EMIF_AM437X_REGISTERS				0x1
 
-	.text
+	.data
 	.align 3
 
 ENTRY(ti_emif_sram)
