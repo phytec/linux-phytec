@@ -151,6 +151,13 @@
 	rx_delay = <0x10>;
 };
 
+/* GPU */
+&gpu {
+	mali-supply = <&vdd_gpu>;
+	vdd_gpu-supply = <&vdd_gpu>;
+	status = "okay";
+};
+
 /* I2C Busses */
 &pinctrl {
 	pmic {
