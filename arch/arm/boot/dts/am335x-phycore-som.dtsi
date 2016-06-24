@@ -297,6 +297,10 @@
 	};
 };
 
+&wkup_m3_ipc {
+	ti,scale-data-fw = "am335x-pcm060-scale-data.bin";
+};
+
 /* SPI Busses */
 &am33xx_pinmux {
 	spi0_pins: pinmux_spi0 {
