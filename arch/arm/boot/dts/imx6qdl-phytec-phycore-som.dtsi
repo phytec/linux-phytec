@@ -128,7 +128,7 @@
 			compatible = "dlg,da9062-rtc";
 		};
 
-		da9062_wtd: watchdog {
+		da9062_wdt: watchdog {
 			compatible = "dlg,da9062-watchdog";
 		};
 
