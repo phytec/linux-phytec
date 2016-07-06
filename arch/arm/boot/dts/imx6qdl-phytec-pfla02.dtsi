@@ -573,7 +573,7 @@
 };
 
 &pcie {
-	pinctrl-name = "default";
+	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_pcie>;
 	reset-gpio = <&gpio4 17 0>;
 	status = "disabled";
