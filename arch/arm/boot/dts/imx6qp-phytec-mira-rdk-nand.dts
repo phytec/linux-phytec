@@ -1,0 +1,94 @@
+/dts-v1/;
+
+#include "imx6qp.dtsi"
+
+#include "imx6qdl-phytec-phycore-som.dtsi"
+#include "imx6qdl-phytec-mira.dtsi"
+#include "imx6qdl-phytec-mira-peb-eval-01.dtsi"
+#include "imx6qdl-phytec-mira-peb-av-02.dtsi"
+#include "imx6qdl-phytec-peb-wlbt-01.dtsi"
+
+/ {
+	model = "Phytec phyBOARD-MIRA QuadPlus Carrier-Board with nand";
+	compatible = "phytec,imx6q-pbac06", "phytec,imx6qdl-pcm058", "fsl,imx6qp";
+
+	aliases {
+		ipu1 = &ipu2;
+	};
+
+	chosen {
+		linux,stdout-path = &uart2;
+	};
+
+	soc {
+		gpu@00130000 {
+			/* disable GPU for now because driver fails to load and
+			corrupts memory in its errors paths */
+			status = "disabled";
+		};
+	};
+};
+
+&can1 {
+	status = "okay";
+};
+
+&fec {
+	status = "okay";
+};
+
+&flash {
+	status = "okay";
+};
+
+&gpmi {
+	status = "okay";
+};
+
+&hdmi {
+	status = "okay";
+};
+
+&i2c1 {
+	status = "okay";
+};
+
+&i2c2 {
+	status = "okay";
+};
+
+&i2c_rtc {
+	status = "okay";
+};
+
+&leddim {
+	status = "okay";
+};
+
+&pcie {
+	status = "okay";
+};
+
+&stmpe {
+	status = "okay";
+};
+
+&uart2 {
+	status = "okay";
+};
+
+&uart3 {
+	status = "okay";
+};
+
+&usbh1 {
+	status = "okay";
+};
+
+&usbotg {
+	status = "okay";
+};
+
+&usdhc1 {
+	status = "okay";
+};

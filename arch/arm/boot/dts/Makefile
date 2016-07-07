@@ -303,6 +303,7 @@ dtb-$(CONFIG_SOC_IMX6Q) += \
 	imx6q-phytec-phyboard-alcor.dtb \
 	imx6q-phytec-mira-rdk-emmc.dtb \
 	imx6q-phytec-mira-rdk-nand.dtb \
+	imx6qp-phytec-mira-rdk-nand.dtb \
 	imx6q-rex-pro.dtb \
 	imx6q-sabreauto.dtb \
 	imx6q-sabrelite.dtb \
