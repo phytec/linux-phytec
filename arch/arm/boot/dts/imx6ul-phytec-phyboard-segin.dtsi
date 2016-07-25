@@ -229,6 +229,12 @@
 		>;
 	};
 
+	pinctrl_pwm3: pwm3grp {
+		fsl,pins = <
+			MX6UL_PAD_GPIO1_IO04__PWM3_OUT	0x0b0b0
+		>;
+	};
+
 	pinctrl_rtc_int: rtcintgrp {
 		fsl,pins = <
 			MX6UL_PAD_SNVS_TAMPER1__GPIO5_IO01	0x17059
