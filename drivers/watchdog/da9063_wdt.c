@@ -18,6 +18,7 @@
 #include <linux/uaccess.h>
 #include <linux/slab.h>
 #include <linux/delay.h>
+#include <linux/i2c.h>
 #include <linux/mfd/da9063/registers.h>
 #include <linux/mfd/da9063/core.h>
 #include <linux/reboot.h>
@@ -41,6 +42,7 @@ struct da9063_watchdog {
 	struct da9063 *da9063;
 	struct watchdog_device wdtdev;
 	struct notifier_block restart_handler;
+	struct notifier_block reboot_notifier;
 	struct delayed_work ping_work;
 	unsigned long j_time_stamp;
 };
@@ -188,19 +190,60 @@ static int da9063_wdt_set_timeout(struct watchdog_device *wdd,
 	return ret;
 }
 
+static int da9063_wdt_reboot_notifier(struct notifier_block *this, unsigned long val, void *v)
+{
+	struct da9063_watchdog *wdt = container_of(this,
+						   struct da9063_watchdog,
+						   reboot_notifier);
+	struct i2c_adapter *adap = wdt->da9063->i2c->adapter;
+
+	/*
+	 * First block the I2C bus for other drivers. Other consumers are not
+	 * allowed to access the bus now.
+	 */
+	adap->blocked = true;
+
+	/*
+	 * Then acquire adapter lock. This will wait until all other consumers
+	 * have finished.  After that no more writes are possible for other
+	 * drivers.
+	 */
+	i2c_lock_adapter(adap);
+
+	/*
+	 * Now the I2C adapter can be used in contexts that are not allowed to
+	 * wait for locks or call schedule() because there is no other
+	 * consumer.
+	 */
+	return NOTIFY_DONE;
+}
+
 static int da9063_wdt_restart_handler(struct notifier_block *this,
 				      unsigned long mode, void *cmd)
 {
 	struct da9063_watchdog *wdt = container_of(this,
 						   struct da9063_watchdog,
 						   restart_handler);
+	unsigned char data[3] = {DA9063_REG_CONTROL_F, DA9063_SHUTDOWN, 0x0};
+	struct i2c_client *client = wdt->da9063->i2c;
+	struct i2c_msg msgs[1] = {
+		{
+			.addr = client->addr,
+			.flags = (client->flags & I2C_M_TEN) | I2C_M_IRQLESS,
+			.len = sizeof(data),
+			.buf = data,
+		}
+	};
 	int ret;
 
-	ret = regmap_write(wdt->da9063->regmap, DA9063_REG_CONTROL_F,
-			   DA9063_SHUTDOWN);
-	if (ret)
+	/* TODO Maybe increase adapter->retries count. It is currently 0 for imx-driver. */
+
+	ret = __i2c_transfer(client->adapter, msgs, 1);
+	if (ret < 0)
 		dev_alert(wdt->da9063->dev, "Failed to shutdown (err = %d)\n",
 			  ret);
+
+	udelay(500); /* wait for reset to assert... */
 
 	return NOTIFY_DONE;
 }
@@ -253,6 +296,13 @@ static int da9063_wdt_probe(struct platform_device *pdev)
 	if (ret)
 		return ret;
 
+	wdt->reboot_notifier.notifier_call = da9063_wdt_reboot_notifier;
+	wdt->reboot_notifier.priority = 0; /* be the last notifier */
+	ret = register_reboot_notifier(&wdt->reboot_notifier);
+	if (ret)
+		dev_err(wdt->da9063->dev,
+			"Failed to register reboot notifier (err = %d)\n", ret);
+
 	wdt->restart_handler.notifier_call = da9063_wdt_restart_handler;
 	wdt->restart_handler.priority = 128;
 	ret = register_restart_handler(&wdt->restart_handler);
@@ -271,6 +321,8 @@ static int da9063_wdt_remove(struct platform_device *pdev)
 
 	/* Wait for delayed worker to finish. */
 	cancel_delayed_work_sync(&wdt->ping_work);
+
+	unregister_reboot_notifier(&wdt->reboot_notifier);
 
 	unregister_restart_handler(&wdt->restart_handler);
 
