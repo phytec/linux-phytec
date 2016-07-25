@@ -1,0 +1,152 @@
+/*
+ * Copyright (C) 2016 PHYTEC Messtechnik
+ * Author: Christian Hemp <c.hemp@phytec.de>
+ *
+ * The code contained herein is licensed under the GNU General Public
+ * License. You may obtain a copy of the GNU General Public License
+ * Version 2 or later at the following locations:
+ *
+ * http://www.opensource.org/licenses/gpl-license.html
+ * http://www.gnu.org/copyleft/gpl.html
+ */
+
+/ {
+	backlight_peb: backlight {
+		compatible = "pwm-backlight";
+		brightness-levels = < 0  4 8 16 32 64 128 255>;
+		default-brightness-level = <5>;
+		power-supply = <&reg_can1_backlight_en>;
+		pwms = <&pwm3 0 5000000>;
+		status = "disabled";
+	};
+};
+
+&lcdif {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_lcdif_dat>;
+	display = <&display>;
+	status = "disabled";
+
+	display: display@di0 {
+		bits-per-pixel = <32>;
+		bus-width = <24>;
+		status = "disabled";
+
+		display-timings {
+			native-mode = <&timing0>;
+
+			timing0: ETM0700G0EDH6 {
+				clock-frequency = <33264000>;
+				hactive = <800>;
+				vactive = <480>;
+				hback-porch = <88>;
+				hsync-len = <128>;
+				hfront-porch = <40>;
+				vback-porch = <33>;
+				vsync-len = <2>;
+				vfront-porch = <10>;
+				hsync-active = <0>;
+				vsync-active = <0>;
+				de-active = <1>;
+				pixelclk-active = <0>;
+			};
+			timing1: ETMV570G2DHU {
+				clock-frequency	= <25175000>;
+				hactive = <640>;
+				vactive = <480>;
+				hfront-porch = <16>;
+				hback-porch = <114>;
+				hsync-len = <30>;
+				vback-porch = <35>;
+				vfront-porch = <10>;
+				vsync-len = <3>;
+				hsync-active = <0>;
+				vsync-active = <0>;
+				de-active = <1>;
+				pixelclk-active = <1>;
+			};
+			timing2: ETM0430G0DH6 {
+				clock-frequency	= <9000000>;
+				hactive = <480>;
+				vactive = <272>;
+				hfront-porch = <2>;
+				hback-porch = <2>;
+				hsync-len = <41>;
+				vback-porch = <2>;
+				vfront-porch = <2>;
+				vsync-len = <10>;
+				hsync-active = <0>;
+				vsync-active = <0>;
+				de-active = <1>;
+				pixelclk-active = <1>;
+			};
+			timing3: ETM0350G0DH6 {
+				clock-frequency = <6520000>;
+				hactive = <320>;
+				vactive = <240>;
+				hfront-porch = <20>;
+				hback-porch = <68>;
+				hsync-len = <88>;
+				vfront-porch = <4>;
+				vback-porch = <18>;
+				vsync-len = <22>;
+				hsync-active = <0>;
+				vsync-active = <0>;
+				de-active = <1>;
+				pixelclk-active = <1>;
+			};
+		};
+	};
+};
+
+&i2c1 {
+	polytouch: edt-ft5x06@38 {
+		compatible = "edt,edt-ft5x06";
+		reg = <0x38>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_edt_ft5x06>;
+		interrupt-parent = <&gpio1>;
+		interrupts = <2 IRQ_TYPE_EDGE_FALLING>;
+		wakeup-source;
+		status = "disabled";
+	};
+};
+
+&iomuxc {
+	pinctrl_edt_ft5x06: edtft5x06grp {
+		fsl,pins = <MX6UL_PAD_GPIO1_IO02__GPIO1_IO02	0x1b0b0>;
+	};
+
+	pinctrl_lcdif_dat: lcdifdatgrp {
+		fsl,pins = <
+			MX6UL_PAD_LCD_DATA00__LCDIF_DATA00  0x79
+			MX6UL_PAD_LCD_DATA01__LCDIF_DATA01  0x79
+			MX6UL_PAD_LCD_DATA02__LCDIF_DATA02  0x79
+			MX6UL_PAD_LCD_DATA03__LCDIF_DATA03  0x79
+			MX6UL_PAD_LCD_DATA04__LCDIF_DATA04  0x79
+			MX6UL_PAD_LCD_DATA05__LCDIF_DATA05  0x79
+			MX6UL_PAD_LCD_DATA06__LCDIF_DATA06  0x79
+			MX6UL_PAD_LCD_DATA07__LCDIF_DATA07  0x79
+			MX6UL_PAD_LCD_DATA08__LCDIF_DATA08  0x79
+			MX6UL_PAD_LCD_DATA09__LCDIF_DATA09  0x79
+			MX6UL_PAD_LCD_DATA10__LCDIF_DATA10  0x79
+			MX6UL_PAD_LCD_DATA11__LCDIF_DATA11  0x79
+			MX6UL_PAD_LCD_DATA12__LCDIF_DATA12  0x79
+			MX6UL_PAD_LCD_DATA13__LCDIF_DATA13  0x79
+			MX6UL_PAD_LCD_DATA14__LCDIF_DATA14  0x79
+			MX6UL_PAD_LCD_DATA15__LCDIF_DATA15  0x79
+			MX6UL_PAD_LCD_DATA16__LCDIF_DATA16  0x79
+			MX6UL_PAD_LCD_DATA17__LCDIF_DATA17  0x79
+			MX6UL_PAD_LCD_DATA18__LCDIF_DATA18  0x79
+			MX6UL_PAD_LCD_DATA19__LCDIF_DATA19  0x79
+			MX6UL_PAD_LCD_DATA20__LCDIF_DATA20  0x79
+			MX6UL_PAD_LCD_DATA21__LCDIF_DATA21  0x79
+			MX6UL_PAD_LCD_DATA22__LCDIF_DATA22  0x79
+			MX6UL_PAD_LCD_DATA23__LCDIF_DATA23  0x79
+			MX6UL_PAD_LCD_CLK__LCDIF_CLK	    0x79
+			MX6UL_PAD_LCD_ENABLE__LCDIF_ENABLE  0x79
+			MX6UL_PAD_LCD_HSYNC__LCDIF_HSYNC    0x79
+			MX6UL_PAD_LCD_VSYNC__LCDIF_VSYNC    0x79
+		>;
+	};
+};
