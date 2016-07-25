@@ -11,6 +11,7 @@
 #include "imx6ul.dtsi"
 #include "imx6ul-phytec-phycore-som.dtsi"
 #include "imx6ul-phytec-phyboard-segin.dtsi"
+#include "imx6ul-phytec-segin-peb-av-02.dtsi"
 
 / {
 
