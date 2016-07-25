@@ -72,7 +72,7 @@ static void da9063_apply_window_protection(struct da9063_watchdog *wdt)
 
 	/* if time-limit has not elapsed then wait for remainder */
 	if (diff_ms) {
-		dev_warn(wdt->da9063->dev,
+		dev_dbg(wdt->da9063->dev,
 			 "Kicked too quickly. Delaying %u msecs\n", diff_ms);
 		msleep(diff_ms);
 	}
