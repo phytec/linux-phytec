@@ -279,6 +279,11 @@
 				regulator-always-on;
 			};
 		};
+
+		wdt {
+			/* Watchdog also used as the system reset handler */
+			compatible = "dlg,da9063-watchdog";
+		};
 	};
 };
 
@@ -632,5 +637,10 @@
 	no-1-8-v;
 
 	vmmc-supply = <&vdd_sd0_reg>;
+	status = "disabled";
+};
+
+&wdog1 {
+	/* Internal i.MX6 watchdog cannot be used. Use external PMIC watchdog */
 	status = "disabled";
 };
