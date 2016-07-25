@@ -216,6 +216,7 @@ static int da9063_i2c_probe(struct i2c_client *i2c,
 	i2c_set_clientdata(i2c, da9063);
 	da9063->dev = &i2c->dev;
 	da9063->chip_irq = i2c->irq;
+	da9063->i2c = i2c;
 
 	if (da9063->variant_code == PMIC_DA9063_AD) {
 		da9063_regmap_config.rd_table = &da9063_ad_readable_table;
