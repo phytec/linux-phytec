@@ -517,6 +517,8 @@ struct i2c_adapter {
 
 	struct i2c_bus_recovery_info *bus_recovery_info;
 	const struct i2c_adapter_quirks *quirks;
+
+	bool blocked;
 };
 #define to_i2c_adapter(d) container_of(d, struct i2c_adapter, dev)
 
