@@ -344,3 +344,11 @@
 	vmmc-supply = <&vdd_emmc_1p8>;
 	status = "disabled";
 };
+
+&wdog1 {
+	/*
+	 * Rely on PMIC watchdog and reboot handler. Internal i.MX6 watchdog
+	 * does not reset all external PMIC voltages on reset.
+	 */
+	status = "disabled";
+};
