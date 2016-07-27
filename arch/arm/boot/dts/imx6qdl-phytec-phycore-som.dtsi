@@ -336,3 +336,8 @@
 	vmmc-supply = <&vdd_emmc_1p8>;
 	status = "disabled";
 };
+
+&wdog1 {
+	/* Internal i.MX6 watchdog cannot be used. Use external PMIC watchdog */
+	status = "disabled";
+};
