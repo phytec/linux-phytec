@@ -39,7 +39,22 @@ struct da9062_watchdog {
 	struct da9062 *hw;
 	struct watchdog_device wdtdev;
 	unsigned long j_time_stamp;
+	struct delayed_work ping_work;
 };
+
+static unsigned int da9062_get_wait_time(struct da9062_watchdog *wdt)
+{
+	unsigned long delay = msecs_to_jiffies(DA9062_RESET_PROTECTION_MS);
+	unsigned long timeout = wdt->j_time_stamp + delay;
+	unsigned long now = jiffies;
+
+	/* if time-limit has not elapsed then wait for remainder */
+	if (time_before(now, timeout)) {
+		return timeout - now;
+	}
+
+	return 0; /* Watchdog can be pinged at once */
+}
 
 static void da9062_set_window_start(struct da9062_watchdog *wdt)
 {
@@ -48,16 +63,12 @@ static void da9062_set_window_start(struct da9062_watchdog *wdt)
 
 static void da9062_apply_window_protection(struct da9062_watchdog *wdt)
 {
-	unsigned long delay = msecs_to_jiffies(DA9062_RESET_PROTECTION_MS);
-	unsigned long timeout = wdt->j_time_stamp + delay;
-	unsigned long now = jiffies;
-	unsigned int diff_ms;
+	unsigned int diff_ms = jiffies_to_msecs(da9062_get_wait_time(wdt));
 
 	/* if time-limit has not elapsed then wait for remainder */
-	if (time_before(now, timeout)) {
-		diff_ms = jiffies_to_msecs(timeout-now);
-		dev_dbg(wdt->hw->dev,
-			"Kicked too quickly. Delaying %u msecs\n", diff_ms);
+	if (diff_ms) {
+		dev_warn(wdt->hw->dev,
+			 "Kicked too quickly. Delaying %u msecs\n", diff_ms);
 		msleep(diff_ms);
 	}
 }
@@ -126,6 +137,12 @@ static int da9062_wdt_stop(struct watchdog_device *wdd)
 	struct da9062_watchdog *wdt = watchdog_get_drvdata(wdd);
 	int ret;
 
+	/*
+	 * Cancel current ping request and wait for it to finished if it's
+	 * currently running.
+	 */
+	cancel_delayed_work_sync(&wdt->ping_work);
+
 	ret = da9062_reset_watchdog_timer(wdt);
 	if (ret) {
 		dev_err(wdt->hw->dev, "Failed to ping the watchdog (err = %d)\n",
@@ -147,14 +164,39 @@ static int da9062_wdt_stop(struct watchdog_device *wdd)
 static int da9062_wdt_ping(struct watchdog_device *wdd)
 {
 	struct da9062_watchdog *wdt = watchdog_get_drvdata(wdd);
+	unsigned int delay = da9062_get_wait_time(wdt); /* in jiffies */
+
+	schedule_delayed_work(&wdt->ping_work, delay);
+
+	return 0;
+}
+
+static int _da9062_wdt_ping_work_now_helper(struct delayed_work *workd)
+{
+	struct da9062_watchdog *wdt = container_of(workd,
+						struct da9062_watchdog,
+						ping_work);
 	int ret;
+
+	da9062_apply_window_protection(wdt);
 
 	ret = da9062_reset_watchdog_timer(wdt);
 	if (ret)
 		dev_err(wdt->hw->dev, "Failed to ping the watchdog (err = %d)\n",
 			ret);
 
+	da9062_set_window_start(wdt);
+
 	return ret;
+}
+
+static void da9062_wdt_ping_work_now(struct work_struct *work)
+{
+	struct delayed_work *workd = container_of(work,
+						struct delayed_work,
+						work);
+
+	_da9062_wdt_ping_work_now_helper(workd);
 }
 
 static int da9062_wdt_set_timeout(struct watchdog_device *wdd,
@@ -221,9 +263,11 @@ static int da9062_wdt_probe(struct platform_device *pdev)
 		return ret;
 	}
 
+	INIT_DELAYED_WORK(&(wdt->ping_work), da9062_wdt_ping_work_now);
+
 	da9062_set_window_start(wdt);
 
-	ret = da9062_wdt_ping(&wdt->wdtdev);
+	ret = _da9062_wdt_ping_work_now_helper(&wdt->ping_work);
 	if (ret < 0)
 		watchdog_unregister_device(&wdt->wdtdev);
 
