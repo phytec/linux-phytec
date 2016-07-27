@@ -365,6 +365,10 @@ static const struct regmap_range da9062_aa_writeable_ranges[] = {
 		.range_min = DA9062AA_BBAT_CONT,
 		.range_max = DA9062AA_BBAT_CONT,
 	}, {
+		/* CONFIG_I must be writable to set WATCHDOG_SD */
+		.range_min = DA9062AA_CONFIG_I,
+		.range_max = DA9062AA_CONFIG_I,
+	}, {
 		.range_min = DA9062AA_GP_ID_0,
 		.range_max = DA9062AA_GP_ID_19,
 	},
