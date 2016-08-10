@@ -891,7 +891,7 @@
 			     <GIC_SPI 8 IRQ_TYPE_LEVEL_HIGH>;
 		interrupt-names = "JOB", "MMU", "GPU";
 		clocks = <&cru ACLK_GPU>;
-		clock-names = "clk_mali";
+		clock-names = "aclk_gpu";
 		operating-points = <
 			/* KHz uV */
 			600000 1250000
