@@ -364,6 +364,7 @@ static void tilcdc_crtc_mode_set_nofb(struct drm_crtc *crtc)
 	uint32_t reg, hbp, hfp, hsw, vbp, vfp, vsw;
 	struct drm_display_mode *mode = &crtc->state->adjusted_mode;
 	struct drm_framebuffer *fb = crtc->primary->state->fb;
+	bool invert_pxlclk = 0;
 
 	WARN_ON(!drm_modeset_is_locked(&crtc->mutex));
 
@@ -485,7 +486,18 @@ static void tilcdc_crtc_mode_set_nofb(struct drm_crtc *crtc)
 	reg |= info->fdd < 12;
 	tilcdc_write(dev, LCDC_RASTER_CTRL_REG, reg);
 
-	if (info->invert_pxl_clk)
+	/*
+	 * The invert_pxl_clk property sets up the pixel clock for all
+	 * available display-timings. But in some cases a per display-timing
+	 * pixel clock setup is needed. Check the "pixelclk-active" property
+	 * and invert this value if invert_pxl_clk is set.
+	 */
+	if (mode->private_flags & DRM_BUS_FLAG_PIXDATA_POSEDGE)
+		invert_pxlclk = 1;
+
+	invert_pxlclk = (info->invert_pxl_clk ? !invert_pxlclk : invert_pxlclk);
+
+	if (invert_pxlclk)
 		tilcdc_set(dev, LCDC_RASTER_TIMING_2_REG, LCDC_INVERT_PIXEL_CLOCK);
 	else
 		tilcdc_clear(dev, LCDC_RASTER_TIMING_2_REG, LCDC_INVERT_PIXEL_CLOCK);
