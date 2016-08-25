@@ -559,6 +559,7 @@ dtb-$(CONFIG_SOC_AM33XX) += \
 	am335x-pepper.dtb \
 	am335x-phycore-rdk.dtb \
 	am335x-phycore-eeprom-rtc.dtb \
+	am335x-phycore-eeprom-rtc-spi-tmp.dtb \
 	am335x-phycore-eeprom.dtb \
 	am335x-phycore-none.dtb \
 	am335x-shc.dtb \
