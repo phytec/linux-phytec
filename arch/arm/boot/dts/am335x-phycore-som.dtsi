@@ -104,6 +104,11 @@
 	rmii-clock-ext;
 };
 
+/* GPU */
+&sgx {
+	status = "okay";
+};
+
 /* I2C Busses */
 &am33xx_pinmux {
 	i2c0_pins: pinmux_i2c0 {
