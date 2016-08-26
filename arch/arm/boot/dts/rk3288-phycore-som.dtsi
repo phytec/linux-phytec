@@ -96,6 +96,18 @@
 	status = "okay";
 };
 
+/* CPU */
+&cpu_alert0 {
+	temperature = <90000>; /* millicelsius */
+	hysteresis = <2000>; /* millicelsius */
+	type = "passive";
+};
+&cpu_crit {
+	temperature = <100000>; /* millicelsius */
+	hysteresis = <2000>; /* millicelsius */
+	type = "critical";
+};
+
 /* Display & Video */
 &hdmi {
 	ddc-i2c-bus = <&i2c5>;
@@ -157,6 +169,19 @@
 	vdd_gpu-supply = <&vdd_gpu>;
 	status = "okay";
 };
+
+&gpu_alert0 {
+	temperature = <90000>; /* millicelsius */
+	hysteresis = <2000>; /* millicelsius */
+	type = "passive";
+};
+
+&gpu_crit {
+	temperature = <100000>; /* millicelsius */
+	hysteresis = <2000>; /* millicelsius */
+	type = "critical";
+};
+
 
 /* I2C Busses */
 &pinctrl {
