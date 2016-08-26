@@ -158,21 +158,17 @@
 
 /* MMC */
 &pinctrl {
-	pcfg_pull_up_drv_12ma: pcfg-pull-up-drv-12ma {
-		bias-pull-up;
-		drive-strength = <12>;
-	};
-
 	sdmmc {
 		/*
 		* Default drive strength isn't enough to achieve even
 		* high-speed mode on pcm-947 board so bump up to 12 mA.
+		* We also have external pulls, so disable the internal ones.
 		*/
 		sdmmc_bus4: sdmmc-bus4 {
-			rockchip,pins = <6 16 RK_FUNC_1 &pcfg_pull_up_drv_12ma>,
-					<6 17 RK_FUNC_1 &pcfg_pull_up_drv_12ma>,
-					<6 18 RK_FUNC_1 &pcfg_pull_up_drv_12ma>,
-					<6 19 RK_FUNC_1 &pcfg_pull_up_drv_12ma>;
+			rockchip,pins = <6 16 RK_FUNC_1 &pcfg_pull_none_12ma>,
+					<6 17 RK_FUNC_1 &pcfg_pull_none_12ma>,
+					<6 18 RK_FUNC_1 &pcfg_pull_none_12ma>,
+					<6 19 RK_FUNC_1 &pcfg_pull_none_12ma>;
 		};
 
 		sdmmc_clk: sdmmc-clk {
@@ -180,7 +176,7 @@
 		};
 
 		sdmmc_cmd: sdmmc-cmd {
-			rockchip,pins = <6 21 RK_FUNC_1 &pcfg_pull_up_drv_12ma>;
+			rockchip,pins = <6 21 RK_FUNC_1 &pcfg_pull_none_12ma>;
 		};
 
 		sdmmc_pwr: sdmmc-pwr {
