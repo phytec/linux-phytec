@@ -12,5 +12,7 @@ obj-$(CONFIG_SND_DAVINCI_SOC_VCIF) += snd-soc-davinci-vcif.o
 
 # Generic DAVINCI/AM33xx Machine Support
 snd-soc-evm-objs := davinci-evm.o
+snd-soc-phycore-objs := davinci-phycore.o
 
 obj-$(CONFIG_SND_DAVINCI_SOC_GENERIC_EVM) += snd-soc-evm.o
+obj-$(CONFIG_SND_DAVINCI_SOC_PHYCORE) += snd-soc-phycore.o
