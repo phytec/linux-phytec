@@ -14,3 +14,4 @@
 #include "am335x-wega-peb-eval-01.dtsi"
 #include "am335x-wega-peb-av-01.dtsi"
 #include "am335x-wega-peb-av-02.dtsi"
+#include "am335x-wega-peb-wlbt-01.dtsi"
