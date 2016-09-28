@@ -154,6 +154,9 @@ Boards:
 - AM335x phyBOARD-REGOR: Single Board Computer
   compatible = "phytec,am335x-regor", "phytec,am335x-phycore-som", "ti,am33xx"
 
+- AM335x PCM-953: Carrier Board (Wifi Jumpered)
+  compatible = "phytec,am335x-pcm-953-wifi", "phytec,am335x-phycore-som", "ti,am33xx";
+
 - OMAP5 EVM : Evaluation Module
   compatible = "ti,omap5-evm", "ti,omap5"
 
