@@ -1,0 +1,86 @@
+/*
+ * Copyright (C) 2016 PHYTEC Messtechnik GmbH,
+ * Author: Wadim Egorov <w.egorov@phytec.de>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 as
+ * published by the Free Software Foundation.
+ */
+
+/ {
+	wlan_en_reg: fixedregulator@2 {
+		compatible = "regulator-fixed";
+
+	};
+
+};
+
+&am33xx_pinmux {
+	mmc3_pins: pinmux_mmc3_pins {
+		pinctrl-single,pins = <
+			AM33XX_IOPAD(0x844, PIN_INPUT_PULLUP | MUX_MODE3)	/* gpmc_a1.mmc2_dat0 */
+			AM33XX_IOPAD(0x848, PIN_INPUT_PULLUP | MUX_MODE3)	/* gpmc_a2.mmc2_dat1 */
+			AM33XX_IOPAD(0x84c, PIN_INPUT_PULLUP | MUX_MODE3)	/* gpmc_a3.mmc2_dat2 */
+			AM33XX_IOPAD(0x878, PIN_INPUT_PULLUP | MUX_MODE3)	/* gpmc_ben1.mmc2_dat3 */
+			AM33XX_IOPAD(0x888, PIN_INPUT_PULLUP | MUX_MODE3)     /* gpmc_csn3.mmc2_cmd */
+			AM33XX_IOPAD(0x88c, PIN_INPUT_PULLUP | MUX_MODE3)     /* gpmc_clk.mmc2_clk */
+		>;
+	};
+
+	wlan_pins: pinmux_wlan_pins {
+		pinctrl-single,pins = <
+			/* WLAN IRQ */
+			AM33XX_IOPAD(0x864, PIN_INPUT_PULLDOWN | MUX_MODE7)		/* gpmc_a9.gpio1_25 */
+		>;
+	};
+
+	wlan_gpio: pinmux_wlan_gpio {
+		pinctrl-single,pins = <
+			/* WLAN Enable */
+			AM33XX_IOPAD(0x860, PIN_OUTPUT_PULLDOWN | MUX_MODE7) /* gpmc_a8.gpio1_24 */
+		>;
+	};
+};
+
+&wlan_en_reg {
+	regulator-name = "wlan-en-regulator";
+	regulator-min-microvolt = <3300000>;
+	regulator-max-microvolt = <3300000>;
+	pinctrl-names = "default";
+	pinctrl-0 = <&wlan_gpio>;
+
+	/* WLAN_EN GPIO */
+	gpio = <&gpio1 24 0>;
+
+	/* WLAN card specific delay */
+	startup-delay-us = <70000>;
+	enable-active-high;
+	status = "disabled";
+};
+
+&mmc3 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&mmc3_pins &wlan_pins>;
+	dmas = <&edma_xbar 12 0 1
+		&edma_xbar 13 0 2>;
+	dma-names = "tx", "rx";
+	vmmc-supply = <&wlan_en_reg>;
+	bus-width = <4>;
+	max-frequency = <25000000>;
+
+	ti,non-removable;
+	cap-power-off-card;
+	keep-power-in-suspend;
+
+	#address-cells = <1>;
+	#size-cells = <0>;
+	wlcore: wlcore@2 {
+		compatible = "ti,wl1271";
+		interrupt-parent = <&gpio1>;
+		interrupts = <25 IRQ_TYPE_LEVEL_HIGH>;
+		reg = <2>;
+		ref-clock-frequency = <38400000>;
+		tcxo-clock-frequency = <19200000>;
+		status = "disabled";
+	};
+};
