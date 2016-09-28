@@ -1,0 +1,25 @@
+/*
+ * Copyright (C) 2016 PHYTEC Messtechnik GmbH,
+ * Author: Wadim Egorov <w.egorov@phytec.de>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 as
+ * published by the Free Software Foundation.
+ */
+
+#include "am335x-pcm-953.dtsi"
+
+/ {
+	model = "Phytec AM335x PCM-953";
+	compatible = "phytec,am335x-pcm-953-wifi", "phytec,am335x-pcm-953", "phytec,am335x-phycore-som", "ti,am33xx";
+};
+
+&cpsw_emac1 {
+	status = "disabled";
+};
+
+&mac {
+	slaves = <1>;
+	pinctrl-0 = <&ethernet0_pins>;
+	/delete-property/dual_emac;
+};
