@@ -130,6 +130,7 @@ static int phytec_media_init_port(struct phytec_media_system *media,
 		goto out;
 	} else if (rc == -ENOENT) {
 		dev_dbg(media->dev, "skipping setup of %s clock\n", clk_name);
+		clk_cam = NULL;
 	} else if (rc < 0) {
 		dev_err(media->dev, "failed to get %s clock: %d\n",
 			clk_name, rc);
