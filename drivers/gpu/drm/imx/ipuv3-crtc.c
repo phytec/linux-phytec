@@ -134,6 +134,15 @@ static const struct drm_crtc_funcs ipu_crtc_funcs = {
 	.page_flip = ipu_page_flip,
 };
 
+int ipu_crtc_mode_set_base(struct drm_crtc *crtc, int x, int y,
+				  struct drm_framebuffer *old_fb)
+{
+	struct ipu_crtc *ipu_crtc = to_ipu_crtc(crtc);
+	struct ipu_plane *plane = ipu_crtc->plane[0];
+
+	return ipu_plane_set_base(plane, crtc->primary->fb, x, y);
+}
+
 static int ipu_crtc_mode_set(struct drm_crtc *crtc,
 			       struct drm_display_mode *orig_mode,
 			       struct drm_display_mode *mode,
@@ -273,6 +282,7 @@ static struct drm_crtc_helper_funcs ipu_helper_funcs = {
 	.dpms = ipu_crtc_dpms,
 	.mode_fixup = ipu_crtc_mode_fixup,
 	.mode_set = ipu_crtc_mode_set,
+	.mode_set_base = ipu_crtc_mode_set_base,
 	.prepare = ipu_crtc_prepare,
 	.commit = ipu_crtc_commit,
 };
