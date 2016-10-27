@@ -545,6 +545,9 @@ static void drm_fb_helper_dpms(struct fb_info *info, int dpms_mode)
 				dev->mode_config.dpms_property, dpms_mode);
 		}
 	}
+
+	fb_helper->dpms_mode = dpms_mode;
+
 	drm_modeset_unlock_all(dev);
 }
 
@@ -822,6 +825,71 @@ int drm_fb_helper_setcmap(struct fb_cmap *cmap, struct fb_info *info)
 	return rc;
 }
 EXPORT_SYMBOL(drm_fb_helper_setcmap);
+
+/**
+ * drm_fb_helper_ioctl - implementation for ->fb_ioctl
+ * @info: fbdev registered by the helper
+ * @cmd: ioctl like FBIO_WAITFORVSYNC
+ * @arg: ioctl argument
+ *
+ * Helper implementation of additional framebuffer ioctls.
+ */
+int drm_fb_helper_ioctl(struct fb_info *info, unsigned int cmd, unsigned long arg)
+{
+	struct drm_fb_helper *fb_helper = info->par;
+	struct drm_device *dev = fb_helper->dev;
+
+
+	switch (cmd) {
+	case FBIO_WAITFORVSYNC: {
+		int ret = 0;
+		unsigned int i;
+
+		drm_modeset_lock_all(dev);
+		if (!drm_fb_helper_is_bound(fb_helper)) {
+			ret = -EBUSY;
+			goto unlock;
+		}
+
+		if (fb_helper->dpms_mode != DRM_MODE_DPMS_ON) {
+			/*
+			 * Display is in a power down mode. So there are no
+			 * vsync events. Instead of waiting for a vsync,
+			 * throttle userspace.
+			 */
+			msleep(50); /* 20 frames per second */
+			ret = 0;
+			goto unlock;
+		}
+
+		/* Wait for vblank event on the first enabled CRTC */
+		for (i = 0; i < fb_helper->crtc_count; i++) {
+			struct drm_crtc *crtc;
+
+			crtc = fb_helper->crtc_info[i].mode_set.crtc;
+
+			if (!crtc->enabled)
+				continue;
+
+			ret = drm_crtc_vblank_get(crtc);
+			if (!ret) {
+				drm_crtc_wait_one_vblank(crtc);
+				drm_crtc_vblank_put(crtc);
+			} else
+				/* forward error to userspace */
+				break;
+		}
+unlock:
+		drm_modeset_unlock_all(dev);
+		return ret;
+	}
+	default:
+		return -ENOTTY;
+	}
+
+	return 0;
+}
+EXPORT_SYMBOL(drm_fb_helper_ioctl);
 
 /**
  * drm_fb_helper_check_var - implementation for ->fb_check_var
