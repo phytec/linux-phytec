@@ -120,6 +120,11 @@ struct drm_fb_helper {
 	/* we got a hotplug but fbdev wasn't running the console
 	   delay until next set_par */
 	bool delayed_hotplug;
+
+	/**
+	 * TODO
+	 */
+	int dpms_mode;
 };
 
 void drm_fb_helper_prepare(struct drm_device *dev, struct drm_fb_helper *helper,
@@ -142,6 +147,8 @@ void drm_fb_helper_fill_fix(struct fb_info *info, uint32_t pitch,
 			    uint32_t depth);
 
 int drm_fb_helper_setcmap(struct fb_cmap *cmap, struct fb_info *info);
+
+int drm_fb_helper_ioctl(struct fb_info *info, unsigned int cmd, unsigned long arg);
 
 int drm_fb_helper_hotplug_event(struct drm_fb_helper *fb_helper);
 int drm_fb_helper_initial_config(struct drm_fb_helper *fb_helper, int bpp_sel);
