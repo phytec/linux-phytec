@@ -39,6 +39,17 @@
 #include <drm/drm_fb_helper.h>
 #include <drm/drm_crtc_helper.h>
 
+#ifdef CONFIG_DRM_FBDEV_BUFFER_NUM
+#define FBDEV_BUFFER_NUM CONFIG_DRM_FBDEV_BUFFER_NUM
+#else
+#define FBDEV_BUFFER_NUM 1
+#endif
+
+
+static uint drm_fbdev_buffer_num = FBDEV_BUFFER_NUM;
+module_param_named(fbdev_buffer_num, drm_fbdev_buffer_num, uint, 0600);
+MODULE_PARM_DESC(fbdev_buffer_num, "Buffer number in fbdev emulation");
+
 static LIST_HEAD(kernel_fb_helper_list);
 
 /**
@@ -1082,6 +1093,12 @@ static int drm_fb_helper_single_fb_probe(struct drm_fb_helper *fb_helper,
 		sizes.fb_width = sizes.surface_width = 1024;
 		sizes.fb_height = sizes.surface_height = 768;
 	}
+
+	/* Multiple height for double/triple buffering if requested */
+	if (drm_fbdev_buffer_num >= 1)
+		sizes.surface_height *= drm_fbdev_buffer_num;
+	else
+		DRM_INFO("Module parameter 'fbdev_buffer_num' cannot be zero. Default to 1.\n");
 
 	/* push down into drivers */
 	ret = (*fb_helper->funcs->fb_probe)(fb_helper, &sizes);

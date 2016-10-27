@@ -40,6 +40,14 @@ config DRM_KMS_FB_HELPER
 	help
 	  FBDEV helpers for KMS drivers.
 
+config DRM_FBDEV_BUFFER_NUM
+	int "Fbdev Buffer Number"
+	default 1
+	help
+	  Defines the number of buffers the fbdev can handle.  Default is one buffer.
+	  For double buffer please set to 2 and 3 for triple buffer. Value can be
+	  overwritten by kernel parameter drm_kms_helper.fbdev_buffer_num.
+
 config DRM_LOAD_EDID_FIRMWARE
 	bool "Allow to specify an EDID data set instead of probing for it"
 	depends on DRM_KMS_HELPER
