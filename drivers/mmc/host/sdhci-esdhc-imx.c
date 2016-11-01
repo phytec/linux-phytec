@@ -1124,6 +1124,10 @@ sdhci_esdhc_imx_probe_dt(struct platform_device *pdev,
 		host->quirks2 |= SDHCI_QUIRK2_NO_1_8_V;
 	}
 
+	if (!of_property_read_u32(np, "bus-width", &boarddata->max_bus_width)
+		&& boarddata->max_bus_width == 1)
+		host->quirks |= SDHCI_QUIRK_FORCE_1_BIT_DATA;
+
 	/* call to generic mmc_of_parse to support additional capabilities */
 	ret = mmc_of_parse(host->mmc);
 	if (ret)
