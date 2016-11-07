@@ -2056,7 +2056,6 @@ static int kbase_jd_user_buf_map(struct kbase_context *kctx,
 	long i;
 	int err = -ENOMEM;
 	unsigned long address;
-	struct mm_struct *mm;
 	struct device *dev;
 	unsigned long offset;
 	unsigned long local_size;
@@ -2064,25 +2063,16 @@ static int kbase_jd_user_buf_map(struct kbase_context *kctx,
 	alloc = reg->gpu_alloc;
 	pa = kbase_get_gpu_phy_pages(reg);
 	address = alloc->imported.user_buf.address;
-	mm = alloc->imported.user_buf.mm;
 
 	KBASE_DEBUG_ASSERT(alloc->type == KBASE_MEM_TYPE_IMPORTED_USER_BUF);
 
 	pages = alloc->imported.user_buf.pages;
 
-#if LINUX_VERSION_CODE < KERNEL_VERSION(4, 6, 0)
-	pinned_pages = get_user_pages(NULL, mm,
+	pinned_pages = get_user_pages(
 			address,
 			alloc->imported.user_buf.nr_pages,
-			reg->flags & KBASE_REG_GPU_WR,
-			0, pages, NULL);
-#else
-	pinned_pages = get_user_pages_remote(NULL, mm,
-			address,
-			alloc->imported.user_buf.nr_pages,
-			reg->flags & KBASE_REG_GPU_WR,
-			0, pages, NULL);
-#endif
+			(reg->flags & KBASE_REG_GPU_WR) ? FOLL_WRITE : 0,
+			pages, NULL);
 
 	if (pinned_pages <= 0)
 		return pinned_pages;
