@@ -19,14 +19,6 @@
 	chosen {
 		linux,stdout-path = &uart2;
 	};
-
-	soc {
-		gpu@00130000 {
-			/* disable GPU for now because driver fails to load and
-			corrupts memory in its errors paths */
-			status = "disabled";
-		};
-	};
 };
 
 &can1 {
