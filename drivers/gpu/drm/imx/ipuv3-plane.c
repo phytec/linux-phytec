@@ -298,13 +298,13 @@ int ipu_plane_mode_set(struct ipu_plane *ipu_plane, struct drm_crtc *crtc,
 	if (fb->pixel_format == DRM_FORMAT_YUV420) {
 		ipu_cpmem_set_yuv_planar_full(ipu_plane->ipu_ch,
 					      fb->pixel_format,
-					      ipu_plane->stride[1],
+					      ipu_plane->stride[0],
 					      ipu_plane->u_offset,
 					      ipu_plane->v_offset);
 	} else if (fb->pixel_format == DRM_FORMAT_YVU420) {
 		ipu_cpmem_set_yuv_planar_full(ipu_plane->ipu_ch,
 					      fb->pixel_format,
-					      ipu_plane->stride[1],
+					      ipu_plane->stride[0],
 					      ipu_plane->v_offset,
 					      ipu_plane->u_offset);
 	}
