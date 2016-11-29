@@ -61,13 +61,6 @@
 
 &iomuxc {
 	imx6qdl-phytec-mira-pebeval01 {
-		pinctrl_uart2: uart2grp {
-			fsl,pins = <
-				MX6QDL_PAD_EIM_D26__UART2_TX_DATA	0x1b0b1
-				MX6QDL_PAD_EIM_D27__UART2_RX_DATA	0x1b0b1
-			>;
-		};
-
 		pinctrl_gpio_keys: gpio_keysgrp {
 			fsl,pins = <
 				MX6QDL_PAD_SD3_DAT6__GPIO6_IO18		0x80000000
@@ -83,10 +76,4 @@
 			>;
 		};
 	};
-};
-
-&uart2 {
-	pinctrl-names = "default";
-	pinctrl-0 = <&pinctrl_uart2>;
-	status = "disabled";
 };
