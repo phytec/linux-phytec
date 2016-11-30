@@ -41,6 +41,13 @@ Sub-nodes:
   details of individual regulator device can be found in:
   Documentation/devicetree/bindings/regulator/regulator.txt
 
+  The DA9062 regulator supports four different operating modes BUCK_MODE_MANUAL,
+  BUCK_MODE_SLEEP, BUCK_MODE_SYNC and BUCK_MODE_AUTO.
+  The possible values for "regulator-initial-mode" and "regulator-mode" are:
+    0: BUCK_MODE_MANUAL
+    1: BUCK_MODE_SLEEP
+    2: BUCK_MODE_SYNC
+    3: BUCK_MODE_AUTO
 
 - rtc : This node defines settings required for the Real-Time Clock associated
   with the DA9062. There are currently no entries in this binding, however
