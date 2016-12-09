@@ -37,7 +37,8 @@
 
 		display-timings {
 			native-mode = <&timing1>;
-			timing1: ET0700G0BDH6 {
+			/*       ETM0700G0BDH6 - compatible to ETM0700G0EDH6 */
+			timing1: ETM0700G0EDH6 {
 				clock-frequency = <33264000>;
 				hactive = <800>;
 				vactive = <480>;
@@ -50,7 +51,22 @@
 				de-active = <1>;
 				pixelclk-active = <1>;
 			};
-			timing2: ETMV570G2DHU {
+			timing2: ETM0700G0DH6 {
+				clock-frequency = <33264000>;
+				hactive = <800>;
+				vactive = <480>;
+				hback-porch = <88>;
+				hsync-len = <128>;
+				hfront-porch = <40>;
+				vback-porch = <33>;
+				vsync-len = <2>;
+				vfront-porch = <10>;
+				hsync-active = <0>;
+				vsync-active = <0>;
+				de-active = <1>;
+				pixelclk-active = <0>;
+			};
+			timing3: ETMV570G2DHU {
 				clock-frequency	= <25175000>;
 				hactive = <640>;
 				vactive = <480>;
@@ -60,12 +76,10 @@
 				vback-porch = <35>;
 				vfront-porch = <10>;
 				vsync-len = <3>;
-				hsync-active = <0>;
-				vsync-active = <0>;
 				de-active = <1>;
 				pixelclk-active = <0>;
 			};
-			timing3: ETM0430G0DH6 {
+			timing4: ETM0430G0DH6 {
 				clock-frequency	= <9000000>;
 				hactive = <480>;
 				vactive = <272>;
@@ -80,7 +94,7 @@
 				de-active = <1>;
 				pixelclk-active = <0>;
 			};
-			timing4: ETM0350G0DH6 {
+			timing5: ETM0350G0DH6 {
 				clock-frequency = <6520000>;
 				hactive = <320>;
 				vactive = <240>;
