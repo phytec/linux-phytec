@@ -370,7 +370,7 @@
 		};
 	};
 
-	vm012: vm012@48 {
+	vm012_0: vm012@48 {
 		compatible = "phytec,vm012m";
 		status = "disabled";
 		reg = <0x48>;
@@ -378,7 +378,7 @@
 		sysclk = <54000000>;
 
 		port {
-			vm012_ep: endpoint {
+			vm012_ep0: endpoint {
 				remote-endpoint = <&csi0_ep>;
 			};
 		};
