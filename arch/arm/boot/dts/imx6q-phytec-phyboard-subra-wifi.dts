@@ -92,7 +92,7 @@
 
 	tw9910_1: tw9910@44 {
 		compatible = "techwell,tw9910";
-		status = "disbaled";
+		status = "disabled";
 		reg = <0x44>;
 
 		clocks = <&phytec_mediabus 1>;
