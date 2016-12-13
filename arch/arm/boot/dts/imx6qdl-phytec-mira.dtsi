@@ -309,6 +309,20 @@
 		};
 	};
 
+	vm012_0: vm012@48 {
+		compatible = "phytec,vm012m";
+		status = "disabled";
+		reg = <0x48>;
+		clocks = <&phytec_mediabus 0>;
+		sysclk = <54000000>;
+
+		port {
+			vm012_ep0: endpoint {
+				remote-endpoint = <&csi0_ep>;
+			};
+		};
+	};
+
 	leddim: pca9533@62 {
 		compatible = "nxp,pca9533";
 		gpio-controller;
