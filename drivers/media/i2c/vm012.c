@@ -915,6 +915,12 @@ static int _vm012_set_format(struct vm012 *vm012, unsigned int code,
 		clear_bit(VM012_FLAG_8BPP_MODE, &vm012->flags);
 
 	vm012->fmt_code = code;
+	vm012->rect = (struct v4l2_rect) {
+		.left	= left,
+		.top	= top,
+		.width	= width,
+		.height	= height,
+	};
 
 	return 0;
 }
