@@ -769,8 +769,8 @@ static int _vm012_read_format(struct vm012 *vm012, bool honor_scale,
 		return rc;
 
 	*rect = (struct v4l2_rect) {
-		.left	= x_start / scale,
-		.top	= y_start / scale,
+		.left	= x_start,
+		.top	= y_start,
 		.width	= (x_end - x_start) / scale,
 		.height	= (y_end - y_start) / scale,
 	};
