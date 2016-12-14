@@ -1003,9 +1003,9 @@ static int vm012_get_selection(struct v4l2_subdev *sd,
 	case V4L2_SEL_TGT_CROP_BOUNDS:
 	case V4L2_SEL_TGT_CROP_DEFAULT:
 		sel->r = (struct v4l2_rect) {
-			.left	= VM012_MIN_WIDTH,
+			.left	= 0,
 			.width	= VM012_MAX_WIDTH,
-			.top	= VM012_MIN_HEIGHT,
+			.top	= 0,
 			.height	= VM012_MAX_HEIGHT
 		};
 		rc = 0;
