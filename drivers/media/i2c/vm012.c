@@ -127,8 +127,8 @@ static unsigned int const	VM012_MBUS_CODES_MONO[] = {
 };
 
 static unsigned int const	VM012_MBUS_CODES_COLOR[] = {
-	MEDIA_BUS_FMT_SBGGR8_1X8,
-	MEDIA_BUS_FMT_SBGGR10_1X10,
+	MEDIA_BUS_FMT_SRGGB8_1X8,
+	MEDIA_BUS_FMT_SRGGB10_1X10,
 };
 
 struct vm012_of_data const	VM012_OF_INFO[] = {
@@ -175,8 +175,8 @@ static unsigned int  _vm012_reg_to_fourcc(struct vm012 *vm012, uint16_t regval)
 	switch (vm012->info->type) {
 	case VM012_TYPE_NOIV2SE:
 		return (is_10bpp
-			? MEDIA_BUS_FMT_SBGGR10_1X10
-			: MEDIA_BUS_FMT_SBGGR8_1X8);
+			? MEDIA_BUS_FMT_SRGGB10_1X10
+			: MEDIA_BUS_FMT_SRGGB8_1X8);
 
 	case VM012_TYPE_NOIV2SN:
 		return (is_10bpp
@@ -193,10 +193,10 @@ static unsigned int _fmt_get_bpp(unsigned int code)
 {
 	switch (code) {
 	case MEDIA_BUS_FMT_Y8_1X8:
-	case MEDIA_BUS_FMT_SBGGR8_1X8:
+	case MEDIA_BUS_FMT_SRGGB8_1X8:
 		return 8;
 	case MEDIA_BUS_FMT_Y10_1X10:
-	case MEDIA_BUS_FMT_SBGGR10_1X10:
+	case MEDIA_BUS_FMT_SRGGB10_1X10:
 		return 10;
 
 	default:
