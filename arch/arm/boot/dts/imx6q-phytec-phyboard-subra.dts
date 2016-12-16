@@ -110,6 +110,20 @@
 			};
 		};
 	};
+
+	vm012_1: vm012@4c {
+		compatible = "phytec,vm012m";
+		status = "disabled";
+		reg = <0x4c>;
+		clocks = <&phytec_mediabus 1>;
+		sysclk = <54000000>;
+
+		port {
+			vm012_ep1: endpoint {
+				remote-endpoint = <&csi1_ep>;
+			};
+		};
+	};
 };
 
 &ipu2_csi1 {
