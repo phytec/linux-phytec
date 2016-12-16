@@ -18,6 +18,10 @@
 / {
 	model = "Phytec phyBOARD SUBRA Wifi";
 	compatible = "phytec,imx6q-pbab05", "phytec,imx6q-pfla02", "fsl,imx6q";
+
+	aliases {
+		ipu1 = &ipu2;
+	};
 };
 
 &i2c3 {
@@ -38,6 +42,7 @@
 				input-clock-frequency = <54000000>;
 				pixel-clock-frequency = <54000000>;
 				pclk-sample = <1>;
+				remote-endpoint = <&csi1_ep>;
 			};
 		};
 	};
