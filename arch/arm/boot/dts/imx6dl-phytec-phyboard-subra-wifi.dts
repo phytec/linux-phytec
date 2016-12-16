@@ -10,9 +10,7 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-/dts-v1/;
-#include "imx6dl-phytec-pfla02.dtsi"
-#include "imx6qdl-phytec-phyboard-subra.dtsi"
+#include "imx6dl-phytec-phyboard-subra.dts"
 #include "imx6qdl-phytec-peb-b-001.dtsi"
 
 / {
