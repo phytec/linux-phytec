@@ -375,6 +375,11 @@ static int tps65910_rtc_probe(struct platform_device *pdev)
 
 	tps65910 = dev_get_drvdata(pdev->dev.parent);
 
+	if (!tps65910->chip_irq) {
+		dev_warn(&pdev->dev, "No interrupt support, not created\n");
+		return -EINVAL;
+	}
+
 	tps_rtc = devm_kzalloc(&pdev->dev, sizeof(struct tps65910_rtc),
 			GFP_KERNEL);
 	if (!tps_rtc)
