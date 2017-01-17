@@ -1,0 +1,60 @@
+/*
+ * Copyright (C) 2016 Phytec Messtechnik GmbH
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 as
+ * published by the Free Software Foundation.
+ */
+
+&am33xx_pinmux {
+	ecap2_pins: backlight_pins {
+		pinctrl-single,pins = <
+			AM33XX_IOPAD(0x99c, PIN_OUTPUT | MUX_MODE4)		/* mcasp0_ahclkr.ecap2_in_pwm2_out	*/
+		>;
+	};
+
+	ts_irq_pin: pinmux_ts_irq {
+		pinctrl-single,pins = <
+			AM33XX_IOPAD(0x880, PIN_INPUT_PULLUP | MUX_MODE7)	/* gpmc_csn1.x_av_int_gpio1_30	*/
+		>;
+	};
+};
+
+&i2c0 {
+	i2c_ts: touchscreen@38 {
+		compatible = "edt,edt-ft5x06";
+		reg = <0x38>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&ts_irq_pin>;
+		interrupt-parent = <&gpio1>;
+		interrupts = <30 0>;
+		status = "disabled";
+	};
+};
+
+&ecap2 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&ecap2_pins>;
+	status = "disabled";
+};
+
+&tscadc {
+	status = "disabled";
+	tsc {
+		ti,wires = <4>;
+		ti,x-plate-resistance = <200>;
+		ti,coordinate-readouts = <5>;
+		ti,wire-config = <0x00 0x11 0x22 0x33>;
+		ti,charge-delay = <0x400>;
+	};
+};
+
+#include "am335x-phytec-lcd.dtsi"
+
+&panel {
+	enable-gpios = <&gpio3 19 GPIO_ACTIVE_HIGH>;
+};
+
+&backlight {
+	pwms = <&ecap2 0 100000 0>;
+};
