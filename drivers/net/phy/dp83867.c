@@ -78,6 +78,9 @@
 
 #define DP83867_IO_MUX_CFG_IO_IMPEDANCE_MAX	0x0
 #define DP83867_IO_MUX_CFG_IO_IMPEDANCE_MIN	0x1f
+#define DP83867_IO_MUX_CFG_CHA_TCLK		8
+#define DP83867_IO_MUX_CFG_CLK_O_SEL_MASK	(0x1f << 8)
+#define DP83867_IO_MUX_CFG_CLK_O_SEL_SHIFT	8
 
 /* CFG4 bits */
 #define DP83867_CFG4_PORT_MIRROR_EN              BIT(0)
@@ -296,6 +299,12 @@ static int dp83867_config_init(struct phy_device *phydev)
 		val &= ~(MII_DP83867_PHYCTRL_FORCE_LINK_GOOD);
 		phy_write(phydev, MII_DP83867_PHYCTRL, val);
 	}
+
+        /* HACK: Select clock output: Use Channel A transmit clock */
+        val = phy_read_mmd_indirect(phydev, DP83867_IO_MUX_CFG, DP83867_DEVADDR);
+        val &= ~(DP83867_IO_MUX_CFG_CLK_O_SEL_MASK);
+        val |= (DP83867_IO_MUX_CFG_CHA_TCLK << DP83867_IO_MUX_CFG_CLK_O_SEL_SHIFT);
+        phy_write_mmd_indirect(phydev, DP83867_IO_MUX_CFG, DP83867_DEVADDR, val);
 
 	return 0;
 }
