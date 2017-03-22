@@ -120,12 +120,12 @@
 	pinctrl-names = "default";
 	pinctrl-0 = <&rgmii_pins &phy_rst &phy_int>;
 	phy-supply = <&vdd_eth_2v5>;
-	phy-mode = "rgmii";
+	phy-mode = "rgmii-id";
 	snps,reset-active-low;
 	snps,reset-delays-us = <0 10000 1000000>;
 	snps,reset-gpio = <&gpio4 8 GPIO_ACTIVE_HIGH>;
-	tx_delay = <0x30>;
-	rx_delay = <0x10>;
+	tx_delay = <0x0>;
+	rx_delay = <0x0>;
 	phy-handle = <&phy0>;
 
 	mdio0 {
