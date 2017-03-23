@@ -293,6 +293,16 @@ static int dp83867_config_init(struct phy_device *phydev)
 	if (dp83867->port_mirroring != DP83867_PORT_MIRROING_KEEP)
 		dp83867_config_port_mirroring(phydev);
 
+	/* Check if the PHY is an internal testing mode.
+	 * This mode can cause connection problems.
+	 */
+	val = phy_read_mmd_indirect(phydev, DP83867_CFG4, DP83867_DEVADDR);
+	if (val & BIT(7)) {
+		val &= ~BIT(7);
+		phy_write_mmd_indirect(phydev, DP83867_CFG4, DP83867_DEVADDR,
+					val);
+	}
+
 	/* Disable FORCE_LINK_GOOD */
 	val = phy_read(phydev, MII_DP83867_PHYCTRL);
 	if (val & MII_DP83867_PHYCTRL_FORCE_LINK_GOOD) {
