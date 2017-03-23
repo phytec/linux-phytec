@@ -29,12 +29,60 @@
 		compatible = "regulator-fixed";
 	};
 
+	lvds_panel: lvds-panel {
+		compatible = "edt,etm0700g0dh6", "simple-panel";
+	};
+
+	backlight: backlight {
+		compatible = "gpio-backlight";
+	};
+
 	user_buttons: user-buttons {
 		compatible = "gpio-keys";
 	};
 };
 
 /* Display & Video */
+&pinctrl {
+	display_enable {
+		disp_en_pin: disp_en_pin {
+			rockchip,pins = <6 6 RK_FUNC_GPIO &pcfg_pull_up>;
+		};
+
+		bl_pin: bl-pin {
+			rockchip,pins = <7 0 RK_FUNC_GPIO &pcfg_pull_up>;
+		};
+	};
+};
+
+&backlight {
+	status = "disabled";
+	pinctrl-names = "default";
+	pinctrl-0 = <&bl_pin>;
+	gpios = <&gpio7 0 GPIO_ACTIVE_HIGH>;
+	default-on;
+};
+
+&lvds {
+	status = "disabled";
+	rockchip,data-mapping = "jeida";
+	rockchip,data-width = <24>;
+	rockchip,output = "lvds";
+	rockchip,panel = <&lvds_panel>;
+	avdd1v0-supply = <&vdd_1v0>;
+	avdd1v8-supply = <&vdd_1v8_lcd_ldo>;
+	avdd3v3-supply = <&vdd_3v3_io>;
+};
+
+&lvds_panel {
+	status = "disabled";
+	pinctrl-names = "default";
+	pinctrl-0 = <&disp_en_pin>;
+	enable-gpios = <&gpio6 6 GPIO_ACTIVE_HIGH>;
+	power-supply = <&vdd_1v8_lcd_ldo>;
+	backlight = <&backlight>;
+};
+
 &hdmi {
 	status = "okay";
 };
