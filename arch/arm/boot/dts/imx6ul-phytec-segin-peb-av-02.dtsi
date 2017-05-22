@@ -119,8 +119,8 @@
 		reg = <0x38>;
 		pinctrl-names = "default";
 		pinctrl-0 = <&pinctrl_edt_ft5x06>;
-		interrupt-parent = <&gpio1>;
-		interrupts = <2 IRQ_TYPE_EDGE_FALLING>;
+		interrupt-parent = <&gpio5>;
+		interrupts = <5 IRQ_TYPE_EDGE_FALLING>;
 		wakeup-source;
 		status = "disabled";
 	};
@@ -128,7 +128,9 @@
 
 &iomuxc {
 	pinctrl_edt_ft5x06: edtft5x06grp {
-		fsl,pins = <MX6UL_PAD_GPIO1_IO02__GPIO1_IO02	0x1b0b0>;
+		fsl,pins = <
+			MX6UL_PAD_SNVS_TAMPER5__GPIO5_IO05	0x1b0b0
+		>;
 	};
 
 	pinctrl_backlight_en: bachlightengrp {
