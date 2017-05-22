@@ -36,7 +36,7 @@
 	status = "okay";
 };
 
-&reg_can1_backlight_en {
+&reg_can1_en {
 	status = "okay";
 };
 
