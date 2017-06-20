@@ -190,7 +190,7 @@
 &hdmi {
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_hdmicec>;
-	dc-i2c-bus = <&i2c2>;
+	ddc-i2c-bus = <&i2c2>;
 	status = "disabled";
 };
 
