@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 PHYTEC Messtechnik GmbH
+ * Copyright (C) 2015 PHYTEC Messtechnik GmbH
  * Author: Teresa Remmet <t.remmet@phytec.de>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -7,7 +7,7 @@
  * published by the Free Software Foundation.
  */
 
-#include "am335x-phycore-som.dtsi"
+#include "am335x-phycore-som-nand.dtsi"
 
 /* SoM */
 &i2c_eeprom {
@@ -15,10 +15,6 @@
 };
 
 &i2c_rtc {
-	status = "okay";
-};
-
-&i2c_tmp102 {
 	status = "okay";
 };
 
