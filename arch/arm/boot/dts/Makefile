@@ -559,16 +559,18 @@ dtb-$(CONFIG_SOC_AM33XX) += \
 	am335x-pepper.dtb \
 	am335x-phycore-rdk.dtb \
 	am335x-phycore-rdk-wifi.dtb \
-	am335x-phycore-eeprom-rtc.dtb \
-	am335x-phycore-eeprom-rtc-spi-tmp.dtb \
-	am335x-phycore-eeprom.dtb \
-	am335x-phycore-none.dtb \
+	am335x-phycore-nand-eeprom-rtc.dtb \
+	am335x-phycore-nand-eeprom-rtc-spi-tmp.dtb \
+	am335x-phycore-nand-eeprom.dtb \
+	am335x-phycore-nand-none.dtb \
+	am335x-lxm.dtb \
+	am335x-chiliboard.dtb \
 	am335x-shc.dtb \
 	am335x-sbc-t335.dtb \
 	am335x-sl50.dtb \
 	am335x-wega-rdk.dtb \
-	am335x-wega-eeprom-rtc-spi.dtb \
-	am335x-wega-eeprom-rtc.dtb \
+	am335x-wega-nand-eeprom-rtc-spi.dtb \
+	am335x-wega-nand-eeprom-rtc.dtb \
 	am335x-regor-rdk.dtb
 dtb-$(CONFIG_ARCH_OMAP4) += \
 	omap4-duovero-parlor.dtb \
