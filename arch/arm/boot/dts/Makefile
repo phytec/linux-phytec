@@ -563,6 +563,7 @@ dtb-$(CONFIG_SOC_AM33XX) += \
 	am335x-phycore-nand-eeprom-rtc-spi-tmp.dtb \
 	am335x-phycore-nand-eeprom.dtb \
 	am335x-phycore-nand-none.dtb \
+	am335x-phycore-emmc-eeprom-rtc-spi.dtb \
 	am335x-lxm.dtb \
 	am335x-chiliboard.dtb \
 	am335x-shc.dtb \
