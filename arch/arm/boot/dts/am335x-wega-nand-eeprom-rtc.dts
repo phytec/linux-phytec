@@ -9,7 +9,7 @@
 
 /dts-v1/;
 
-#include "am335x-phycore-som-eeprom-rtc.dtsi"
+#include "am335x-phycore-som-nand-eeprom-rtc.dtsi"
 #include "am335x-wega.dtsi"
 #include "am335x-wega-peb-eval-01.dtsi"
 #include "am335x-wega-peb-av-01.dtsi"
