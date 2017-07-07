@@ -7,13 +7,13 @@
  * published by the Free Software Foundation.
  */
 
-#include "am335x-phycore-som.dtsi"
+#include "am335x-phycore-som-nand.dtsi"
 
 /* SoM */
-&i2c_eeprom {
+&i2c_rtc {
 	status = "okay";
 };
 
-&i2c_rtc {
+&serial_flash {
 	status = "okay";
 };

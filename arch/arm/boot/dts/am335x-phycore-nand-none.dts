@@ -9,5 +9,5 @@
 /* This phycore does _not_ have spi, eeprom and rtc populated */
 /dts-v1/;
 
-#include "am335x-phycore-som.dtsi"
+#include "am335x-phycore-som-nand.dtsi"
 #include "am335x-pcm-953.dtsi"
