@@ -37,6 +37,10 @@
 #define STMPE_REG_FIFO_TH		0x4A
 #define STMPE_REG_FIFO_STA		0x4B
 #define STMPE_REG_FIFO_SIZE		0x4C
+#define STMPE_REG_WDW_TR_X		0x42
+#define STMPE_REG_WDW_TR_Y		0x44
+#define STMPE_REG_WDW_BL_X		0x46
+#define STMPE_REG_WDW_BL_Y		0x48
 #define STMPE_REG_TSC_DATA_XYZ		0x52
 #define STMPE_REG_TSC_FRACTION_Z	0x56
 #define STMPE_REG_TSC_I_DRIVE		0x58
@@ -99,6 +103,10 @@ struct stmpe_touch {
 	struct input_dev *idev;
 	struct delayed_work work;
 	struct device *dev;
+	u32 max_x;
+	u32 max_y;
+	bool invert_x;
+	bool invert_y;
 	u8 sample_time;
 	u8 mod_12b;
 	u8 ref_sel;
@@ -180,6 +188,11 @@ static irqreturn_t stmpe_ts_handler(int irq, void *data)
 	x = (data_set[0] << 4) | (data_set[1] >> 4);
 	y = ((data_set[1] & 0xf) << 8) | data_set[2];
 	z = data_set[3];
+
+	if (ts->invert_x)
+		x = ts->max_x - x;
+	if (ts->invert_y)
+		y = ts->max_y - y;
 
 	input_report_abs(ts->idev, ABS_X, x);
 	input_report_abs(ts->idev, ABS_Y, y);
@@ -300,6 +313,8 @@ static void stmpe_ts_get_platform_info(struct platform_device *pdev,
 {
 	struct device_node *np = pdev->dev.of_node;
 	u32 val;
+	u8 data_set[2];
+	u32 wdw_tr_x, wdw_tr_y, wdw_bl_x, wdw_bl_y;
 
 	if (np) {
 		if (!of_property_read_u32(np, "st,sample-time", &val))
@@ -320,7 +335,24 @@ static void stmpe_ts_get_platform_info(struct platform_device *pdev,
 			ts->fraction_z = val;
 		if (!of_property_read_u32(np, "st,i-drive", &val))
 			ts->i_drive = val;
+		ts->invert_x = of_property_read_bool(np,
+				"touchscreen-inverted-x");
+		ts->invert_y = of_property_read_bool(np,
+				"touchscreen-inverted-y");
 	}
+
+	/* Calculate max_x and max_y from default window size */
+	stmpe_block_read(ts->stmpe, STMPE_REG_WDW_TR_X, 2, data_set);
+	wdw_tr_x = (data_set[0] << 8) | (data_set[1]);
+	stmpe_block_read(ts->stmpe, STMPE_REG_WDW_TR_Y, 2, data_set);
+	wdw_tr_y = (data_set[0] << 8) | (data_set[1]);
+	stmpe_block_read(ts->stmpe, STMPE_REG_WDW_BL_X, 2, data_set);
+	wdw_bl_x = (data_set[0] << 8) | (data_set[1]);
+	stmpe_block_read(ts->stmpe, STMPE_REG_WDW_BL_Y, 2, data_set);
+	wdw_bl_y = (data_set[0] << 8) | (data_set[1]);
+
+	ts->max_x = wdw_tr_x - wdw_bl_x;
+	ts->max_y = wdw_tr_y - wdw_bl_y;
 }
 
 static int stmpe_input_probe(struct platform_device *pdev)
