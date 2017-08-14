@@ -287,6 +287,8 @@ static int ti_cpufreq_probe(struct platform_device *pdev)
 		}
 	}
 
+	return 0;
+
 register_cpufreq_dt:
 	platform_device_register_simple("cpufreq-dt", -1, NULL, 0);
 
