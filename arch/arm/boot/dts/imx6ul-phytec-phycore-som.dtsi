@@ -79,11 +79,6 @@
 		compatible = "cat,24c32";
 		reg = <0x52>;
 	};
-
-	eeprom@5a {
-		compatible = "cat,24c32";
-		reg = <0x5a>;
-	};
 };
 
 &snvs_poweroff {
