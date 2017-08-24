@@ -53,7 +53,7 @@
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_usdhc2_wlan &pinctrl_wlan>;
 	vmmc-supply = <&reg_wlan_en>;
-	bus-width = <1>;
+	bus-width = <4>;
 	non-removable;
 	cap-power-off-card;
 	keep-power-in-suspend;
