@@ -34,11 +34,11 @@ static void __init imx6ul_enet_clk_init(void)
 static int ksz8081_phy_fixup(struct phy_device *dev)
 {
 	if (dev && dev->interface == PHY_INTERFACE_MODE_MII) {
-		phy_write(dev, 0x1f, 0x8110);
-		phy_write(dev, 0x16, 0x201);
+		/* Override strap-in for MII mode */
+		phy_write(dev, 0x16, 0x1);
 	} else if (dev && dev->interface == PHY_INTERFACE_MODE_RMII) {
-		phy_write(dev, 0x1f, 0x8190);
-		phy_write(dev, 0x16, 0x202);
+		/* Override strap-in for RMII mode */
+		phy_write(dev, 0x16, 0x2);
 	}
 
 	return 0;
