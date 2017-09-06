@@ -14,6 +14,11 @@
 	model = "Phytec AM335x PCM-953";
 	compatible = "phytec,am335x-pcm-953", "phytec,am335x-phycore-som", "ti,am33xx";
 
+	/* Audio */
+	sound: sound_iface {
+		compatible = "phytec,am335x-phycore";
+	};
+
 	/* Power */
 	regulators {
 		vcc3v3: fixedregulator@1 {
@@ -90,6 +95,66 @@
 			AM33XX_IOPAD(0x884, PIN_OUTPUT_PULLDOWN | MUX_MODE7)	/* gpmc_csn2.gpio1_31 */
 		>;
 	};
+};
+
+/* Audio */
+&am33xx_pinmux {
+	mcasp0_pins: pinmux_mcasp0 {
+		pinctrl-single,pins = <
+			AM33XX_IOPAD(0x990, PIN_INPUT_PULLDOWN | MUX_MODE0) /* mcasp0_aclkx.mcasp0_aclkx */
+			AM33XX_IOPAD(0x994, PIN_INPUT_PULLDOWN | MUX_MODE0) /* mcasp0_fsx.mcasp0_fsx */
+			AM33XX_IOPAD(0x998, PIN_INPUT_PULLDOWN | MUX_MODE0) /* mcasp0_axr0.mcasp0_axr0 */
+			AM33XX_IOPAD(0x9A8, PIN_INPUT_PULLDOWN | MUX_MODE0) /* mcasp0_axr1.mcasp0_axr1 */
+			AM33XX_IOPAD(0x9AC, PIN_INPUT_PULLDOWN | MUX_MODE0) /* mcasp0_ahclkx.mcasp0_ahclkx */
+		>;
+	};
+};
+
+&i2c0 {
+	audio_codec: audio_codec@1A {
+		compatible = "wlf,wm8974";
+		reg = <0x1a>;
+		status = "okay";
+	};
+};
+
+&mcasp0 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&mcasp0_pins>;
+	op-mode = <0>;
+	tdm-slots = <2>;
+	serial-dir = <
+		2 1 0 0 /* 0: INACTIVE, 1: TX, 2: RX */
+	>;
+	tx-num-evt = <16>;
+	rt-num-evt = <16>;
+	status = "okay";
+};
+
+&sound {
+	ti,model = "AM335x-phyCORE";
+	ti,audio-codec = <&audio_codec>;
+	ti,mcasp-controller = <&mcasp0>;
+	ti,format = "i2s";
+
+	/* mclk setup */
+	/* generate mclk from quartz: jumper 6 -> 1+2 */
+	ti,codec-clock-rate = <12288000>;
+	ti,bitclock-master;
+	ti,frame-master;
+	/* generate mclk from am335x: jumper 6 -> 2+3 */
+	/* ti,codec-clock-rate = <25000000>; */
+	/* end mclk setup */
+
+	ti,audio-routing =
+		"Headphones",    "SPKOUTP",
+		"Headphones",    "SPKOUTN",
+		"Loudspeaker",   "SPKOUTP",
+		"Loudspeaker",   "SPKOUTN",
+		"Mono Out Jack", "MONOOUT",
+		"MICN",          "Mic Jack",
+		"Mic Jack",      "Mic Bias";
+	status = "okay";
 };
 
 /* CAN */
