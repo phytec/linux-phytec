@@ -19,6 +19,8 @@
 #define PU_SOC_VOLTAGE_NORMAL	1250000
 #define PU_SOC_VOLTAGE_HIGH	1275000
 #define FREQ_1P2_GHZ		1200000000
+#define FREQ_800_MHZ		792000000
+#define FREQ_400_MHZ		396000000
 
 static struct regulator *arm_reg;
 static struct regulator *pu_reg;
@@ -336,6 +338,35 @@ soc_opp_out:
 	} else {
 		int puvolt = regulator_get_voltage(anatop_pu_reg);
 
+		/*
+		* Downgrade ARM speed to 400Mhz as half of boot 800Mhz before ldo
+		* bypassed, also downgrade internal vddarm ldo to 0.975V (1.15V
+		* on i.mx6dl).
+		* * VDDARM_IN 0.975V + 125mV = 1.1V < Max(1.3V on bypass)
+		* * VDDARM_IN 1.150V + 125mV = 1.275V < Max(1.3V on bypass) (i.mx6dl)
+		*/
+		ret = clk_set_rate(arm_clk, FREQ_400_MHZ);
+		if (ret) {
+			dev_err(cpu_dev, "failed to set clock rate: %d\n", ret);
+			return ret;
+		}
+
+		if (of_machine_is_compatible("fsl,imx6dl") ||
+		    of_machine_is_compatible("fsl,imx6sx"))
+			regulator_set_voltage_tol(anatop_arm_reg, 1150000, tol);
+		else
+			regulator_set_voltage_tol(anatop_arm_reg, 975000, tol);
+
+		/*
+		* Decrease PMIC voltage
+		*/
+		if (of_machine_is_compatible("fsl,imx6dl"))
+			regulator_set_voltage_tol(arm_reg, 1275000, tol);
+		else
+			regulator_set_voltage_tol(arm_reg, 1100000, tol);
+
+		regulator_set_voltage_tol(soc_reg, 1300000, tol);
+
 		printk("Not using anatop LDO's: enabling LDO bypass\n");
 		regulator_allow_bypass(anatop_arm_reg, true);
 		regulator_allow_bypass(anatop_pu_reg, true);
@@ -349,6 +380,25 @@ soc_opp_out:
 		else {
 			if (puvolt == 0)
 				regulator_set_voltage(anatop_pu_reg, 0, 0);
+		}
+
+		/*
+		* Set PMIC voltage according to 800 MHz operating point
+		*/
+		if (of_machine_is_compatible("fsl,imx6dl"))
+			regulator_set_voltage_tol(arm_reg, 1175000, tol);
+		else
+			regulator_set_voltage_tol(arm_reg, 1150000, tol);
+
+		regulator_set_voltage_tol(soc_reg, 1175000, tol);
+
+		/*
+		* Increase frequency to 800 MHz boot frequency
+		*/
+		ret = clk_set_rate(arm_clk, FREQ_800_MHZ);
+		if (ret) {
+			dev_err(cpu_dev, "failed to set clock rate: %d\n", ret);
+			return ret;
 		}
 
 	}
