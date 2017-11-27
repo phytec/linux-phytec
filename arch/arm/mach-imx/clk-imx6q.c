@@ -141,6 +141,19 @@ static inline int clk_on_imx6qp(void)
        return of_machine_is_compatible("fsl,imx6qp");
 }
 
+#define CCM_CCDR               0x04
+
+#define CCDR_MMDC_CH1_MASK     BIT(16)
+
+static void __init imx6q_mmdc_ch1_mask_handshake(void __iomem *ccm_base)
+{
+	unsigned int reg;
+
+	reg = readl_relaxed(ccm_base + CCM_CCDR);
+	reg |= CCDR_MMDC_CH1_MASK;
+	writel_relaxed(reg, ccm_base + CCM_CCDR);
+}
+
 static void __init imx6q_clocks_init(struct device_node *ccm_node)
 {
 	struct device_node *np;
@@ -284,6 +297,8 @@ static void __init imx6q_clocks_init(struct device_node *ccm_node)
 	np = ccm_node;
 	base = of_iomap(np, 0);
 	WARN_ON(!base);
+
+	imx6q_mmdc_ch1_mask_handshake(base);
 
 	imx6q_pm_set_ccm_base(base);
 
