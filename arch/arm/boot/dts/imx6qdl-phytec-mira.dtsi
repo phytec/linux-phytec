@@ -155,7 +155,7 @@
 		#clock-cells = <1>;
 
 		phytec,cam0_data_en-gpio = <&gpio5 20 GPIO_ACTIVE_LOW>;
-		phytec,cam0_npwrdn-gpio  = <&gpio5 27 GPIO_ACTIVE_LOW>;
+		phytec,cam0_npwrdn-gpio  = <&gpio3 9 GPIO_ACTIVE_LOW>;
 
 		phytec,cam0_serial;
 
