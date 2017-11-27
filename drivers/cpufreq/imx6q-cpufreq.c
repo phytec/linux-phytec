@@ -323,12 +323,6 @@ soc_opp_out:
 	if (ret > 0)
 		transition_latency += ret * 1000;
 
-	ret = cpufreq_register_driver(&imx6q_cpufreq_driver);
-	if (ret) {
-		dev_err(cpu_dev, "failed register driver: %d\n", ret);
-		goto free_freq_table;
-	}
-
 	/* enable LDO bypass mode if anatop regs are not being used for core */
 	if ((!IS_ERR(anatop_arm_reg) &&
 	     !IS_ERR(anatop_pu_reg) &&
@@ -358,6 +352,13 @@ soc_opp_out:
 		}
 
 	}
+
+	ret = cpufreq_register_driver(&imx6q_cpufreq_driver);
+	if (ret) {
+		dev_err(cpu_dev, "failed register driver: %d\n", ret);
+		goto free_freq_table;
+	}
+
 	regulator_put(anatop_arm_reg);
 	regulator_put(anatop_pu_reg);
 	regulator_put(anatop_soc_reg);
