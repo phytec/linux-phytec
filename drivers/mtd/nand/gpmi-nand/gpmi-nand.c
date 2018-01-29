@@ -612,7 +612,7 @@ static int gpmi_get_clks(struct gpmi_nand_data *this)
 		 * notes that the clock must disabled before the rate is set.
 		 * Otherwise it is possible that the NAND flash is not working.
 		 */
-		clk_disable_unprepare(r->clock[i]);
+		clk_disable_unprepare(r->clock[0]);
 
 		/*
 		 * Set the default value for the gpmi clock.
