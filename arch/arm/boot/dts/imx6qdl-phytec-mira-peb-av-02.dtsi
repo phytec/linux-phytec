@@ -12,7 +12,6 @@
 		compatible = "fsl,imx-parallel-display";
 		pinctrl-names = "default";
 		pinctrl-0 = <&pinctrl_disp0>;
-		interface-pix-fmt = "rgb24";
 		status = "disabled";
 
 		port@0 {
