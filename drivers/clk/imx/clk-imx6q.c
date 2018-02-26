@@ -100,6 +100,7 @@ static unsigned int const clks_init_on[] __initconst = {
 	IMX6QDL_CLK_MMDC_CH0_AXI,
 	IMX6QDL_CLK_ROM,
 	IMX6QDL_CLK_ARM,
+	IMX6QDL_CLK_GPMI_IO,
 };
 
 static struct clk_div_table clk_enet_ref_table[] = {
