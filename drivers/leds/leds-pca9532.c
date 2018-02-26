@@ -506,6 +506,8 @@ pca9532_of_populate_pdata(struct device *dev, struct device_node *np)
 		}
 	}
 
+	pdata->gpio_base = -1; /* dynamically assign gpio base */
+
 	return pdata;
 }
 
