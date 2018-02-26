@@ -1,0 +1,17 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * Copyright (C) 2018 PHYTEC Messtechnik GmbH,
+ * Author: Stefan Christ <s.christ@phytec.de>
+ */
+
+#include "imx6dl.dtsi"
+#include "imx6qdl-phytec-pfla02.dtsi"
+
+/ {
+	model = "PHYTEC phyFLEX-i.MX 6Solo/DualLite";
+	compatible = "phytec,imx6dl-pfla02", "fsl,imx6dl";
+};
+
+&ecspi3 {
+	status = "disabled";
+};
