@@ -4,6 +4,7 @@
  * Author: Christian Hemp <c.hemp@phytec.de>
  */
 
+#include <dt-bindings/leds/leds-pca9532.h>
 
 / {
 	aliases {
@@ -17,6 +18,30 @@
 		power-supply = <&reg_backlight>;
 		pwms = <&pwm1 0 5000000>;
 		status = "okay";
+	};
+
+	dim_gpio_leds: dimleds {
+		compatible = "gpio-leds";
+		status = "disabled";
+
+		led-red {
+			label = "red:user";
+			gpios = <&leddim 0 GPIO_ACTIVE_LOW>;
+			linux,default-trigger = "none";
+		};
+
+		led-green {
+			label = "green:user";
+			gpios = <&leddim 1 GPIO_ACTIVE_LOW>;
+			linux,default-trigger = "none";
+		};
+
+		led-blue {
+			label = "blue:user";
+			gpios = <&leddim 2 GPIO_ACTIVE_LOW>;
+			linux,default-trigger = "mmc0";
+			default-state = "on";
+		};
 	};
 
 	gpio_leds: leds {
@@ -149,6 +174,29 @@
 	pinctrl-0 = <&pinctrl_i2c1>;
 	clock-frequency = <400000>;
 	status = "disabled";
+
+	leddim: leddimmer@62 {
+		compatible = "nxp,pca9533";
+		gpio-controller;
+		#gpio-cells = <2>;
+		reg = <0x62>;
+		status = "disabled";
+
+		red {
+			label = "red";
+			type = <PCA9532_TYPE_GPIO>;
+		};
+
+		green {
+			label = "green";
+			type = <PCA9532_TYPE_GPIO>;
+		};
+
+		blue {
+			label = "blue";
+			type = <PCA9532_TYPE_GPIO>;
+		};
+	};
 
 	stmpe: touchctrl@44 {
 		compatible = "st,stmpe811";
