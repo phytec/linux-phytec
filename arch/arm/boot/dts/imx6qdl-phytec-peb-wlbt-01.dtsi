@@ -1,0 +1,64 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * Copyright (C) 2018 PHYTEC Messtechnik
+ * Author: Stefan Christ <s.christ@phytec.de>
+ */
+
+#include <dt-bindings/gpio/gpio.h>
+#include <dt-bindings/interrupt-controller/irq.h>
+
+/ {
+	reg_wlan_en: regulator-wlan-en {
+		compatible = "regulator-fixed";
+		regulator-name = "wlan_en";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+		gpio = <&gpio5 2 GPIO_ACTIVE_HIGH>;
+		startup-delay-us = <70000>; /* card specific delay */
+		enable-active-high;
+		status = "disabled";
+	};
+};
+
+&iomuxc {
+	pinctrl_usdhc3_wlan: usdhc3grp_wlan {
+		fsl,pins = <
+			MX6QDL_PAD_SD3_CMD__SD3_CMD		0x17059
+			MX6QDL_PAD_SD3_CLK__SD3_CLK		0x10059
+			MX6QDL_PAD_SD3_DAT0__SD3_DATA0		0x17059
+			MX6QDL_PAD_SD3_DAT1__SD3_DATA1		0x17059
+			MX6QDL_PAD_SD3_DAT2__SD3_DATA2		0x17059
+			MX6QDL_PAD_SD3_DAT3__SD3_DATA3		0x17059
+		>;
+	};
+
+	pinctrl_wlan: wlangrp {
+		fsl,pins = <
+			MX6QDL_PAD_EIM_A25__GPIO5_IO02		0xb0b1 /* WLAN ENABLE */
+			MX6QDL_PAD_CSI0_DAT8__GPIO5_IO26	0x1b0b0 /* WLAN IRQ */
+		>;
+	};
+};
+
+/* SD3 on phyBOARD-MIRA i.MX6 */
+&usdhc3 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_usdhc3_wlan &pinctrl_wlan>;
+	vmmc-supply = <&reg_wlan_en>;
+	bus-width = <4>;
+	non-removable;
+	cap-power-off-card;
+	keep-power-in-suspend;
+	status = "disabled";
+
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	wlcore: wlcore@2 {
+		compatible = "ti,wl1271", "ti,wlcore";
+		reg = <2>;
+		interrupt-parent = <&gpio5>;
+		interrupts = <26 IRQ_TYPE_EDGE_RISING>;
+		ref-clock-frequency = <38400000>; /* Hz = 38.4 MHz */
+	};
+};
