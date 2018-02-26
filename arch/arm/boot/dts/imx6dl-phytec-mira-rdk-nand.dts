@@ -30,6 +30,10 @@
 	status = "okay";
 };
 
+&gpio_leds {
+	status = "okay";
+};
+
 &gpmi {
 	status = "okay";
 };
