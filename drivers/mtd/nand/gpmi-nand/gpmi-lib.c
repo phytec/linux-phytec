@@ -930,23 +930,26 @@ static int enable_edo_mode(struct gpmi_nand_data *this, int mode)
 	if (!feature)
 		return -ENOMEM;
 
-	nand->select_chip(mtd, 0);
+	if ((le16_to_cpu(nand->onfi_params.opt_cmd)
+	      & ONFI_OPT_CMD_SET_GET_FEATURES)) {
+		nand->select_chip(mtd, 0);
 
-	/* [1] send SET FEATURE command to NAND */
-	feature[0] = mode;
-	ret = nand->onfi_set_features(mtd, nand,
+		/* [1] send SET FEATURE commond to NAND */
+		feature[0] = mode;
+		ret = nand->onfi_set_features(mtd, nand,
 				ONFI_FEATURE_ADDR_TIMING_MODE, feature);
-	if (ret)
-		goto err_out;
+		if (ret)
+			goto err_out;
 
-	/* [2] send GET FEATURE command to double-check the timing mode */
-	memset(feature, 0, ONFI_SUBFEATURE_PARAM_LEN);
-	ret = nand->onfi_get_features(mtd, nand,
+		/* [2] send GET FEATURE command to double-check the timing mode */
+		memset(feature, 0, ONFI_SUBFEATURE_PARAM_LEN);
+		ret = nand->onfi_get_features(mtd, nand,
 				ONFI_FEATURE_ADDR_TIMING_MODE, feature);
-	if (ret || feature[0] != mode)
-		goto err_out;
+		if (ret || feature[0] != mode)
+			goto err_out;
 
-	nand->select_chip(mtd, -1);
+		nand->select_chip(mtd, -1);
+	}
 
 	/* [3] set the main IO clock, 100MHz for mode 5, 80MHz for mode 4. */
 	rate = (mode == 5) ? 100000000 : 80000000;
