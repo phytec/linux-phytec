@@ -26,6 +26,10 @@
 	status = "okay";
 };
 
+&dim_gpio_leds {
+	status = "okay";
+};
+
 &fec {
 	status = "okay";
 };
@@ -47,6 +51,10 @@
 };
 
 &i2c_rtc {
+	status = "okay";
+};
+
+&leddim {
 	status = "okay";
 };
 
