@@ -62,6 +62,14 @@ Sub-nodes:
     ldo3     : LDO_3
     ldo4     : LDO_4
 
+  The DA9062 regulators optionally support setting "regulator-initial-mode"
+  and "regulator-mode" for its buck nodes to following numbers listed below:
+
+    0        : BUCK_MODE_MANUAL
+    1        : BUCK_MODE_SLEEP
+    2        : BUCK_MODE_SYNC
+    3        : BUCK_MODE_AUTO
+
   The component follows the standard regulator framework and the bindings
   details of individual regulator device can be found in:
   Documentation/devicetree/bindings/regulator/regulator.txt
