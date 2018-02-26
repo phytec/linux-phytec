@@ -5,6 +5,7 @@
  */
 
 #include <dt-bindings/sound/fsl-imx-audmux.h>
+#include <dt-bindings/leds/leds-pca9532.h>
 #include "imx6qdl-phytec-lcd.dtsi"
 
 / {
@@ -279,9 +280,27 @@
 		compatible = "nxp,pca9533";
 		gpio-controller;
 		#gpio-cells = <2>;
-		nxp,typecodes = <0xFF>;
-		nxp,statecodes = <0x55>;
 		reg = <0x62>;
+
+		user1 {
+			label = "user1";
+			type = <PCA9532_TYPE_GPIO>;
+		};
+
+		user2 {
+			label = "user2";
+			type = <PCA9532_TYPE_GPIO>;
+		};
+
+		user3 {
+			label = "user3";
+			type = <PCA9532_TYPE_GPIO>;
+		};
+
+		user4 {
+			label = "user4";
+			type = <PCA9532_TYPE_GPIO>;
+		};
 	};
 
 	adc@64 {
