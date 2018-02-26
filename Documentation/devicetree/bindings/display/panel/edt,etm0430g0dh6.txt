@@ -1,0 +1,8 @@
+Emerging Display Technology Corp. ETM0430G0DH6 4.3" (480x272) WVGA TFT LCD
+panel with capacitive multitouch
+
+Required properties:
+- compatible: should be "edt,etm0430g0dh6"
+
+This binding is compatible with the simple-panel binding, which is specified
+in simple-panel.txt in this directory.
