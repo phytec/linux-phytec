@@ -1,0 +1,8 @@
+Emerging Display Technology Corp. ETMV570G2DHU 5.7" (640x480) VGA TFT LCD
+panel with capacitve touch
+
+Required properties:
+- compatible: should be "edt,etmv570g2dhu"
+
+This binding is compatible with the simple-panel binding, which is specified
+in simple-panel.txt in this directory.
