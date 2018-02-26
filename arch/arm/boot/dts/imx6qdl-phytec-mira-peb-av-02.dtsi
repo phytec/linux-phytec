@@ -32,7 +32,7 @@
 	};
 
 	panel-lcd {
-		compatible = "edt,etm0700g0dh6";
+		compatible = "edt,etm0700g0edh6";
 		pinctrl-names = "default";
 		pinctrl-0 = <&pinctrl_disp0_pwr>;
 		power-supply = <&reg_display>;
