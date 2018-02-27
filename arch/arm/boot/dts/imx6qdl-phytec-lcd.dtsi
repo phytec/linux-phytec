@@ -19,14 +19,11 @@
 		status = "disabled";
 	};
 
-	regulators {
-		lcd_3v3: regulator@4 {
-			compatible = "regulator-fixed";
-			reg = <4>;
-			regulator-name = "lcd_3v3";
-			regulator-min-microvolt = <3300000>;
-			regulator-max-microvolt = <3300000>;
-		};
+	lcd_3v3: regulator-lcd-3v3 {
+		compatible = "regulator-fixed";
+		regulator-name = "lcd_3v3";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
 	};
 };
 
