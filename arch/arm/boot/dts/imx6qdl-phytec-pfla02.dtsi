@@ -86,12 +86,6 @@
 	status = "disabled";
 };
 
-&cpu0 {
-	fsl,tol = <5000>;
-	arm-supply = <&vddcore_reg>;
-	soc-supply = <&vddsoc_reg>;
-};
-
 /* SPI0 on module */
 &ecspi3 {
 	pinctrl-names = "default";
@@ -538,15 +532,15 @@
 };
 
 &reg_arm {
-	regulator-allow-bypass;
+	vin-supply = <&vddcore_reg>;
 };
 
 &reg_pu {
-	regulator-allow-bypass;
+	vin-supply = <&vddsoc_reg>;
 };
 
 &reg_soc {
-	regulator-allow-bypass;
+	vin-supply = <&vddsoc_reg>;
 };
 
 &snvs_poweroff {
