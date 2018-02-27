@@ -15,8 +15,59 @@
 / {
 	model = "Phytec phyFLEX-i.MX6 Quad";
 	compatible = "phytec,imx6q-pfla02", "fsl,imx6q";
+};
 
-	memory {
-		reg = <0x10000000 0x80000000>;
+/* SPI1 on module */
+&ecspi5 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_ecspi5>;
+	status = "disabled";
+	fsl,spi-num-chipselects = <2>;
+	cs-gpios = <&gpio1 17 GPIO_ACTIVE_HIGH
+		&gpio1 19 GPIO_ACTIVE_HIGH>;
+};
+
+&iomuxc {
+	imx6q-phytec-pfla02 {
+		pinctrl_cam1data: cam1datagrp {
+			fsl,pins = <
+				MX6QDL_PAD_EIM_DA1__IPU2_CSI1_DATA08	0x0001B0B0
+				MX6QDL_PAD_EIM_DA0__IPU2_CSI1_DATA09	0x0001B0B0
+				MX6QDL_PAD_EIM_EB1__IPU2_CSI1_DATA10	0x0001B0B0
+/*				MX6QDL_PAD_EIM_EB0__IPU2_CSI1_DATA11	0x0001B0B0*/
+				MX6QDL_PAD_EIM_A17__IPU2_CSI1_DATA12	0x0001B0B0
+				MX6QDL_PAD_EIM_A18__IPU2_CSI1_DATA13	0x0001B0B0
+				MX6QDL_PAD_EIM_A19__IPU2_CSI1_DATA14	0x0001B0B0
+				MX6QDL_PAD_EIM_A20__IPU2_CSI1_DATA15	0x0001B0B0
+				MX6QDL_PAD_EIM_A21__IPU2_CSI1_DATA16	0x0001B0B0
+				MX6QDL_PAD_EIM_A22__IPU2_CSI1_DATA17	0x0001B0B0
+				MX6QDL_PAD_EIM_A23__IPU2_CSI1_DATA18	0x0001B0B0
+				MX6QDL_PAD_EIM_A24__IPU2_CSI1_DATA19	0x0001B0B0
+				MX6QDL_PAD_EIM_DA11__IPU2_CSI1_HSYNC	0x0001B0B0
+				MX6QDL_PAD_EIM_A16__IPU2_CSI1_PIXCLK	0x4001B0B0
+				MX6QDL_PAD_EIM_DA12__IPU2_CSI1_VSYNC	0x0001B0B0
+			>;
+		};
+
+		pinctrl_cam1clk: cam1clkgrp {
+			fsl,pins = <MX6QDL_PAD_NANDF_CS2__CCM_CLKO2	0x000000B9>;
+		};
+
+		pinctrl_cam1switch: cam1switchgrp {
+			fsl,pins = <
+				MX6QDL_PAD_EIM_DA10__GPIO3_IO10		0x0001B0B0
+				MX6QDL_PAD_EIM_EB0__GPIO2_IO28		0x0001B050
+			>;
+		};
+
+		pinctrl_ecspi5: ecspi5grp {
+			fsl,pins = <
+				MX6QDL_PAD_SD1_CLK__ECSPI5_SCLK		0x100b1
+				MX6QDL_PAD_SD1_DAT0__ECSPI5_MISO	0x100b1
+				MX6QDL_PAD_SD1_CMD__ECSPI5_MOSI 	0x100b1
+				MX6QDL_PAD_SD1_DAT1__GPIO1_IO17		0x80000000
+				MX6QDL_PAD_SD1_DAT2__GPIO1_IO19		0x80000000
+			>;
+		};
 	};
 };
