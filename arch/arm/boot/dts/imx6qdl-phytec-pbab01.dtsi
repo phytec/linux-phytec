@@ -17,6 +17,38 @@
 		linux,stdout-path = &uart4;
 	};
 
+	leds2 {
+		compatible = "gpio-leds";
+
+		led1 {
+			label = "red:user1";
+			gpios = <&leddim 0 GPIO_ACTIVE_HIGH>;
+			linux,default-trigger = "none";
+			default-state = "on";
+		};
+
+		led2 {
+			label = "yellow:user2";
+			gpios = <&leddim 1 GPIO_ACTIVE_HIGH>;
+			linux,default-trigger = "none";
+			default-state = "on";
+		};
+
+		led3 {
+			label = "yellow:user3";
+			gpios = <&leddim 2 GPIO_ACTIVE_HIGH>;
+			linux,default-trigger = "none";
+			default-state = "on";
+		};
+
+		led4 {
+			label = "green:user4";
+			gpios = <&leddim 3 GPIO_ACTIVE_HIGH>;
+			linux,default-trigger = "none";
+			default-state = "on";
+		};
+	};
+
 	sound_1v8: regulator-1v8 {
 		compatible = "regulator-fixed";
 		regulator-name = "i2s-audio-1v8";
@@ -45,11 +77,6 @@
 		regulator-max-microvolt = <2800000>;
 	};
 
-	user_leds_pca9533: leds2 {
-		compatible = "gpio-leds";
-	};
-
-
 	tlv320_mclk: oscillator {
 		compatible = "fixed-clock";
 		#clock-cells = <0>;
@@ -63,13 +90,12 @@
 		pinctrl-0 = <&pinctrl_cam0data
 				&pinctrl_cam0clk
 				&pinctrl_cam0switch>;
+		phytec,cam0_data_en-gpio = <&gpio5 20 GPIO_ACTIVE_LOW>;
+		phytec,cam0_npwrdn-gpio  = <&gpio1 24 GPIO_ACTIVE_LOW>;
+		status = "okay";
 
 		#gpio-cells = <3>;
 		#clock-cells = <1>;
-		status = "okay";
-		phytec,cam0_data_en-gpio = <&gpio5 20 GPIO_ACTIVE_LOW>;
-		phytec,cam0_npwrdn-gpio  = <&gpio1 24 GPIO_ACTIVE_LOW>;
-
 		/* clock setup part #1: setup clock parents */
 		assigned-clocks =
 		<&clks IMX6QDL_CLK_CKO1_SEL>,           /* camera0-clk-sel */
@@ -95,7 +121,6 @@
 
 		/* clock setup part #3: define output clocks */
 		clock-output-names = "camera0-clk", "camera1-clk";
-
 
 		camera0@0 {
 
@@ -209,7 +234,7 @@
 &i2c2 {
 	status = "okay";
 
-	codec: tlv320@18 {
+	codec: codec@18 {
 		compatible = "ti,tlv320aic3007";
 		#sound-dai-cells = <0>;
 		reg = <0x18>;
@@ -221,7 +246,7 @@
 		DVDD-supply = <&sound_1v8>;
 	};
 
-        polytouch: edt-ft5x06@38 {
+        polytouch: polytouch@38 {
 		compatible = "edt,edt-ft5406", "edt,edt-ft5x06";
 		reg = <0x38>;
 		pinctrl-names = "default";
@@ -231,10 +256,10 @@
 		status = "disabled";
 	};
 
-	stmpe@41 {
+	touchctrl@41 {
 		compatible = "st,stmpe811";
 		reg = <0x41>;
-		interrupts = <8 0x8>;
+		interrupts = <8 IRQ_TYPE_LEVEL_LOW>;
 		interrupt-parent = <&gpio5>;
 		status = "disabled";
 
@@ -420,34 +445,4 @@
 /* SD0 on baseboard */
 &usdhc3 {
 	status = "okay";
-};
-
-&user_leds_pca9533 {
-	led1 {
-		label = "red:user1";
-		gpios = <&leddim 0 0>;
-		linux,default-trigger = "none";
-		default-state = "on";
-	};
-
-	led2 {
-		label = "yellow:user2";
-		gpios = <&leddim 1 0>;
-		linux,default-trigger = "none";
-		default-state = "on";
-	};
-
-	led3 {
-		label = "yellow:user3";
-		gpios = <&leddim 2 0>;
-		linux,default-trigger = "none";
-		default-state = "on";
-	};
-
-	led4 {
-		label = "green:user4";
-		gpios = <&leddim 3 0>;
-		linux,default-trigger = "none";
-		default-state = "on";
-	};
 };
