@@ -10,5 +10,6 @@
 
 / {
 	model = "PHYTEC phyFLEX-i.MX 6DualLite/Solo Carrier-Board";
-	compatible = "phytec,imx6dl-pbab01", "phytec,imx6dl-pfla02", "fsl,imx6dl";
+	compatible = "phytec,imx6dl-pbab01", "phytec,imx6dl-pfla02",
+		     "fsl,imx6dl";
 };
