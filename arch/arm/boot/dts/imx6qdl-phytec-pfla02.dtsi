@@ -103,32 +103,9 @@
 	status = "okay";
 
 	flash@0 {
-		compatible = "m25p80";
+		compatible = "jedec,spi-nor";
 		spi-max-frequency = <20000000>;
 		reg = <0>;
-
-		#address-cells = <1>;
-		#size-cells = <1>;
-
-		partition@0 {
-			label = "barebox";
-			reg = <0x0 0x100000>;
-		};
-
-		partition@1 {
-			label = "barebox-environment";
-			reg = <0x100000 0x20000>;
-		};
-
-		partition@2 {
-			label = "oftree";
-			reg = <0x120000 0x20000>;
-		};
-
-		partition@3 {
-			label = "kernel";
-			reg = <0x140000 0x0>;
-		};
 	};
 };
 
@@ -160,24 +137,6 @@
 	pinctrl-0 = <&pinctrl_gpmi_nand>;
 	nand-on-flash-bbt;
 	status = "okay";
-
-	#address-cells = <1>;
-	#size-cells = <1>;
-
-	partition@0 {
-		label = "barebox";
-		reg = <0x0 0x400000>;
-	};
-
-	partition@1 {
-		label = "barebox-environment";
-		reg = <0x400000 0x100000>;
-	};
-
-	partition@2 {
-		label = "root";
-		reg = <0x500000 0x0>;
-	};
 };
 
 /* i2c bus is on module only */
