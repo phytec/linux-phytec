@@ -9,7 +9,6 @@
 
 / {
 	aliases {
-		ipu0 = &ipu1;
 		rtc0 = &i2c_rtc;
 	};
 
