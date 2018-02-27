@@ -12,10 +12,6 @@
 	model = "PHYTEC phyFLEX-i.MX 6Quad Carrier-Board";
 	compatible = "phytec,imx6q-pbab01", "phytec,imx6q-pfla02", "fsl,imx6q";
 
-	aliases {
-		ipu1 = &ipu2;
-	};
-
 	chosen {
 		stdout-path = &uart4;
 	};
