@@ -13,8 +13,8 @@
 #include "imx6qdl-phytec-peb-wlbt-01.dtsi"
 
 / {
-	model = "PHYTEC phyBOARD-Mira Quad Carrier-Board with NAND";
-	compatible = "phytec,imx6q-pbac06-nand", "phytec,imx6q-pbac06",
+	model = "PHYTEC phyBOARD-Mira Quad full featured with eMMC";
+	compatible = "phytec,imx6q-pbac06-emmc", "phytec,imx6q-pbac06",
 		     "phytec,imx6qdl-pcm058", "fsl,imx6q";
 
 	chosen {
@@ -31,10 +31,6 @@
 };
 
 &fec {
-	status = "okay";
-};
-
-&gpmi {
 	status = "okay";
 };
 
@@ -79,5 +75,9 @@
 };
 
 &usdhc1 {
+	status = "okay";
+};
+
+&usdhc4 {
 	status = "okay";
 };
