@@ -379,6 +379,7 @@ dtb-$(CONFIG_SOC_IMX6Q) += \
 	imx6dl-icore-rqs.dtb \
 	imx6dl-nit6xlite.dtb \
 	imx6dl-nitrogen6x.dtb \
+	imx6dl-phytec-mira-ff-rdk-emmc.dtb \
 	imx6dl-phytec-mira-lc-rdk-nand.dtb \
 	imx6dl-phytec-mira-lc-rdk-emmc.dtb \
 	imx6dl-phytec-pbab01.dtb \
