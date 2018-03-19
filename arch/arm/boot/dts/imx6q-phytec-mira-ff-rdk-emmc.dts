@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: (GPL-2.0+ OR MIT)
 /*
- * Copyright (C) 2018 PHYTEC Messtechnik
- * Author: Stefan Christ <s.christ@phytec.de>
+ * Copyright (C) 2018 PHYTEC Messtechnik GmbH
+ * Author: Christian Hemp <c.hemp@phytec.de>
  */
 
 /dts-v1/;
-#include "imx6dl.dtsi"
+#include "imx6q.dtsi"
 #include "imx6qdl-phytec-phycore-som.dtsi"
 #include "imx6qdl-phytec-mira.dtsi"
 #include "imx6qdl-phytec-mira-peb-eval-01.dtsi"
@@ -13,28 +13,24 @@
 #include "imx6qdl-phytec-peb-wlbt-01.dtsi"
 
 / {
-	model = "PHYTEC phyBOARD-Mira DualLite/Solo Carrier-Board with eMMC";
-	compatible = "phytec,imx6dl-pbac06-emmc", "phytec,imx6dl-pbac06",
-		     "phytec,imx6qdl-pcm058", "fsl,imx6dl";
+	model = "PHYTEC phyBOARD-Mira Quad full featured with eMMC";
+	compatible = "phytec,imx6q-pbac06-emmc", "phytec,imx6q-pbac06",
+		     "phytec,imx6qdl-pcm058", "fsl,imx6q";
 
 	chosen {
 		stdout-path = &uart2;
 	};
 };
 
-&ethphy {
-	max-speed = <100>;
+&can1 {
+	status = "okay";
+};
+
+&dim_gpio_leds {
+	status = "okay";
 };
 
 &fec {
-	status = "okay";
-};
-
-&gpio_leds {
-	status = "okay";
-};
-
-&m25p80 {
 	status = "okay";
 };
 
@@ -51,6 +47,18 @@
 };
 
 &i2c_rtc {
+	status = "okay";
+};
+
+&leddim {
+	status = "okay";
+};
+
+&m25p80 {
+	status = "okay";
+};
+
+&pcie {
 	status = "okay";
 };
 
