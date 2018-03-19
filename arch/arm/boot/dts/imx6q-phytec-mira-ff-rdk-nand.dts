@@ -5,7 +5,7 @@
  */
 
 /dts-v1/;
-#include "imx6dl.dtsi"
+#include "imx6q.dtsi"
 #include "imx6qdl-phytec-phycore-som.dtsi"
 #include "imx6qdl-phytec-mira.dtsi"
 #include "imx6qdl-phytec-mira-peb-eval-01.dtsi"
@@ -13,24 +13,24 @@
 #include "imx6qdl-phytec-peb-wlbt-01.dtsi"
 
 / {
-	model = "PHYTEC phyBOARD-Mira DualLite/Solo Carrier-Board with NAND";
-	compatible = "phytec,imx6dl-pbac06-nand", "phytec,imx6dl-pbac06",
-		     "phytec,imx6qdl-pcm058", "fsl,imx6dl";
+	model = "PHYTEC phyBOARD-Mira Quad full featured with NAND";
+	compatible = "phytec,imx6q-pbac06-nand", "phytec,imx6q-pbac06",
+		     "phytec,imx6qdl-pcm058", "fsl,imx6q";
 
 	chosen {
 		linux,stdout-path = &uart2;
 	};
 };
 
-&ethphy {
-	max-speed = <100>;
-};
-
-&fec {
+&can1 {
 	status = "okay";
 };
 
-&gpio_leds {
+&dim_gpio_leds {
+	status = "okay";
+};
+
+&fec {
 	status = "okay";
 };
 
@@ -51,6 +51,18 @@
 };
 
 &i2c_rtc {
+	status = "okay";
+};
+
+&leddim {
+	status = "okay";
+};
+
+&m25p80 {
+	status = "okay";
+};
+
+&pcie {
 	status = "okay";
 };
 
