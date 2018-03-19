@@ -13,7 +13,7 @@
 #include "imx6qdl-phytec-peb-wlbt-01.dtsi"
 
 / {
-	model = "PHYTEC phyBOARD-Mira QuadPlus Carrier-Board with NAND";
+	model = "PHYTEC phyBOARD-Mira QuadPlus full featured with NAND";
 	compatible = "phytec,imx6qp-pbac06-nand", "phytec,imx6qp-pbac06",
 		     "phytec,imx6qdl-pcm058", "fsl,imx6qp";
 
