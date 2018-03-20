@@ -83,6 +83,7 @@ obj-$(CONFIG_SOC_IMX6SX) += mach-imx6sx.o
 obj-$(CONFIG_SOC_IMX6UL) += mach-imx6ul.o
 obj-$(CONFIG_SOC_IMX7D_CA7) += mach-imx7d.o
 obj-$(CONFIG_SOC_IMX7D_CM4) += mach-imx7d-cm4.o
+obj-$(CONFIG_SOC_IMX6) += ocotp.o
 
 ifeq ($(CONFIG_SUSPEND),y)
 AFLAGS_suspend-imx6.o :=-Wa,-march=armv7-a
