@@ -414,12 +414,12 @@ static int rk808_restart_notify(struct notifier_block *this,
 
 static void rk818_device_shutdown(void)
 {
-	rk808_update_bits(RK818_DEVCTRL_REG, DEV_OFF);
+	rk808_update_bits(RK818_DEVCTRL_REG, DEV_OFF_RST);
 }
 static int rk818_restart_notify(struct notifier_block *this,
 				   unsigned long mode, void *cmd)
 {
-	rk808_update_bits(RK818_DEVCTRL_REG, DEV_OFF_RST);
+	rk808_update_bits(RK818_DEVCTRL_REG, DEV_OFF);
 	return NOTIFY_DONE;
 }
 
