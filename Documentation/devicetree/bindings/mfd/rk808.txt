@@ -20,6 +20,8 @@ Optional properties:
   default output clock name
 - rockchip,system-power-controller: Telling whether or not this pmic is controlling
   the system power.
+- rockchip,system-reset-controller: Telling whether or not this pmic is controlling
+  the system reset.
 
 Optional RK805 properties:
 - vcc1-supply:  The input supply for DCDC_REG1
