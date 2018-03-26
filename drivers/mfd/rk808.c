@@ -27,6 +27,7 @@
 #include <linux/module.h>
 #include <linux/of_device.h>
 #include <linux/regmap.h>
+#include <linux/reboot.h>
 
 struct rk808_reg_data {
 	int addr;
@@ -369,59 +370,73 @@ static const struct regmap_irq_chip rk818_irq_chip = {
 
 static struct i2c_client *rk808_i2c_client;
 
-static void rk805_device_shutdown(void)
+static void rk808_update_bits(unsigned int reg, unsigned int bit_mask)
 {
 	int ret;
 	struct rk808 *rk808 = i2c_get_clientdata(rk808_i2c_client);
 
 	if (!rk808) {
 		dev_warn(&rk808_i2c_client->dev,
-			 "have no rk805, so do nothing here\n");
+			 "have no %s, so do nothing here\n",
+			 rk808->regmap_irq_chip->name);
 		return;
 	}
 
 	ret = regmap_update_bits(rk808->regmap,
-				 RK805_DEV_CTRL_REG,
-				 DEV_OFF, DEV_OFF);
+				 reg,
+				 bit_mask, bit_mask);
 	if (ret)
-		dev_err(&rk808_i2c_client->dev, "power off error!\n");
+		dev_err(&rk808_i2c_client->dev, "can't write to DEVCTRL: %x!\n",
+			ret);
+}
+
+static void rk805_device_shutdown(void)
+{
+	rk808_update_bits(RK805_DEV_CTRL_REG, DEV_OFF);
+}
+static int rk805_restart_notify(struct notifier_block *this,
+				   unsigned long mode, void *cmd)
+{
+	rk808_update_bits(RK805_DEV_CTRL_REG, DEV_OFF_RST);
+	return NOTIFY_DONE;
 }
 
 static void rk808_device_shutdown(void)
 {
-	int ret;
-	struct rk808 *rk808 = i2c_get_clientdata(rk808_i2c_client);
-
-	if (!rk808) {
-		dev_warn(&rk808_i2c_client->dev,
-			 "have no rk808, so do nothing here\n");
-		return;
-	}
-
-	ret = regmap_update_bits(rk808->regmap,
-				 RK808_DEVCTRL_REG,
-				 DEV_OFF_RST, DEV_OFF_RST);
-	if (ret)
-		dev_err(&rk808_i2c_client->dev, "power off error!\n");
+	rk808_update_bits(RK808_DEVCTRL_REG, DEV_OFF_RST);
+}
+static int rk808_restart_notify(struct notifier_block *this,
+				   unsigned long mode, void *cmd)
+{
+	rk808_update_bits(RK808_DEVCTRL_REG, DEV_OFF);
+	return NOTIFY_DONE;
 }
 
 static void rk818_device_shutdown(void)
 {
-	int ret;
-	struct rk808 *rk808 = i2c_get_clientdata(rk808_i2c_client);
-
-	if (!rk808) {
-		dev_warn(&rk808_i2c_client->dev,
-			 "have no rk818, so do nothing here\n");
-		return;
-	}
-
-	ret = regmap_update_bits(rk808->regmap,
-				 RK818_DEVCTRL_REG,
-				 DEV_OFF, DEV_OFF);
-	if (ret)
-		dev_err(&rk808_i2c_client->dev, "power off error!\n");
+	rk808_update_bits(RK818_DEVCTRL_REG, DEV_OFF);
 }
+static int rk818_restart_notify(struct notifier_block *this,
+				   unsigned long mode, void *cmd)
+{
+	rk808_update_bits(RK818_DEVCTRL_REG, DEV_OFF_RST);
+	return NOTIFY_DONE;
+}
+
+static struct notifier_block rk805_restart_handler = {
+	.notifier_call = rk805_restart_notify,
+	.priority = 196,
+};
+
+static struct notifier_block rk808_restart_handler = {
+	.notifier_call = rk808_restart_notify,
+	.priority = 196,
+};
+
+static struct notifier_block rk818_restart_handler = {
+	.notifier_call = rk818_restart_notify,
+	.priority = 196,
+};
 
 static const struct of_device_id rk808_of_match[] = {
 	{ .compatible = "rockchip,rk805" },
@@ -441,7 +456,7 @@ static int rk808_probe(struct i2c_client *client,
 	void (*pm_pwroff_fn)(void);
 	int nr_pre_init_regs;
 	int nr_cells;
-	int pm_off = 0, msb, lsb;
+	int pm_off = 0, pm_rst_off = 0, msb, lsb;
 	int ret;
 	int i;
 
@@ -476,6 +491,7 @@ static int rk808_probe(struct i2c_client *client,
 		cells = rk805s;
 		nr_cells = ARRAY_SIZE(rk805s);
 		pm_pwroff_fn = rk805_device_shutdown;
+		rk808->nb = &rk805_restart_handler;
 		break;
 	case RK808_ID:
 		rk808->regmap_cfg = &rk808_regmap_config;
@@ -485,6 +501,7 @@ static int rk808_probe(struct i2c_client *client,
 		cells = rk808s;
 		nr_cells = ARRAY_SIZE(rk808s);
 		pm_pwroff_fn = rk808_device_shutdown;
+		rk808->nb = &rk808_restart_handler;
 		break;
 	case RK818_ID:
 		rk808->regmap_cfg = &rk818_regmap_config;
@@ -494,6 +511,7 @@ static int rk808_probe(struct i2c_client *client,
 		cells = rk818s;
 		nr_cells = ARRAY_SIZE(rk818s);
 		pm_pwroff_fn = rk818_device_shutdown;
+		rk808->nb = &rk818_restart_handler;
 		break;
 	default:
 		dev_err(&client->dev, "Unsupported RK8XX ID %lu\n",
@@ -544,13 +562,20 @@ static int rk808_probe(struct i2c_client *client,
 		goto err_irq;
 	}
 
-	pm_off = of_property_read_bool(np,
-				"rockchip,system-power-controller");
-	if (pm_off && !pm_power_off) {
-		rk808_i2c_client = client;
-		pm_power_off = pm_pwroff_fn;
-	}
+	rk808_i2c_client = client;
 
+	pm_off = of_property_read_bool(np, "rockchip,system-power-controller");
+	if (pm_off && !pm_power_off)
+		pm_power_off = pm_pwroff_fn;
+
+	pm_rst_off = of_property_read_bool(np,
+					"rockchip,system-reset-controller");
+	if (pm_rst_off && rk808->nb) {
+		ret = register_restart_handler(rk808->nb);
+		if (ret)
+			dev_err(&client->dev,
+				"cannot register restart handler, %d\n", ret);
+	}
 	return 0;
 
 err_irq:
@@ -564,6 +589,8 @@ static int rk808_remove(struct i2c_client *client)
 
 	regmap_del_irq_chip(client->irq, rk808->irq_data);
 	pm_power_off = NULL;
+	if (rk808->nb)
+		unregister_restart_handler(rk808->nb);
 
 	return 0;
 }
