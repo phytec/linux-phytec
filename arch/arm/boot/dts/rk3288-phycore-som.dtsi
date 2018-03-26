@@ -199,6 +199,7 @@
 		pinctrl-names = "default";
 		pinctrl-0 = <&pmic_int>;
 		rockchip,system-power-controller;
+		rockchip,system-reset-controller;
 		wakeup-source;
 		#clock-cells = <1>;
 
