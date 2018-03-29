@@ -22,7 +22,7 @@
 
 	aliases {
 		i2c3 = &hdmi_ddc;
-		rtc1 = &pmic;
+		rtc1 = &pmic_rtc;
 		rtc2 = &snvs_rtc;
 	};
 
@@ -221,6 +221,10 @@
 				regulator-max-microvolt = <3000000>;
 				regulator-always-on;
 			};
+		};
+
+		pmic_rtc: rtc {
+			compatible = "dlg,da9063-rtc";
 		};
 
 		wdt {
