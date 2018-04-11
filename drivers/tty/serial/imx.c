@@ -814,11 +814,16 @@ static irqreturn_t imx_int(int irq, void *dev_id)
 	unsigned int sts;
 	unsigned int sts2;
 	irqreturn_t ret = IRQ_NONE;
+	unsigned int ien;
+	unsigned int ien2;
 
 	sts = readl(sport->port.membase + USR1);
 	sts2 = readl(sport->port.membase + USR2);
 
-	if (sts & (USR1_RRDY | USR1_AGTIM)) {
+	ien = readl(sport->port.membase + UCR1);
+	ien2 = readl(sport->port.membase + UCR4);
+
+	if ((ien & UCR1_RRDYEN && sts & USR1_RRDY) || (sts & USR1_AGTIM)) {
 		if (sport->dma_is_enabled)
 			imx_dma_rxint(sport);
 		else
@@ -826,10 +831,8 @@ static irqreturn_t imx_int(int irq, void *dev_id)
 		ret = IRQ_HANDLED;
 	}
 
-	if ((sts & USR1_TRDY &&
-	     readl(sport->port.membase + UCR1) & UCR1_TXMPTYEN) ||
-	    (sts2 & USR2_TXDC &&
-	     readl(sport->port.membase + UCR4) & UCR4_TCEN)) {
+	if ((sts & USR1_TRDY && ien & UCR1_TXMPTYEN) ||
+	    (sts2 & USR2_TXDC && ien2 & UCR4_TCEN)) {
 		imx_txint(irq, dev_id);
 		ret = IRQ_HANDLED;
 	}
@@ -857,7 +860,8 @@ static irqreturn_t imx_int(int irq, void *dev_id)
 		ret = IRQ_HANDLED;
 	}
 
-	if (sts2 & USR2_ORE) {
+	if (ien2 & UCR4_OREN && sts2 & USR2_ORE) {
+		dev_err(sport->port.dev, "Rx FIFO overrun\n");
 		sport->port.icount.overrun++;
 		writel(USR2_ORE, sport->port.membase + USR2);
 		ret = IRQ_HANDLED;
