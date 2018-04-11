@@ -2344,8 +2344,12 @@ static struct mmc_blk_data *mmc_blk_alloc_req(struct mmc_card *card,
 	 * messages to tell when the card is present.
 	 */
 
-	snprintf(md->disk->disk_name, sizeof(md->disk->disk_name),
-		 "mmcblk%u%s", card->host->index, subname ? subname : "");
+	if (card->host->dev_index < 0) /* default: not used by driver */
+		snprintf(md->disk->disk_name, sizeof(md->disk->disk_name),
+			 "mmcblk%u%s", card->host->index, subname ? subname : "");
+	else
+		snprintf(md->disk->disk_name, sizeof(md->disk->disk_name),
+			 "mmcblk%d%s", card->host->dev_index, subname ? subname : "");
 
 	set_capacity(md->disk, size);
 
