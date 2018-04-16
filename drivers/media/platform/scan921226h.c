@@ -227,6 +227,14 @@ static int video_des_probe(struct platform_device *pdev)
 		return ret;
 	}
 
+	if(of_property_read_bool(np, "phytec,phycam-s")) {
+		gpiod_set_value_cansleep(vdes->npwrdn_gpio, 1);
+		gpiod_set_value_cansleep(vdes->enable_gpio, 1);
+	} else {
+		gpiod_set_value_cansleep(vdes->npwrdn_gpio, 0);
+		gpiod_set_value_cansleep(vdes->enable_gpio, 0);
+	}
+
 	mutex_init(&vdes->lock);
 
 	vdes->pads[0].flags = MEDIA_PAD_FL_SINK;
