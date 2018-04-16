@@ -499,6 +499,15 @@ static int mt9p031_s_stream(struct v4l2_subdev *subdev, int enable)
 	return mt9p031_pll_enable(mt9p031);
 }
 
+static int mt9p031_g_mbus_config(struct v4l2_subdev *sd,
+				 struct v4l2_mbus_config *cfg)
+{
+	cfg->type = V4L2_MBUS_PARALLEL;
+	cfg->flags = V4L2_MBUS_MASTER;
+
+	return 0;
+}
+
 static int mt9p031_enum_mbus_code(struct v4l2_subdev *subdev,
 				  struct v4l2_subdev_pad_config *cfg,
 				  struct v4l2_subdev_mbus_code_enum *code)
@@ -1003,6 +1012,7 @@ static const struct v4l2_subdev_core_ops mt9p031_subdev_core_ops = {
 };
 
 static const struct v4l2_subdev_video_ops mt9p031_subdev_video_ops = {
+	.g_mbus_config	= mt9p031_g_mbus_config,
 	.s_stream       = mt9p031_s_stream,
 };
 
