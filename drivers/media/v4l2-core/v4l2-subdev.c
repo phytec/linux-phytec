@@ -187,6 +187,16 @@ static long subdev_do_ioctl(struct file *file, unsigned int cmd, void *arg)
 
 	switch (cmd) {
 	case VIDIOC_QUERYCTRL:
+		/*
+		 * TODO: this really should be folded into v4l2_queryctrl (this
+		 * currently returns -EINVAL for NULL control handlers).
+		 * However, v4l2_queryctrl() is still called directly by
+		 * drivers as well and until that has been addressed I believe
+		 * it is safer to do the check here. The same is true for the
+		 * other control ioctls below.
+		 */
+		if (!vfh->ctrl_handler)
+			return -ENOTTY;
 		return v4l2_queryctrl(vfh->ctrl_handler, arg);
 
 	case VIDIOC_QUERY_EXT_CTRL:
