@@ -95,6 +95,13 @@ static int da9062_wdt_update_timeout_register(struct da9062_watchdog *wdt,
 {
 	struct da9062 *chip = wdt->hw;
 
+	regmap_update_bits(chip->regmap,
+				  DA9062AA_CONTROL_D,
+				  DA9062AA_TWDSCALE_MASK,
+				  DA9062_TWDSCALE_DISABLE);
+
+	usleep_range(150, 300);
+
 	return regmap_update_bits(chip->regmap,
 				  DA9062AA_CONTROL_D,
 				  DA9062AA_TWDSCALE_MASK,
