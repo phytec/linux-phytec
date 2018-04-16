@@ -16,6 +16,8 @@
 #include <linux/v4l2-mediabus.h>
 #include <linux/module.h>
 
+#include <linux/pinctrl/consumer.h>
+
 #include <media/v4l2-async.h>
 #include <media/v4l2-clk.h>
 #include <media/v4l2-common.h>
@@ -249,6 +251,15 @@ static const struct mt9m111_datafmt mt9m111_processed_fmts[] = {
 	{MEDIA_BUS_FMT_SRGGB8_1X8, V4L2_COLORSPACE_SRGB, false, true},
 };
 
+enum mt9m111_pin_state {
+	/* pixel signals, i2c + clock are on; set, when sensor is streaming */
+	PIN_STATE_ACTIVE,
+	/* pixel signals are not needed; i2c + clock are on */
+	PIN_STATE_IDLE,
+	/* pixel signals, i2c + clock are not needed */
+	PIN_STATE_SLEEP,
+};
+
 struct mt9m111 {
 	struct v4l2_subdev subdev;
 	struct v4l2_ctrl_handler hdl;
@@ -268,6 +279,12 @@ struct mt9m111 {
 	bool allow_10bit:1;
 	bool allow_burst:1;
 	bool is_streaming:1;
+	struct mutex dev_lock;
+	unsigned int ref_cnt;
+#ifdef CONFIG_PINCTRL
+	struct pinctrl *pinctrl;
+	struct pinctrl_state *pin_st[3];
+#endif
 #ifdef CONFIG_MEDIA_CONTROLLER
 	struct media_pad pad;
 #endif
@@ -290,6 +307,99 @@ mt9m111_mode_data[MT9M111_NUM_FRAMERATES][MT9M111_NUM_MODES] = {
 			MT9M111_RM_ROW_SKIP_2X)},
 	}
 };
+
+static int mt9m111_pinctrl_state(struct mt9m111 *mt9m111,
+                                enum mt9m111_pin_state state)
+{
+	struct pinctrl *pinctrl;
+	struct pinctrl_state *st;
+
+#ifdef CONFIG_PINCTRL
+	pinctrl = mt9m111->pinctrl;
+	st = mt9m111->pin_st[state];
+#else
+	st = NULL;
+#endif
+
+	if (!st)
+		return 0;
+
+	return pinctrl_select_state(mt9m111->pinctrl, st);
+}
+
+/* ensures that sensor is at least in IDLE state */
+static int mt9m111_get_device(struct mt9m111 *mt9m111)
+{
+	int ret;
+	bool have_clk = false;
+
+	mutex_lock(&mt9m111->dev_lock);
+
+	if (mt9m111->ref_cnt == 0) {
+		struct i2c_client *client =
+			v4l2_get_subdevdata(&mt9m111->subdev);
+
+		if (mt9m111->clk) {
+			ret = v4l2_clk_enable(mt9m111->clk);
+			if (ret < 0) {
+				dev_err(&client->dev,
+					"failed to enable clock: %d\n", ret);
+				goto out;
+			}
+
+			have_clk = true;
+		}
+
+		ret = mt9m111_pinctrl_state(mt9m111, PIN_STATE_IDLE);
+		if (ret < 0) {
+			dev_err(&client->dev, "failed to setup pins: %d\n", ret);
+			goto out;
+		}
+	}
+
+	++mt9m111->ref_cnt;
+	ret = 0;
+
+out:
+	if (ret < 0) {
+		if (have_clk)
+			v4l2_clk_disable(mt9m111->clk);
+	}
+
+	mutex_unlock(&mt9m111->dev_lock);
+
+	return ret;
+}
+
+static void mt9m111_put_device(struct mt9m111 *mt9m111)
+{
+	int ret;
+
+	mutex_lock(&mt9m111->dev_lock);
+
+	if (WARN_ON(mt9m111->ref_cnt == 0))
+		goto out;
+
+	if (mt9m111->ref_cnt == 1) {
+		struct i2c_client *client =
+			v4l2_get_subdevdata(&mt9m111->subdev);
+
+		ret = mt9m111_pinctrl_state(mt9m111, PIN_STATE_SLEEP);
+		if (ret < 0) {
+			dev_warn(&client->dev,
+				"failed to disable pins: %d\n", ret);
+			/* ignore error */
+		}
+
+		if (mt9m111->clk)
+			v4l2_clk_disable(mt9m111->clk);
+	}
+
+	--mt9m111->ref_cnt;
+
+out:
+	mutex_unlock(&mt9m111->dev_lock);
+}
 
 /* Find a data format by a pixel code */
 static const struct mt9m111_datafmt *mt9m111_find_datafmt(struct mt9m111 *mt9m111,
@@ -326,6 +436,8 @@ static int reg_page_map_set(struct i2c_client *client, const u16 reg)
 	u16 page;
 	struct mt9m111 *mt9m111 = to_mt9m111(client);
 
+	WARN_ON(mt9m111->ref_cnt == 0);
+
 	page = (reg >> 8);
 	if (page == mt9m111->lastpage)
 		return 0;
@@ -340,7 +452,10 @@ static int reg_page_map_set(struct i2c_client *client, const u16 reg)
 
 static int mt9m111_reg_read(struct i2c_client *client, const u16 reg)
 {
+	struct mt9m111 *mt9m111 = to_mt9m111(client);
 	int ret;
+
+	WARN_ON(mt9m111->ref_cnt == 0);
 
 	ret = reg_page_map_set(client, reg);
 	if (!ret)
@@ -353,7 +468,10 @@ static int mt9m111_reg_read(struct i2c_client *client, const u16 reg)
 static int mt9m111_reg_write(struct i2c_client *client, const u16 reg,
 			     const u16 data)
 {
+	struct mt9m111 *mt9m111 = to_mt9m111(client);
 	int ret;
+
+	WARN_ON(mt9m111->ref_cnt == 0);
 
 	ret = reg_page_map_set(client, reg);
 	if (!ret)
@@ -485,6 +603,10 @@ static int mt9m111_set_selection(struct v4l2_subdev *sd,
 	    sel->target != V4L2_SEL_TGT_CROP)
 		return -EINVAL;
 
+	ret = mt9m111_get_device(mt9m111);
+	if (ret < 0)
+		return ret;
+
 	if (mt9m111->fmt->is_bayer) {
 		/* Bayer format - even size lengths */
 		align = 1;
@@ -510,6 +632,9 @@ static int mt9m111_set_selection(struct v4l2_subdev *sd,
 		mt9m111->width = width;
 		mt9m111->height = height;
 	}
+
+	if (ret)
+		mt9m111_put_device(mt9m111);
 
 	return ret;
 }
@@ -684,6 +809,10 @@ static int mt9m111_set_fmt(struct v4l2_subdev *sd,
 	if (mt9m111->is_streaming)
 		return -EBUSY;
 
+	ret = mt9m111_get_device(mt9m111);
+	if (ret < 0)
+		return ret;
+
 	if (format->pad)
 		return -EINVAL;
 
@@ -733,6 +862,9 @@ static int mt9m111_set_fmt(struct v4l2_subdev *sd,
 		mt9m111->fmt	= fmt;
 	}
 
+	if (ret)
+		mt9m111_put_device(mt9m111);
+
 	return ret;
 }
 
@@ -740,34 +872,51 @@ static int mt9m111_set_fmt(struct v4l2_subdev *sd,
 static int mt9m111_g_register(struct v4l2_subdev *sd,
 			      struct v4l2_dbg_register *reg)
 {
+	struct mt9m111 *mt9m111 = container_of(sd, struct mt9m111, subdev);
 	struct i2c_client *client = v4l2_get_subdevdata(sd);
+	int ret;
 	int val;
 
 	if (reg->reg > 0x2ff)
 		return -EINVAL;
+
+	ret = mt9m111_get_device(mt9m111);
+	if (ret < 0)
+		return ret;
 
 	val = mt9m111_reg_read(client, reg->reg);
 	reg->size = 2;
 	reg->val = (u64)val;
 
 	if (reg->val > 0xffff)
-		return -EIO;
+		ret = -EIO;
+	else
+		ret = 0;
 
-	return 0;
+	mt9m111_put_device(mt9m111);
+
+	return ret;
 }
 
 static int mt9m111_s_register(struct v4l2_subdev *sd,
 			      const struct v4l2_dbg_register *reg)
 {
+	struct mt9m111 *mt9m111 = container_of(sd, struct mt9m111, subdev);
 	struct i2c_client *client = v4l2_get_subdevdata(sd);
+	int ret;
 
 	if (reg->reg > 0x2ff)
 		return -EINVAL;
 
-	if (mt9m111_reg_write(client, reg->reg, reg->val) < 0)
-		return -EIO;
+	ret = mt9m111_get_device(mt9m111);
+	if (ret < 0)
+		return ret;
 
-	return 0;
+	ret = mt9m111_reg_write(client, reg->reg, reg->val);
+
+	mt9m111_put_device(mt9m111);
+
+	return ret;
 }
 #endif
 
@@ -851,7 +1000,7 @@ static int mt9m111_set_test_pattern(struct mt9m111 *mt9m111, int val)
 				MT9M111_TPG_SEL_MASK);
 }
 
-static int mt9m111_s_ctrl(struct v4l2_ctrl *ctrl)
+static int _mt9m111_s_ctrl(struct v4l2_ctrl *ctrl)
 {
 	struct mt9m111 *mt9m111 = container_of(ctrl->handler,
 					       struct mt9m111, hdl);
@@ -874,6 +1023,23 @@ static int mt9m111_s_ctrl(struct v4l2_ctrl *ctrl)
 	}
 
 	return -EINVAL;
+}
+
+static int mt9m111_s_ctrl(struct v4l2_ctrl *ctrl)
+{
+	struct mt9m111 *mt9m111 = container_of(ctrl->handler,
+						struct mt9m111, hdl);
+	int ret;
+
+	ret = mt9m111_get_device(mt9m111);
+	if (ret < 0)
+		return ret;
+
+	ret = _mt9m111_s_ctrl(ctrl);
+
+	mt9m111_put_device(mt9m111);
+
+	return ret;
 }
 
 static int mt9m111_suspend(struct mt9m111 *mt9m111)
@@ -964,6 +1130,10 @@ static int mt9m111_s_power(struct v4l2_subdev *sd, int on)
 	struct mt9m111 *mt9m111 = container_of(sd, struct mt9m111, subdev);
 	int ret = 0;
 
+	ret = mt9m111_get_device(mt9m111);
+	if (ret < 0)
+		return ret;
+
 	mutex_lock(&mt9m111->power_lock);
 
 	/*
@@ -984,6 +1154,9 @@ static int mt9m111_s_power(struct v4l2_subdev *sd, int on)
 	}
 
 	mutex_unlock(&mt9m111->power_lock);
+
+	mt9m111_put_device(mt9m111);
+
 	return ret;
 }
 
@@ -1140,13 +1313,43 @@ static int mt9m111_g_mbus_config(struct v4l2_subdev *sd,
 
 static int mt9m111_s_stream_on(struct mt9m111 *mt9m111)
 {
+	struct i2c_client *client = v4l2_get_subdevdata(&mt9m111->subdev);
+	int ret;
+
+	ret = mt9m111_get_device(mt9m111);
+	if (ret < 0)
+	        return ret;
+
+	ret = mt9m111_pinctrl_state(mt9m111, PIN_STATE_ACTIVE);
+	if (ret < 0) {
+	        dev_err(&client->dev, "failed to set pins to active: %d\n", ret);
+	        goto out;
+	}
+
 	mt9m111->is_streaming = true;
-	return 0;
+
+	ret = 0;
+
+out:
+	if (ret < 0)
+		mt9m111_put_device(mt9m111);
+
+	return ret;
 }
 
 static int mt9m111_s_stream_off(struct mt9m111 *mt9m111)
 {
+	struct i2c_client *client = v4l2_get_subdevdata(&mt9m111->subdev);
+	int ret;
+
+	ret = mt9m111_pinctrl_state(mt9m111, PIN_STATE_IDLE);
+	if (ret < 0) {
+	        dev_err(&client->dev, "failed to set pins to idle: %d\n", ret);
+	        /* ignore error */
+	}
+
 	mt9m111->is_streaming = false;
+
 	return 0;
 }
 
@@ -1217,9 +1420,13 @@ static int mt9m111_video_probe(struct i2c_client *client)
 	s32 data;
 	int ret;
 
-	ret = mt9m111_s_power(&mt9m111->subdev, 1);
+	ret = mt9m111_get_device(mt9m111);
 	if (ret < 0)
 		return ret;
+
+	ret = mt9m111_s_power(&mt9m111->subdev, 1);
+	if (ret < 0)
+		goto out;
 
 	data = reg_read(CHIP_VERSION);
 
@@ -1247,6 +1454,76 @@ static int mt9m111_video_probe(struct i2c_client *client)
 
 done:
 	mt9m111_s_power(&mt9m111->subdev, 0);
+out:
+	mt9m111_put_device(mt9m111);
+
+	return ret;
+}
+
+static int mt9m111_init_pinctrl(struct mt9m111 *mt9m111, struct device *dev)
+{
+	static struct {
+		enum mt9m111_pin_state state;
+		char const *name;
+	} const STATES[] = {
+		{ PIN_STATE_ACTIVE, PINCTRL_STATE_DEFAULT },
+		{ PIN_STATE_IDLE, PINCTRL_STATE_IDLE },
+		{ PIN_STATE_SLEEP, PINCTRL_STATE_SLEEP },
+	};
+
+	int ret;
+	size_t i;
+	struct pinctrl *pinctrl;
+	struct pinctrl_state *pin_st[3];
+
+	if (!IS_ENABLED(CONFIG_PINCTRL))
+		return 0;
+
+	pinctrl = devm_pinctrl_get(dev);
+	ret = PTR_ERR_OR_ZERO(pinctrl);
+	if (ret < 0) {
+		if (ret != -EPROBE_DEFER)
+			dev_err(dev, "failed to get pinctl: %d\n", ret);
+		mt9m111->pinctrl = NULL;
+		goto out;
+	}
+
+	if (!pinctrl)
+		return 0;
+
+	for (i = 0; i < ARRAY_SIZE(STATES); ++i) {
+		enum mt9m111_pin_state st = STATES[i].state;
+		char const *name = STATES[i].name;
+		struct pinctrl_state *pst;
+
+		/* order is important for now because we use the previous
+		 * state when actual one is not available */
+		BUG_ON(st != i);
+
+		pst = pinctrl_lookup_state(pinctrl, name);
+		ret = PTR_ERR_OR_ZERO(pst);
+		if (ret == -ENODEV) {
+			/* see BUG_ON above! */
+			pst = i == 0 ? NULL : pin_st[i-1];
+		} else if (ret < 0) {
+			dev_err(dev,
+				"failed to get '%s' pinctl state: %d\n",
+				name, ret);
+			goto out;
+		}
+		pin_st[i] = pst;
+	}
+
+#ifdef CONFIG_PINCTRL
+	BUILD_BUG_ON(sizeof mt9m111->pin_st != sizeof pin_st);
+
+	mt9m111->pinctrl = pinctrl;
+	memcpy(mt9m111->pin_st, pin_st, sizeof pin_st);
+#endif
+
+	ret = 0;
+
+out:
 	return ret;
 }
 
@@ -1271,6 +1548,8 @@ static int mt9m111_probe(struct i2c_client *client,
 	if (IS_ERR(mt9m111->clk))
 		return PTR_ERR(mt9m111->clk);
 
+	mutex_init(&mt9m111->dev_lock);
+
 	/* Default HIGHPOWER context */
 	mt9m111->ctx = &context_b;
 
@@ -1282,6 +1561,12 @@ static int mt9m111_probe(struct i2c_client *client,
 	mt9m111->allow_burst = of_property_read_bool(client->dev.of_node,
 							"phytec,allow-burst");
 
+	ret = mt9m111_init_pinctrl(mt9m111, &client->dev);
+	if (ret < 0) {
+		dev_warn(&client->dev,
+			"failed to inialize pinctrl; skipping it for now: %d\n",
+			ret);
+	}
 
 	v4l2_i2c_subdev_init(&mt9m111->subdev, client, &mt9m111_subdev_ops);
 	mt9m111->subdev.flags |= V4L2_SUBDEV_FL_HAS_DEVNODE;
@@ -1352,17 +1637,27 @@ out_hdlfree:
 out_clkput:
 	v4l2_clk_put(mt9m111->clk);
 
+	WARN_ON(ret < 0 && mt9m111->ref_cnt > 0);
+
 	return ret;
 }
 
 static int mt9m111_remove(struct i2c_client *client)
 {
 	struct mt9m111 *mt9m111 = to_mt9m111(client);
+	bool have_dev;
+
+	have_dev = mt9m111_get_device(mt9m111) == 0;
 
 	v4l2_async_unregister_subdev(&mt9m111->subdev);
 	media_entity_cleanup(&mt9m111->subdev.entity);
 	v4l2_clk_put(mt9m111->clk);
 	v4l2_ctrl_handler_free(&mt9m111->hdl);
+
+	if (have_dev)
+		mt9m111_put_device(mt9m111);
+
+	WARN_ON(mt9m111->ref_cnt > 0);
 
 	return 0;
 }
