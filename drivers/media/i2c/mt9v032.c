@@ -911,6 +911,30 @@ done:
 	return ret;
 }
 
+#ifdef CONFIG_VIDEO_ADV_DEBUG
+static int mt9v032_g_register(struct v4l2_subdev *sd,
+			      struct v4l2_dbg_register *reg)
+{
+	struct mt9v032 *mt9v032 = to_mt9v032(sd);
+	int val, ret;
+
+	ret = regmap_read(mt9v032->regmap, reg->reg, &val);
+	if (ret < 0)
+		return ret;
+
+	reg->val = val;
+	return 0;
+}
+
+static int mt9v032_s_register(struct v4l2_subdev *sd,
+			      struct v4l2_dbg_register const *reg)
+{
+	struct mt9v032 *mt9v032 = to_mt9v032(sd);
+
+	return regmap_write(mt9v032->regmap, reg->reg, reg->val);
+}
+#endif
+
 /* -----------------------------------------------------------------------------
  * V4L2 subdev internal operations
  */
@@ -994,6 +1018,10 @@ static int mt9v032_close(struct v4l2_subdev *subdev, struct v4l2_subdev_fh *fh)
 
 static const struct v4l2_subdev_core_ops mt9v032_subdev_core_ops = {
 	.s_power	= mt9v032_set_power,
+#ifdef CONFIG_VIDEO_ADV_DEBUG
+	.s_register	= mt9v032_s_register,
+	.g_register	= mt9v032_g_register,
+#endif
 };
 
 static const struct v4l2_subdev_video_ops mt9v032_subdev_video_ops = {
