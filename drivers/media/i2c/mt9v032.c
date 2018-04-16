@@ -143,6 +143,8 @@
 #define		MT9V032_AGC_ENABLE			(1 << 1)
 #define MT9V034_AEC_MAX_SHUTTER_WIDTH			0xad
 #define MT9V032_AEC_MAX_SHUTTER_WIDTH			0xbd
+#define MT9V024_LVDS_MASTER_CONTROL                    0xb1
+#define MT9V024_LVDS_DATA_CONTROL                      0xb3
 #define MT9V032_THERMAL_INFO				0xc1
 
 enum mt9v032_model {
@@ -352,6 +354,15 @@ static int __mt9v032_set_power(struct mt9v032 *mt9v032, bool on)
 		if (ret < 0)
 			return ret;
 	}
+
+	/* HACK: Always enable the serial output interface */
+        ret = regmap_write(map, MT9V024_LVDS_MASTER_CONTROL, 0);
+        if (ret < 0)
+                return ret;
+
+        ret = regmap_write(map, MT9V024_LVDS_DATA_CONTROL, 0);
+        if (ret < 0)
+                return ret;
 
 	/* Configure the noise correction algorithm and restore the controls. */
 	ret = regmap_write(map, MT9V032_ROW_NOISE_CORR_CONTROL,
