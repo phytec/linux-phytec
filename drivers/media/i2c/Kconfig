@@ -628,6 +628,11 @@ config VIDEO_OV2640
 	  To compile this driver as a module, choose M here: the
 	  module will be called ov2640.
 
+config VIDEO_PHYTEC_VM012
+	tristate "Phytec VM012 (VITA1300) sensor support"
+	depends on VIDEO_V4L2 && I2C && VIDEO_V4L2_SUBDEV_API
+	---help---
+
 config VIDEO_PHYTEC_VM050
 	tristate "Phytec VM050 sensor support"
 	depends on VIDEO_V4L2 && I2C && VIDEO_V4L2_SUBDEV_API
