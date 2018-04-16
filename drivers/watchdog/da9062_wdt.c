@@ -113,6 +113,8 @@ static int da9062_wdt_stop(struct watchdog_device *wdd)
 	struct da9062_watchdog *wdt = watchdog_get_drvdata(wdd);
 	int ret;
 
+	mdelay(DA9062_RESET_PROTECTION_MS);
+
 	ret = da9062_reset_watchdog_timer(wdt);
 	if (ret) {
 		dev_err(wdt->hw->dev, "Failed to ping the watchdog (err = %d)\n",
