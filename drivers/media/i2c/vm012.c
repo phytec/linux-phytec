@@ -22,10 +22,7 @@
 #include <linux/videodev2.h>
 #include <linux/v4l2-subdev.h>
 #include <linux/regulator/consumer.h>
-#include <linux/ftrace_event.h>
 #include <asm/unaligned.h>
-
-#include <linux/ftrace_event.h>
 
 #include <media/v4l2-subdev.h>
 #include <media/v4l2-ctrls.h>
@@ -1505,11 +1502,13 @@ static int vm012_probe(struct i2c_client *client,
 	sd->ctrl_handler = &vm012->ctrls;
 
 	/* initialize the mediabus entity */
-	rc = media_entity_init(&sd->entity, 1, &vm012->pad, 0);
+	rc = media_entity_pads_init(&sd->entity, 1, &vm012->pad);
 	if (rc < 0) {
 		dev_err(dev, "media_entity_init() failed: %d\n", rc);
 		goto err_media_entity_init;
 	}
+
+	sd->entity.function = MEDIA_ENT_F_CAM_SENSOR;
 
 	rc = v4l2_async_register_subdev(sd);
 	if (rc < 0) {
