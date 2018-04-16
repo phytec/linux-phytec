@@ -356,6 +356,7 @@ static int csi_idmac_setup_channel(struct csi_priv *priv)
 	struct v4l2_mbus_framefmt *infmt;
 	struct ipu_image image;
 	u32 passthrough_bits;
+	u32 passthrough_cycles;
 	dma_addr_t phys[2];
 	bool passthrough;
 	u32 burst_size;
@@ -381,6 +382,7 @@ static int csi_idmac_setup_channel(struct csi_priv *priv)
 	 * - raw bayer formats
 	 * - the CSI is receiving from a 16-bit parallel bus
 	 */
+	passthrough_cycles = 1;
 	switch (image.pix.pixelformat) {
 	case V4L2_PIX_FMT_SBGGR8:
 	case V4L2_PIX_FMT_SGBRG8:
@@ -417,6 +419,16 @@ static int csi_idmac_setup_channel(struct csi_priv *priv)
 		passthrough = is_parallel_16bit_bus(&priv->upstream_ep);
 		passthrough_bits = 16;
 		break;
+	case V4L2_PIX_FMT_RGB565:
+		/* without CSI2 we can only use passthrough mode */
+		if (priv->upstream_ep.bus_type != V4L2_MBUS_CSI2) {
+			burst_size = 16;
+			passthrough = true;
+			passthrough_bits = 8;
+			passthrough_cycles = 2;
+			break;
+		};
+		/* fallthrough */
 	default:
 		burst_size = (image.pix.width & 0xf) ? 8 : 16;
 		passthrough = is_parallel_16bit_bus(&priv->upstream_ep);
@@ -425,7 +437,8 @@ static int csi_idmac_setup_channel(struct csi_priv *priv)
 	}
 
 	if (passthrough) {
-		ipu_cpmem_set_resolution(priv->idmac_ch, image.rect.width,
+		ipu_cpmem_set_resolution(priv->idmac_ch,
+					 image.rect.width*passthrough_cycles,
 					 image.rect.height);
 		ipu_cpmem_set_stride(priv->idmac_ch, image.pix.bytesperline);
 		ipu_cpmem_set_buffer(priv->idmac_ch, 0, image.phys0);
@@ -614,9 +627,12 @@ static int csi_setup(struct csi_priv *priv)
 	struct v4l2_mbus_framefmt *infmt, *outfmt;
 	struct v4l2_mbus_config mbus_cfg;
 	struct v4l2_mbus_framefmt if_fmt;
+	struct imx_media_pixfmt *outcc;
+	struct v4l2_rect crop;
 
 	infmt = &priv->format_mbus[CSI_SINK_PAD];
 	outfmt = &priv->format_mbus[priv->active_output_pad];
+	outcc = priv->cc[priv->active_output_pad];
 
 	/* compose mbus_config from the upstream endpoint */
 	mbus_cfg.type = priv->upstream_ep.bus_type;
@@ -630,8 +646,18 @@ static int csi_setup(struct csi_priv *priv)
 	 */
 	if_fmt = *infmt;
 	if_fmt.field = outfmt->field;
+	crop = priv->crop;
 
-	ipu_csi_set_window(priv->csi, &priv->crop);
+	/*
+	 * if cycles is set, we need to handle this over multiple cycles as
+	 * generic/bayer data
+	 */
+	if ((priv->upstream_ep.bus_type != V4L2_MBUS_CSI2) && outcc->cycles) {
+		if_fmt.width *= outcc->cycles;
+		crop.width *= outcc->cycles;
+	}
+
+	ipu_csi_set_window(priv->csi, &crop);
 
 	ipu_csi_set_downsize(priv->csi,
 			     priv->crop.width == 2 * priv->compose.width,
@@ -1021,7 +1047,7 @@ static int csi_link_validate(struct v4l2_subdev *sd,
 	incc = priv->cc[CSI_SINK_PAD];
 
 	if (priv->dest != IPU_CSI_DEST_IDMAC &&
-	    (incc->bayer || is_parallel_16bit_bus(&upstream_ep))) {
+	    (incc->bayer || is_parallel_16bit_bus(&upstream_ep) || (!is_csi2 && incc->cycles))) {
 		v4l2_err(&priv->sd,
 			 "bayer/16-bit parallel buses must go to IDMAC pad\n");
 		ret = -EINVAL;
@@ -1123,6 +1149,7 @@ static int csi_enum_mbus_code(struct v4l2_subdev *sd,
 			      struct v4l2_subdev_mbus_code_enum *code)
 {
 	struct csi_priv *priv = v4l2_get_subdevdata(sd);
+	struct v4l2_fwnode_endpoint upstream_ep;
 	const struct imx_media_pixfmt *incc;
 	struct v4l2_mbus_framefmt *infmt;
 	int ret = 0;
@@ -1139,7 +1166,13 @@ static int csi_enum_mbus_code(struct v4l2_subdev *sd,
 		break;
 	case CSI_SRC_PAD_DIRECT:
 	case CSI_SRC_PAD_IDMAC:
-		if (incc->bayer) {
+		ret = csi_get_upstream_endpoint(priv, &upstream_ep);
+		if (ret) {
+			v4l2_err(&priv->sd, "failed to find upstream endpoint\n");
+			goto out;
+		}
+
+		if (incc->bayer || (upstream_ep.bus_type != V4L2_MBUS_CSI2 && incc->cycles)) {
 			if (code->index != 0) {
 				ret = -EINVAL;
 				goto out;
@@ -1278,7 +1311,7 @@ static void csi_try_fmt(struct csi_priv *priv,
 		sdformat->format.width = compose->width;
 		sdformat->format.height = compose->height;
 
-		if (incc->bayer) {
+		if (incc->bayer || (upstream_ep->bus_type != V4L2_MBUS_CSI2 && incc->cycles)) {
 			sdformat->format.code = infmt->code;
 			*cc = incc;
 		} else {
