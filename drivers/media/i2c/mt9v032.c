@@ -171,6 +171,7 @@ struct mt9v032_model_data {
 	unsigned int pclk_reg;
 	unsigned int aec_max_shutter_reg;
 	const struct v4l2_ctrl_config * const aec_max_shutter_v4l2_ctrl;
+	unsigned int row_noise;
 };
 
 struct mt9v032_model_info {
@@ -226,6 +227,7 @@ struct mt9v032 {
 	u32 sysclk;
 	u16 aec_agc;
 	u16 hblank;
+	bool row_noise_corr;
 	struct {
 		struct v4l2_ctrl *test_pattern;
 		struct v4l2_ctrl *test_pattern_color;
@@ -351,8 +353,11 @@ static int __mt9v032_set_power(struct mt9v032 *mt9v032, bool on)
 			return ret;
 	}
 
-	/* Disable the noise correction algorithm and restore the controls. */
-	ret = regmap_write(map, MT9V032_ROW_NOISE_CORR_CONTROL, 0);
+	/* Configure the noise correction algorithm and restore the controls. */
+	ret = regmap_write(map, MT9V032_ROW_NOISE_CORR_CONTROL,
+			   mt9v032->row_noise_corr ?
+			   mt9v032->model->data->row_noise : 0);
+
 	if (ret < 0)
 		return ret;
 
@@ -662,6 +667,10 @@ static int mt9v032_set_selection(struct v4l2_subdev *subdev,
  * Maximum shutter width used for AEC.
  */
 #define V4L2_CID_AEC_MAX_SHUTTER_WIDTH	(V4L2_CID_USER_BASE | 0x1007)
+/*
+ * Row Noize Correction enable.
+ */
+#define V4L2_CID_ROW_NOISE_CORRECTION	(V4L2_CID_USER_BASE | 0x1008)
 
 static int mt9v032_s_ctrl(struct v4l2_ctrl *ctrl)
 {
@@ -753,6 +762,9 @@ static int mt9v032_s_ctrl(struct v4l2_ctrl *ctrl)
 		return regmap_write(map,
 				    mt9v032->model->data->aec_max_shutter_reg,
 				    ctrl->val);
+	case V4L2_CID_ROW_NOISE_CORRECTION:
+		mt9v032->row_noise_corr = ctrl->val;
+		break;
 	}
 
 	return 0;
@@ -832,6 +844,16 @@ static const struct v4l2_ctrl_config mt9v032_aegc_controls[] = {
 		.max		= 16,
 		.step		= 1,
 		.def		= 2,
+		.flags		= 0,
+	}, {
+		.ops		= &mt9v032_ctrl_ops,
+		.id		= V4L2_CID_ROW_NOISE_CORRECTION,
+		.type		= V4L2_CTRL_TYPE_BOOLEAN,
+		.name		= "Row Noise Correction",
+		.min		= 0,
+		.max		= 1,
+		.step		= 1,
+		.def		= 0,
 		.flags		= 0,
 	}
 };
@@ -1234,6 +1256,7 @@ static const struct mt9v032_model_data mt9v032_model_data[] = {
 		.pclk_reg = MT9V032_PIXEL_CLOCK,
 		.aec_max_shutter_reg = MT9V032_AEC_MAX_SHUTTER_WIDTH,
 		.aec_max_shutter_v4l2_ctrl = &mt9v032_aec_max_shutter_width,
+		.row_noise = MT9V032_ROW_NOISE_CORR_ENABLE,
 	}, {
 		/* MT9V024, MT9V034 */
 		.min_row_time = 690,
@@ -1245,6 +1268,7 @@ static const struct mt9v032_model_data mt9v032_model_data[] = {
 		.pclk_reg = MT9V034_PIXEL_CLOCK,
 		.aec_max_shutter_reg = MT9V034_AEC_MAX_SHUTTER_WIDTH,
 		.aec_max_shutter_v4l2_ctrl = &mt9v034_aec_max_shutter_width,
+		.row_noise = MT9V034_ROW_NOISE_CORR_ENABLE,
 	},
 };
 
