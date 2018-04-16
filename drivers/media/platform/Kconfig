@@ -372,6 +372,13 @@ config VIDEO_STI_DELTA_DRIVER
 
 endif # VIDEO_STI_DELTA
 
+config VIDEO_SCAN921226H
+	tristate "TI SCAN921226H LVDS deserializer driver"
+	depends on VIDEO_DEV && VIDEO_V4L2
+	help
+	      Enables support for the SCAN921226H LVDS deserializer, which is
+	      controlled via two GPIOs (output enable and power down).
+
 config VIDEO_SH_VEU
 	tristate "SuperH VEU mem2mem video processing driver"
 	depends on VIDEO_DEV && VIDEO_V4L2 && HAS_DMA
