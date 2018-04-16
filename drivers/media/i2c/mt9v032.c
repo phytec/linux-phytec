@@ -184,6 +184,16 @@ static const struct mt9v032_model_version mt9v032_versions[] = {
 	{ MT9V034_CHIP_ID_REV1, "MT9V024/MT9V034 rev1" },
 };
 
+static const u32 mt9v032_color_fmts[] = {
+	MEDIA_BUS_FMT_SGRBG8_1X8,
+	MEDIA_BUS_FMT_SGRBG10_1X10,
+};
+
+static const u32 mt9v032_monochrome_fmts[] = {
+	MEDIA_BUS_FMT_Y8_1X8,
+	MEDIA_BUS_FMT_Y10_1X10,
+};
+
 struct mt9v032 {
 	struct v4l2_subdev subdev;
 	struct media_pad pad;
@@ -210,6 +220,8 @@ struct mt9v032 {
 	struct mt9v032_platform_data *pdata;
 	const struct mt9v032_model_info *model;
 	const struct mt9v032_model_version *version;
+	const u32 *fmts;
+	int num_fmts;
 
 	u32 sysclk;
 	u16 aec_agc;
@@ -427,14 +439,28 @@ static int mt9v032_s_stream(struct v4l2_subdev *subdev, int enable)
 	return regmap_update_bits(map, MT9V032_CHIP_CONTROL, mode, mode);
 }
 
+static const u32 mt9v032_find_datafmt(struct mt9v032 *mt9v032, u32 code)
+{
+	const u32 *fmt = mt9v032->fmts;
+	int i;
+
+	for (i=0; i < mt9v032->num_fmts; i++)
+		if (fmt[i] == code)
+			return fmt[i];
+
+	return fmt[1];
+}
+
 static int mt9v032_enum_mbus_code(struct v4l2_subdev *subdev,
 				  struct v4l2_subdev_pad_config *cfg,
 				  struct v4l2_subdev_mbus_code_enum *code)
 {
-	if (code->index > 0)
+	struct mt9v032 *mt9v032 = to_mt9v032(subdev);
+
+	if (code->index >= mt9v032->num_fmts)
 		return -EINVAL;
 
-	code->code = MEDIA_BUS_FMT_SGRBG10_1X10;
+	code->code = mt9v032->fmts[code->index];
 	return 0;
 }
 
@@ -520,6 +546,8 @@ static int mt9v032_set_format(struct v4l2_subdev *subdev,
 					    format->which);
 	__format->width = __crop->width / hratio;
 	__format->height = __crop->height / vratio;
+
+	__format->code = mt9v032_find_datafmt(mt9v032, format->format.code);
 
 	if (format->which == V4L2_SUBDEV_FORMAT_ACTIVE) {
 		mt9v032->hratio = hratio;
@@ -927,10 +955,7 @@ static int mt9v032_open(struct v4l2_subdev *subdev, struct v4l2_subdev_fh *fh)
 
 	format = v4l2_subdev_get_try_format(subdev, fh->pad, 0);
 
-	if (mt9v032->model->color)
-		format->code = MEDIA_BUS_FMT_SGRBG10_1X10;
-	else
-		format->code = MEDIA_BUS_FMT_Y10_1X10;
+	format->code = mt9v032_find_datafmt(mt9v032, 0);
 
 	format->width = MT9V032_WINDOW_WIDTH_DEF;
 	format->height = MT9V032_WINDOW_HEIGHT_DEF;
@@ -1141,10 +1166,14 @@ static int mt9v032_probe(struct i2c_client *client,
 	mt9v032->crop.width = MT9V032_WINDOW_WIDTH_DEF;
 	mt9v032->crop.height = MT9V032_WINDOW_HEIGHT_DEF;
 
-	if (mt9v032->model->color)
-		mt9v032->format.code = MEDIA_BUS_FMT_SGRBG10_1X10;
-	else
-		mt9v032->format.code = MEDIA_BUS_FMT_Y10_1X10;
+	if (mt9v032->model->color) {
+		mt9v032->fmts = mt9v032_color_fmts;
+		mt9v032->num_fmts = ARRAY_SIZE(mt9v032_color_fmts);
+	} else {
+		mt9v032->fmts = mt9v032_monochrome_fmts;
+		mt9v032->num_fmts = ARRAY_SIZE(mt9v032_monochrome_fmts);
+	}
+	mt9v032->format.code = mt9v032_find_datafmt(mt9v032, 0);
 
 	mt9v032->format.width = MT9V032_WINDOW_WIDTH_DEF;
 	mt9v032->format.height = MT9V032_WINDOW_HEIGHT_DEF;
