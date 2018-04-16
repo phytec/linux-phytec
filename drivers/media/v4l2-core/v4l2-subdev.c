@@ -593,16 +593,26 @@ int v4l2_subdev_link_validate_default(struct v4l2_subdev *sd,
 	/* The width, height and code must match. */
 	if (source_fmt->format.width != sink_fmt->format.width
 	    || source_fmt->format.height != sink_fmt->format.height
-	    || source_fmt->format.code != sink_fmt->format.code)
+	    || source_fmt->format.code != sink_fmt->format.code) {
+		dev_dbg(sd->dev, "fmt mismatch %dx%d@%d vs. %dx%d@%d\n",
+			source_fmt->format.width, source_fmt->format.height,
+			source_fmt->format.code,
+			sink_fmt->format.width, sink_fmt->format.height,
+			sink_fmt->format.code);
 		return -EPIPE;
+	}
 
 	/* The field order must match, or the sink field order must be NONE
 	 * to support interlaced hardware connected to bridges that support
 	 * progressive formats only.
 	 */
 	if (source_fmt->format.field != sink_fmt->format.field &&
-	    sink_fmt->format.field != V4L2_FIELD_NONE)
+	    sink_fmt->format.field != V4L2_FIELD_NONE) {
+		dev_dbg(sd->dev, "field mismatch %d vs. %d\n",
+			source_fmt->format.field,
+			sink_fmt->format.field);
 		return -EPIPE;
+	}
 
 	return 0;
 }
