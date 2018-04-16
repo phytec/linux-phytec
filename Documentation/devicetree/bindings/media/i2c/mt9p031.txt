@@ -6,8 +6,12 @@ two-wire serial interface.
 
 Required Properties:
 - compatible: value should be either one among the following
-	(a) "aptina,mt9p031" for mt9p031 sensor
-	(b) "aptina,mt9p031m" for mt9p031m sensor
+	(a) "aptina,mt9p001" for MT9P001 color sensor
+	(b) "aptina,mt9p001m" for MT9P001 monochrome sensor
+	(c) "aptina,mt9p006" for MT9P006 color sensor
+	(d) "aptina,mt9p006m" for MT9P006 monochrome sensor
+	(e) "aptina,mt9p031" for MT9P031 color sensor
+	(f) "aptina,mt9p031m" for MT9P031 monochrome sensor
 
 - input-clock-frequency: Input clock frequency.
 
