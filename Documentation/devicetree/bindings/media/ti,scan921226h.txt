@@ -1,0 +1,59 @@
+TI SCAN921226H Video Deserializer
+---------------------------------
+
+The SCAN921226H receives a LVDS serial data stream with embedded clock and
+converts it to a 10-bit wide parallel data bus and recovers parallel clock.
+Some CMOS sensors such as the ON Semiconductor MT9V024 produce a LVDS signal
+compatible with this deserializer.
+
+Required properties:
+- compatible : should be "ti,scan921226h"
+- #address-cells: should be <1>
+- #size-cells: should be <0>
+- port@0: serial (LVDS) input
+- port@1: parallel output
+
+The device node should contain two 'port' child nodes (one each for input and
+output), in accordance with the video interface bindings defined in
+Documentation/devicetree/bindings/media/video-interfaces.txt.
+
+Optional Properties:
+- enable-gpios: reference to the GPIO connected to the REN (output enable) pin,
+  if any.
+- npwrdn-gpios: reference to the GPIO connected to the nPWRDN pin, if any.
+
+Optionally, #address-cells, #size-cells, and port nodes can be grouped under a
+ports node as described in Documentation/devicetree/bindings/graph.txt.
+
+Example:
+
+      csi0_deserializer: csi0_deserializer {
+              compatible = "ti,scan921226h";
+
+              enable-gpios = <&gpio5 20 GPIO_ACTIVE_HIGH>;
+              npwrdn-gpios = <&gpio1 24 GPIO_ACTIVE_HIGH>;
+
+              #address-cells = <1>;
+              #size-cells = <0>;
+
+              /* serial sink interface */
+              port@0 {
+                      reg = <0>;
+
+                      des0_in: endpoint {
+                              remote-endpoint = <&mt9v024_0_out>;
+                      };
+              };
+
+              /* parallel source interface */
+              port@1 {
+                      reg = <1>;
+
+                      des0_out: endpoint {
+                              remote-endpoint = <&ipu1_csi0_mux_from_parallel_sensor>;
+                              bus-width = <8>;
+                              hsync-active = <1>;
+                              vsync-active = <1>;
+                      };
+              };
+      };
