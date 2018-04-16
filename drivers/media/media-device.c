@@ -265,6 +265,7 @@ static long media_device_get_topology(struct media_device *mdev, void *arg)
 		uentity++;
 	}
 	topo->num_entities = i;
+	topo->reserved1 = 0;
 
 	/* Get interfaces and number of interfaces */
 	i = 0;
@@ -300,6 +301,7 @@ static long media_device_get_topology(struct media_device *mdev, void *arg)
 		uintf++;
 	}
 	topo->num_interfaces = i;
+	topo->reserved2 = 0;
 
 	/* Get pads and number of pads */
 	i = 0;
@@ -326,6 +328,7 @@ static long media_device_get_topology(struct media_device *mdev, void *arg)
 		upad++;
 	}
 	topo->num_pads = i;
+	topo->reserved3 = 0;
 
 	/* Get links and number of links */
 	i = 0;
@@ -357,6 +360,7 @@ static long media_device_get_topology(struct media_device *mdev, void *arg)
 		ulink++;
 	}
 	topo->num_links = i;
+	topo->reserved4 = 0;
 
 	return ret;
 }
