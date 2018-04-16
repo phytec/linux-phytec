@@ -1212,6 +1212,7 @@ static int mt9v032_probe(struct i2c_client *client,
 	v4l2_i2c_subdev_init(&mt9v032->subdev, client, &mt9v032_subdev_ops);
 	mt9v032->subdev.internal_ops = &mt9v032_subdev_internal_ops;
 	mt9v032->subdev.flags |= V4L2_SUBDEV_FL_HAS_DEVNODE;
+	mt9v032->subdev.entity.function = MEDIA_ENT_F_CAM_SENSOR;
 
 	mt9v032->subdev.entity.function = MEDIA_ENT_F_CAM_SENSOR;
 	mt9v032->pad.flags = MEDIA_PAD_FL_SOURCE;
