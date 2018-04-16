@@ -23,7 +23,6 @@
 #include <linux/videodev2.h>
 #include <linux/v4l2-subdev.h>
 #include <linux/regulator/consumer.h>
-#include <linux/ftrace_event.h>
 #include <linux/gpio/driver.h>
 
 #include <media/v4l2-subdev.h>
@@ -2196,7 +2195,7 @@ static int vm050_probe(struct i2c_client *client,
 		.owner			= THIS_MODULE,
 		.ngpio			= 2,
 		.base			= -1,
-		.dev			= &client->dev,
+		.parent			= &client->dev,
 		.request		= vm050_gpio_request,
 		.free			= vm050_gpio_free,
 		.direction_output	= vm050_gpio_direction_output,
@@ -2217,11 +2216,13 @@ static int vm050_probe(struct i2c_client *client,
 	sd->ctrl_handler = &vm050->ctrls;
 
 	/* initialize the mediabus entity */
-	rc = media_entity_init(&sd->entity, 1, &vm050->pad, 0);
+	rc = media_entity_pads_init(&sd->entity, 1, &vm050->pad);
 	if (rc < 0) {
 		dev_err(dev, "media_entity_init() failed: %d\n", rc);
 		goto err_media_entity_init;
 	}
+
+	sd->entity.function = MEDIA_ENT_F_CAM_SENSOR;
 
 	rc = v4l2_async_register_subdev(sd);
 	if (rc < 0) {
