@@ -191,6 +191,7 @@ static long media_device_enum_links(struct media_device *mdev, void *arg)
 			ulink_desc++;
 		}
 	}
+	memset(links->reserved, 0, sizeof(links->reserved));
 
 	return 0;
 }
