@@ -114,7 +114,7 @@ struct vm050 {
 	/* shadow some bits of the control registers; the 'enable' and 'reset'
 	 * bits will be set depending on the context */
 	struct {
-		uint16_t		r1[0x5 - 0x1];
+		uint16_t		r1[0x6 - 0x1];
 		uint16_t		r13[1];
 		uint16_t		o[1];
 	}				reg_ctrl;
@@ -399,9 +399,9 @@ static void vm050_mod_cached(struct vm050 *vm050, uint8_t reg,
 		/* REG_CONTROL1 is special; do not handle it here... */
 		*err = -EINVAL;
 		return;
-	} else if (reg >= VM050_REG_CONTROL1 && reg <= VM050_REG_CONTROL5) {
+	} else if (reg >= VM050_REG_CONTROL1 && reg <= VM050_REG_CONTROL6) {
 		unsigned int		idx = reg - VM050_REG_CONTROL1;
-		BUG_ON(idx >= ARRAY_SIZE(vm050->reg_ctrl.r1));
+		BUG_ON(idx > ARRAY_SIZE(vm050->reg_ctrl.r1));
 		shadow  = &vm050->reg_ctrl.r1[idx];
 		op      = OP_MOD;
 		delayed = false;
@@ -1228,6 +1228,9 @@ static int _vm050_video_s_stream_on(struct vm050 *vm050)
 	 * writes to shadow registers outside of streaming) */
 	struct regval const		rv[] = {
 		{
+			.reg    = VM050_REG_CONTROL6,
+			.val    = vm050->reg_ctrl.r1[5],
+		}, {
 			.reg	= VM050_REG_CONTROL4,
 			.val	= vm050->reg_ctrl.r1[3],
 		}, {
@@ -1403,9 +1406,9 @@ static int vm050_s_ctrl(struct v4l2_ctrl *ctrl)
 		break;
 
 	case V4L2_CID_X_AVERAGE:
-		vm050_mod_cached(vm050, VM050_REG_CONTROL3,
-				 VM050_FLD_CONTROL3_AVG_msk,
-				 VM050_FLD_CONTROL3_AVG(ctrl->val), &rc);
+		vm050_mod_cached(vm050, VM050_REG_CONTROL6,
+				 VM050_FLD_CONTROL6_AVG_msk,
+				 VM050_FLD_CONTROL6_AVG(ctrl->val), &rc);
 		break;
 
 	case V4L2_CID_X_INTERFACE_PERFORMANCE:
@@ -1971,7 +1974,7 @@ static struct v4l2_subdev_internal_ops const	vm050_internal_ops = {
 
 /* {{{ regmap setup */
 static struct regmap_range const	vm050_regmap_wr_ranges[] = {
-	{ 0x02, 0x05 },
+	{ 0x02, 0x07 },
 	{ 0x0f, 0x13 },
 	{ 0x19, 0x1a },
 	{ 0x20, 0x27 },
@@ -2163,6 +2166,7 @@ static int vm050_probe(struct i2c_client *client,
 	vm050->reg_ctrl.r1[1] = 0x1100;
 	vm050->reg_ctrl.r1[2] = 0xf100;
 	vm050->reg_ctrl.r1[3] = 0x1100;
+	vm050->reg_ctrl.r1[5] = 0x0000;
 	vm050->reg_ctrl.o[0]  = 0x0011;
 
 	if (of_property_read_bool(np, "pixclk-falling"))
