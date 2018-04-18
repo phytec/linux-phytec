@@ -57,23 +57,24 @@ enum {
 	V4L2_CID_X_AUTOSCALE_MODE,
 	/* TODO: use V4L2_CID_EXPOSURE_METERING? */
 	V4L2_CID_X_AUTOSCALE_METERING,
+	V4L2_CID_X_FILTER,
 	V4L2_CID_X_AVERAGE,
 	V4L2_CID_X_INTERFACE_PERFORMANCE,
 	V4L2_CID_X_INTERFACE_ACCURACY,
 
 	/* a control which documents 'V4L2_CID_X_TRACKING_MODE' values */
-	V4L2_CID_X_TRACKING_MODE_MENU = V4L2_CID_X_AVERAGE + 19,
+	V4L2_CID_X_TRACKING_MODE_MENU = V4L2_CID_X_AVERAGE + 18,
 	V4L2_CID_X_TRACKING_MODE,
 	V4L2_CID_X_TRACKING_PIXNUM,
 	V4L2_CID_X_TRACKING_TEMP,
 	V4L2_CID_X_TRACKING_FLAG,
 
-	V4L2_CID_X_TEMP_WINDOW_MIN = V4L2_CID_X_TRACKING_FLAG + 20,
+	V4L2_CID_X_TEMP_WINDOW_MIN = V4L2_CID_X_TRACKING_FLAG + 19,
 	V4L2_CID_X_TEMP_WINDOW_MAX,
 	V4L2_CID_X_TEMP_VALUES,
 	V4L2_CID_X_TEMP_SCALE,
 
-	V4L2_CID_X_DEAD_PIXELS = V4L2_CID_X_TEMP_SCALE +20,
+	V4L2_CID_X_DEAD_PIXELS = V4L2_CID_X_TEMP_SCALE +19,
 };
 
 enum vm050_type {
@@ -1341,6 +1342,15 @@ static char const * const			vm050_autoscale_metering_menu[] = {
 	"spot",
 };
 
+static char const * const			vm050_filter_menu[] = {
+	"none",
+	"box","box",
+	"binominal","binominal",
+	"gaussian","gaussian",
+	"median","median",
+};
+
+
 static char const * const			vm050_average_menu[] = {
 	"none",
 	"weak",
@@ -1403,6 +1413,12 @@ static int vm050_s_ctrl(struct v4l2_ctrl *ctrl)
 		vm050_mod_cached(vm050, VM050_REG_CONTROL2,
 				 VM050_FLD_CONTROL2_METERING_msk,
 				 VM050_FLD_CONTROL2_METERING(ctrl->val), &rc);
+		break;
+
+	case V4L2_CID_X_FILTER:
+		vm050_mod_cached(vm050, VM050_REG_CONTROL6,
+				 VM050_FLD_CONTROL6_FILTER_msk,
+				 VM050_FLD_CONTROL6_FILTER(ctrl->val), &rc);
 		break;
 
 	case V4L2_CID_X_AVERAGE:
@@ -1633,6 +1649,14 @@ static struct v4l2_ctrl_config const		vm050_ctrls[] = {
 		.def		= 1,
 		.qmenu		= vm050_autoscale_metering_menu,
 		.menu_skip_mask = BIT(0),
+	}, {
+		.ops		= &vm050_ctrl_ops,
+		.id		= V4L2_CID_X_FILTER,
+		.type		= V4L2_CTRL_TYPE_MENU,
+		.name		= "Filter",
+		.min		= 0,
+		.max		= ARRAY_SIZE(vm050_filter_menu) - 1,
+		.qmenu		= vm050_filter_menu,
 	}, {
 		.ops		= &vm050_ctrl_ops,
 		.id		= V4L2_CID_X_AVERAGE,
