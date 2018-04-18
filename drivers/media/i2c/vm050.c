@@ -1404,7 +1404,7 @@ static int vm050_s_ctrl(struct v4l2_ctrl *ctrl)
 
 	case V4L2_CID_X_AVERAGE:
 		vm050_mod_cached(vm050, VM050_REG_CONTROL3,
-				 VM050_FLD_CONTROL3_AVG_msg,
+				 VM050_FLD_CONTROL3_AVG_msk,
 				 VM050_FLD_CONTROL3_AVG(ctrl->val), &rc);
 		break;
 
@@ -1980,7 +1980,6 @@ static struct regmap_range const	vm050_regmap_wr_ranges[] = {
 
 static struct regmap_range const	vm050_regmap_rd_ranges[] = {
 	{ 0x00, 0x13 },
-	{ 0x17, 0x1e },
 	{ 0x17, 0x1e },
 	{ 0x20, 0x27 },
 	{ 0x2b, 0x32 },
