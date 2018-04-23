@@ -143,6 +143,14 @@ static int da9063_wdt_restart(struct watchdog_device *wdd, unsigned long action,
 	return ret;
 }
 
+static inline bool da9063_wdt_is_running(struct da9063 *da9063)
+{
+	int val;
+
+	regmap_read(da9063->regmap, DA9063_REG_CONTROL_D, &val);
+	return val & DA9063_TWDSCALE_MASK;
+}
+
 static const struct watchdog_info da9063_watchdog_info = {
 	.options = WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING,
 	.identity = "DA9063 Watchdog",
@@ -161,6 +169,7 @@ static int da9063_wdt_probe(struct platform_device *pdev)
 {
 	struct da9063 *da9063;
 	struct watchdog_device *wdd;
+	int ret;
 
 	if (!pdev->dev.parent)
 		return -EINVAL;
@@ -187,7 +196,25 @@ static int da9063_wdt_probe(struct platform_device *pdev)
 
 	watchdog_set_drvdata(wdd, da9063);
 
-	return devm_watchdog_register_device(&pdev->dev, wdd);
+	if (da9063_wdt_is_running(da9063)) {
+		ret = da9063_wdt_set_timeout(wdd, wdd->timeout);
+		if (ret < 0)
+			return ret;
+
+		set_bit(WDOG_HW_RUNNING, &wdd->status);
+		dev_info(da9063->dev,
+			 "watchdog is running, setting default timeout: %u sec\n",
+			 wdd->timeout);
+	}
+
+	ret = devm_watchdog_register_device(&pdev->dev, wdd);
+	if (ret < 0) {
+		dev_err(da9063->dev,
+			"watchdog registration failed (%d)\n", ret);
+		return ret;
+	}
+
+	return 0;
 }
 
 static struct platform_driver da9063_wdt_driver = {
