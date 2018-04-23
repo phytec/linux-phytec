@@ -48,8 +48,28 @@ static unsigned int da9063_wdt_timeout_to_sel(unsigned int secs)
 	return DA9063_TWDSCALE_MAX;
 }
 
+static int _da9063_wdt_reset_watchdog_timeout(struct da9063 *da9063)
+{
+	return regmap_write(da9063->regmap, DA9063_REG_CONTROL_F,
+			    DA9063_WATCHDOG);
+
+}
+
 static int _da9063_wdt_set_timeout(struct da9063 *da9063, unsigned int regval)
 {
+	int ret;
+
+	ret = _da9063_wdt_reset_watchdog_timeout(da9063);
+
+	if (ret)
+		return ret;
+
+	/* Disable watchdog before changing timeout */
+	ret = regmap_update_bits(da9063->regmap, DA9063_REG_CONTROL_D,
+				 DA9063_TWDSCALE_MASK, DA9063_TWDSCALE_DISABLE);
+
+	usleep_range(150, 300);
+
 	return regmap_update_bits(da9063->regmap, DA9063_REG_CONTROL_D,
 				  DA9063_TWDSCALE_MASK, regval);
 }
@@ -88,8 +108,8 @@ static int da9063_wdt_ping(struct watchdog_device *wdd)
 	struct da9063 *da9063 = watchdog_get_drvdata(wdd);
 	int ret;
 
-	ret = regmap_write(da9063->regmap, DA9063_REG_CONTROL_F,
-			   DA9063_WATCHDOG);
+	ret = _da9063_wdt_reset_watchdog_timeout(da9063);
+
 	if (ret)
 		dev_alert(da9063->dev, "Failed to ping the watchdog (err = %d)\n",
 			  ret);
