@@ -643,7 +643,7 @@ static int gpmi_get_clks(struct gpmi_nand_data *this)
 		r->clock[i] = clk;
 	}
 
-	if (GPMI_IS_MX6(this)) {
+	if (GPMI_IS_MX6Q(this)) {
 		/*
 		 * The GPMI clock is enabled by default. The erratum 07117
 		 * notes that the clock must disabled before the rate is set.
