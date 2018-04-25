@@ -55,6 +55,7 @@
 	phy-mode = "rgmii";
 	phy-supply = <&vdd_eth_io>;
 	phy-reset-gpios = <&gpio1 14 GPIO_ACTIVE_LOW>;
+	phy-reset-duration = <10>; /* in msecs */
 	status = "disabled";
 
 	mdio {
