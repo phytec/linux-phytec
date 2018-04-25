@@ -85,13 +85,14 @@
 		assigned-clocks =
 			<&clks IMX6QDL_CLK_CKO2_SEL>,
 			<&clks IMX6QDL_CLK_ESAI_SEL>,
-			<&clks IMX6QDL_CLK_PLL4_AUDIO_DIV>;
+			<&clks IMX6QDL_CLK_PLL4_AUDIO_DIV>,
+			<&clks IMX6QDL_CLK_ESAI_EXTAL>;
 
 		assigned-clock-parents =
 			<&clks IMX6QDL_CLK_ESAI_EXTAL>,
 			<&clks IMX6QDL_CLK_PLL4_AUDIO_DIV>;
 
-		assigned-clock-rates = <0>, <0>, <216000000>;
+		assigned-clock-rates = <0>, <0>, <216000000>, <54000000>;
 
 		port {
 			mt9p031_ep1: endpoint {
@@ -124,13 +125,14 @@
 		assigned-clocks =
 			<&clks IMX6QDL_CLK_CKO2_SEL>,
 			<&clks IMX6QDL_CLK_ESAI_SEL>,
-			<&clks IMX6QDL_CLK_PLL4_AUDIO_DIV>;
+			<&clks IMX6QDL_CLK_PLL4_AUDIO_DIV>,
+			<&clks IMX6QDL_CLK_ESAI_EXTAL>;
 
 		assigned-clock-parents =
 			<&clks IMX6QDL_CLK_ESAI_EXTAL>,
 			<&clks IMX6QDL_CLK_PLL4_AUDIO_DIV>;
 
-		assigned-clock-rates = <0>, <0>, <216000000>;
+		assigned-clock-rates = <0>, <0>, <216000000>, <54000000>;
 
 		port {
 			mt9v024_ep1_0: endpoint {
@@ -163,7 +165,8 @@
 		assigned-clocks =
 			<&clks IMX6QDL_CLK_CKO2_SEL>,
 			<&clks IMX6QDL_CLK_ESAI_SEL>,
-			<&clks IMX6QDL_CLK_PLL4_AUDIO_DIV>;
+			<&clks IMX6QDL_CLK_PLL4_AUDIO_DIV>,
+			<&clks IMX6QDL_CLK_ESAI_EXTAL>;
 
 		assigned-clock-parents =
 			<&clks IMX6QDL_CLK_ESAI_EXTAL>,
