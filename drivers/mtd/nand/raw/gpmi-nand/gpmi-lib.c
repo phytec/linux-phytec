@@ -110,19 +110,26 @@ static int __gpmi_enable_clk(struct gpmi_nand_data *this, bool v)
 	int ret;
 	int i;
 
-	for (i = 0; i < GPMI_CLK_MAX; i++) {
-		clk = this->resources.clock[i];
-		if (!clk)
-			break;
+	if (v) {
+		for (i = 0; i < GPMI_CLK_MAX; i++) {
+			clk = this->resources.clock[i];
+			if (!clk)
+				break;
 
-		if (v) {
 			ret = clk_prepare_enable(clk);
 			if (ret)
 				goto err_clk;
-		} else {
+		}
+	} else {
+		for (i = GPMI_CLK_MAX; i > 0; i--) {
+			clk = this->resources.clock[i - 1];
+			if (!clk)
+				continue;
+
 			clk_disable_unprepare(clk);
 		}
 	}
+
 	return 0;
 
 err_clk:
