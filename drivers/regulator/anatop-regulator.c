@@ -135,6 +135,10 @@ static int anatop_regmap_set_bypass(struct regulator_dev *reg, bool enable)
 		return 0;
 
 	sel = enable ? LDO_FET_FULL_ON : anatop_reg->sel;
+
+	if (!anatop_regmap_is_enabled(reg))
+		sel = LDO_POWER_GATE;
+
 	anatop_reg->bypass = enable;
 
 	return regulator_set_voltage_sel_regmap(reg, sel);
