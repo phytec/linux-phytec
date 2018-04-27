@@ -770,6 +770,12 @@ static const struct regmap_range da9062_aa_volatile_ranges[] = {
 	}, {
 		.range_min = DA9062AA_EN_32K,
 		.range_max = DA9062AA_EN_32K,
+	}, {
+		.range_min = DA9062AA_VBUCK2_A,
+		.range_max = DA9062AA_VBUCK4_A,
+	}, {
+		.range_min = DA9062AA_VBUCK3_A,
+		.range_max = DA9062AA_VBUCK3_A,
 	},
 };
 
