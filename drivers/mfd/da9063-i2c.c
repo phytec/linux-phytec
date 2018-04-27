@@ -98,6 +98,9 @@ static const struct regmap_range da9063_ad_volatile_ranges[] = {
 		.range_min = DA9063_REG_EN_32K,
 		.range_max = DA9063_REG_EN_32K,
 	}, {
+		.range_min = DA9063_REG_VBCORE2_A,
+		.range_max = DA9063_REG_VBCORE1_A,
+	}, {
 		.range_min = DA9063_AD_REG_MON_REG_5,
 		.range_max = DA9063_AD_REG_MON_REG_6,
 	},
@@ -187,6 +190,9 @@ static const struct regmap_range da9063_bb_volatile_ranges[] = {
 	}, {
 		.range_min = DA9063_REG_EN_32K,
 		.range_max = DA9063_REG_EN_32K,
+	}, {
+		.range_min = DA9063_REG_VBCORE2_A,
+		.range_max = DA9063_REG_VBCORE1_A,
 	}, {
 		.range_min = DA9063_BB_REG_MON_REG_5,
 		.range_max = DA9063_BB_REG_MON_REG_6,
