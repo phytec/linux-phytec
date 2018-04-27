@@ -24,6 +24,8 @@
 		i2c3 = &hdmi_ddc;
 		rtc1 = &pmic_rtc;
 		rtc2 = &snvs_rtc;
+		watchdog0 = &da9063_wdog;
+		watchdog1 = &wdog1;
 	};
 
 	reg_usb_otg_vbus: regulator-usbotg-vbus {
@@ -233,7 +235,7 @@
 			compatible = "dlg,da9063-rtc";
 		};
 
-		wdt {
+		da9063_wdog: wdt {
 			compatible = "dlg,da9063-watchdog";
 		};
 	};
