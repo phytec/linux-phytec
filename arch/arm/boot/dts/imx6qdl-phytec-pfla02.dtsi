@@ -158,12 +158,14 @@
 			vddcore_reg: bcore1 {
 				regulator-min-microvolt = <730000>;
 				regulator-max-microvolt = <1380000>;
+				regulator-ramp-delay = <10000>;
 				regulator-always-on;
 			};
 
 			vddsoc_reg: bcore2 {
 				regulator-min-microvolt = <730000>;
 				regulator-max-microvolt = <1380000>;
+				regulator-ramp-delay = <10000>;
 				regulator-always-on;
 			};
 
