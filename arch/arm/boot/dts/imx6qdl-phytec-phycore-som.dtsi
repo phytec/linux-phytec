@@ -34,6 +34,10 @@
 	};
 };
 
+&cpu0 {
+	fsl,ldo-bypass;
+};
+
 &ecspi1 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_ecspi1>;
@@ -168,14 +172,17 @@
 };
 
 &reg_arm {
+	regulator-allow-bypass;
 	vin-supply = <&vdd_arm>;
 };
 
 &reg_pu {
+	regulator-allow-bypass;
 	vin-supply = <&vdd_soc>;
 };
 
 &reg_soc {
+	regulator-allow-bypass;
 	vin-supply = <&vdd_soc>;
 };
 
