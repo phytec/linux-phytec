@@ -21,6 +21,8 @@
 #define PU_SOC_VOLTAGE_NORMAL	1250000
 #define PU_SOC_VOLTAGE_HIGH	1275000
 #define FREQ_1P2_GHZ		1200000000
+#define FREQ_800_MHZ            792000000
+#define FREQ_400_MHZ            396000000
 
 static struct regulator *arm_reg;
 static struct regulator *pu_reg;
@@ -56,6 +58,7 @@ static bool free_opp;
 static struct cpufreq_frequency_table *freq_table;
 static unsigned int max_freq;
 static unsigned int transition_latency;
+static bool bypass;
 
 static u32 *imx6_soc_volt;
 static u32 soc_opp_count;
@@ -225,6 +228,112 @@ static int imx6q_cpufreq_exit(struct cpufreq_policy *policy)
 
 	return 0;
 }
+
+static int imx6q_cpufreq_prepare_bypass(void)
+{
+	int ret = 0;
+
+	/*
+	* Downgrade ARM speed to 400Mhz as half of boot 800Mhz before ldo
+	* bypassed, also downgrade internal vddarm ldo to 0.975V (1.15V
+	* on i.mx6dl).
+	* * VDDARM_IN 0.975V + 125mV = 1.1V < Max(1.3V on bypass)
+	* * VDDARM_IN 1.150V + 125mV = 1.275V < Max(1.3V on bypass) (i.mx6dl)
+	*/
+	clk_set_parent(clks[STEP].clk, clks[PLL2_PFD2_396M].clk);
+	clk_set_parent(clks[PLL1_SW].clk, clks[STEP].clk);
+	ret = clk_set_rate(clks[ARM].clk, FREQ_400_MHZ);
+
+	if (ret) {
+		dev_err(cpu_dev, "failed to set clock rate: %d\n", ret);
+		return ret;
+	}
+
+	/*
+	 * Set the ARM and SOC LDO voltage to the 400 MHz setpoint, the PMIC
+	 * supply voltage is set accordingly with a plus of 125 mV from the
+	 * regulator framework.
+	 */
+	if (of_machine_is_compatible("fsl,imx6dl") ||
+	    of_machine_is_compatible("fsl,imx6sx"))
+		regulator_set_voltage_tol(arm_reg, 1150000, 0);
+	else
+		regulator_set_voltage_tol(arm_reg, 975000, 0);
+
+
+	regulator_set_voltage_tol(soc_reg, 1175000, 0);
+	regulator_set_voltage_tol(pu_reg, 1175000, 0);
+
+	return 0;
+}
+
+static int imx6q_cpufreq_set_bypass(bool enable)
+{
+	int ret;
+
+	ret = regulator_set_bypass(arm_reg, enable);
+	if (ret)
+		goto arm_failed;
+
+	ret = regulator_set_bypass(soc_reg, enable);
+	if (ret)
+		goto soc_failed;
+
+	ret = regulator_set_bypass(pu_reg, enable);
+	if (ret)
+		goto pu_failed;
+
+	return ret;
+
+pu_failed:
+	regulator_set_bypass(soc_reg, !enable);
+
+soc_failed:
+	regulator_set_bypass(arm_reg, !enable);
+
+arm_failed:
+	return ret;
+}
+
+static int imx6q_cpufreq_complete_bypass(void)
+{
+	int ret = 0;
+
+	/*
+	 * Increase voltage to the 800 MHz setpoint. arm_reg and soc_reg now
+	 * represent the PMIC voltages since the internal LDOs of the i.MX 6
+	 * are in bypass mode.
+	 */
+	if (of_machine_is_compatible("fsl,imx6dl"))
+		regulator_set_voltage_tol(arm_reg, 1175000, 0);
+	else
+		regulator_set_voltage_tol(arm_reg, 1150000, 0);
+
+	/*
+	 * During bypassing the internal LDOs the min dropout voltage which is
+	 * added to the PMIC voltage was decreased. To allow this change to be
+	 * used we first have to set a different voltage before resetting the
+	 * voltage to 1.175 V. Otherwise the framework would discard the change.
+	 */
+	regulator_set_voltage_tol(soc_reg, 1150000, 0);
+	regulator_set_voltage_tol(pu_reg, 1150000, 0);
+
+	regulator_set_voltage_tol(soc_reg, 1175000, 0);
+	regulator_set_voltage_tol(pu_reg, 1175000, 0);
+	/*
+	 * Increase frequency to 800 MHz boot frequency
+	 */
+	clk_set_rate(clks[PLL1_SYS].clk, FREQ_800_MHZ);
+	clk_set_parent(clks[PLL1_SW].clk, clks[PLL1_SYS].clk);
+	ret = clk_set_rate(clks[ARM].clk, FREQ_800_MHZ);
+	if (ret) {
+		dev_err(cpu_dev, "failed to set clock rate: %d\n", ret);
+		return ret;
+	}
+
+	return 0;
+}
+
 
 static struct cpufreq_driver imx6q_cpufreq_driver = {
 	.flags = CPUFREQ_NEED_INITIAL_FREQ_CHECK,
@@ -494,6 +603,32 @@ soc_opp_out:
 	ret = regulator_set_voltage_time(arm_reg, min_volt, max_volt);
 	if (ret > 0)
 		transition_latency += ret * 1000;
+
+	bypass = of_property_read_bool(np, "fsl,ldo-bypass");
+
+	if (!bypass || (freq_table[num].frequency == FREQ_1P2_GHZ / 1000)) {
+		dev_info(cpu_dev, "Using anatop regulators: LDOs enabled\n");
+	} else {
+		ret = imx6q_cpufreq_prepare_bypass();
+		if (ret) {
+			dev_err(cpu_dev, "failed to prepare bypass\n");
+			return ret;
+		}
+
+		dev_info(cpu_dev, "Not using anatop LDO's: enabling LDO bypass\n");
+		ret = imx6q_cpufreq_set_bypass(true);
+
+		if (ret) {
+			dev_warn(cpu_dev, "failed to bypass internal LDOs\n");
+			bypass = false;
+		}
+
+		ret = imx6q_cpufreq_complete_bypass();
+		if (ret) {
+			dev_err(cpu_dev, "failed to complete bypass\n");
+			return ret;
+		}
+	}
 
 	ret = cpufreq_register_driver(&imx6q_cpufreq_driver);
 	if (ret) {
