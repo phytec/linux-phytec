@@ -114,6 +114,7 @@
 				regulator-name = "vdd_arm";
 				regulator-min-microvolt = <730000>;
 				regulator-max-microvolt = <1380000>;
+				regulator-ramp-delay = <2500>;
 				regulator-initial-mode = <2>; /* SYNC */
 				regulator-always-on;
 			};
@@ -122,6 +123,7 @@
 				regulator-name = "vdd_soc";
 				regulator-min-microvolt = <730000>;
 				regulator-max-microvolt = <1380000>;
+				regulator-ramp-delay = <2500>;
 				regulator-initial-mode = <2>; /* SYNC */
 				regulator-always-on;
 			};
