@@ -234,7 +234,6 @@
 		};
 
 		wdt {
-			/* Watchdog also used as the system reset handler */
 			compatible = "dlg,da9063-watchdog";
 		};
 	};
@@ -608,13 +607,5 @@
 	wp-gpios = <&gpio1 29 GPIO_ACTIVE_HIGH>;
 	no-1-8-v;
 	vmmc-supply = <&vdd_sd0_reg>;
-	status = "disabled";
-};
-
-&wdog1 {
-	/*
-	 * Rely on PMIC watchdog and reboot handler. Internal i.MX6 watchdog
-	 * does not reset all external PMIC voltages on reset.
-	 */
 	status = "disabled";
 };
