@@ -119,8 +119,6 @@
 	};
 
 	reg_lcd_3v3: regulator-lcd-3v3 {
-		pinctrl-names = "default";
-		pinctrl-0 = <&pinctrl_lcd_3v3_en>;
 		compatible = "regulator-fixed";
 		regulator-name = "lcd_3v3";
 		regulator-min-microvolt = <3300000>;
@@ -155,7 +153,7 @@
 		regulator-name = "mPCIe_1V5";
 		regulator-min-microvolt = <1500000>;
 		regulator-max-microvolt = <1500000>;
-		gpio = <&gpio3 0 GPIO_ACTIVE_HIGH>;
+		gpio = <&gpio1 26 GPIO_ACTIVE_HIGH>;
 		regulator-always-on;
 		enable-active-high;
 	};
@@ -694,12 +692,6 @@
 		>;
 	};
 
-	pinctrl_lcd_3v3_en: lcd3v3engrp {
-		fsl,pins = <
-			MX6QDL_PAD_EIM_EB0__GPIO2_IO28		0xb0b1
-		>;
-	};
-
 	pinctrl_en_switch: enswitchgrp {
 		fsl,pins = <
 			MX6QDL_PAD_EIM_DA4__GPIO3_IO04		0xb0b1
@@ -747,13 +739,13 @@
 
 	pinctrl_pcie: pciegrp {
 		fsl,pins = <
-			MX6QDL_PAD_ENET_RXD1__GPIO1_IO26	0xb0b1
+			MX6QDL_PAD_EIM_OE__GPIO2_IO25		0xb0b1
 		>;
 	};
 
 	pinctrl_pcie_reg: pcievgrp {
 		fsl,pins = <
-			MX6QDL_PAD_EIM_DA0__GPIO3_IO00		0xb0b1
+			MX6QDL_PAD_ENET_RXD1__GPIO1_IO26	0xb0b1
 		>;
 	};
 
@@ -851,7 +843,7 @@
 &pcie {
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_pcie>;
-	reset-gpio = <&gpio1 26 GPIO_ACTIVE_HIGH>;
+	reset-gpio = <&gpio2 25 GPIO_ACTIVE_HIGH>;
 	status = "disabled";
 };
 
