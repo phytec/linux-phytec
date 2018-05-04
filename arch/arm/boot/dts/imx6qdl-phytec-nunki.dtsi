@@ -155,7 +155,6 @@
 		regulator-max-microvolt = <1500000>;
 		gpio = <&gpio1 26 GPIO_ACTIVE_HIGH>;
 		regulator-always-on;
-		enable-active-high;
 	};
 
 	reg_usbotg_vbus: regulator-usbotg-vbus {
