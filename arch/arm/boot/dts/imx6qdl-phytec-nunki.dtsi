@@ -254,6 +254,7 @@
 		pinctrl-0 = <
 			&pinctrl_cam0data
 			&pinctrl_cam0clk
+			&pinctrl_cam0ctrl
 		>;
 		reg = <0x48>;
 		status = "disabled";
@@ -297,6 +298,7 @@
 		pinctrl-0 = <
 			&pinctrl_cam0data
 			&pinctrl_cam0clk
+			&pinctrl_cam0ctrl
 		>;
 		reg = <0x48>;
 		status = "disabled";
@@ -334,6 +336,7 @@
 		pinctrl-0 = <
 			&pinctrl_cam0data
 			&pinctrl_cam0clk
+			&pinctrl_cam0ctrl
 		>;
 		reg = <0x48>;
 		status = "disabled";
@@ -374,6 +377,7 @@
 		pinctrl-0 = <
 			&pinctrl_cam0data
 			&pinctrl_cam0clk
+			&pinctrl_cam0ctrl
 		>;
 		reg = <0x48>;
 		status = "disabled";
@@ -414,6 +418,7 @@
 		pinctrl-0 = <
 			&pinctrl_cam0data
 			&pinctrl_cam0clk
+			&pinctrl_cam0ctrl
 		>;
 
 		reg = <0x4a>;
@@ -437,6 +442,7 @@
 		pinctrl-0 = <
 			&pinctrl_cam1data
 			&pinctrl_cam1clk
+			&pinctrl_cam1ctrl
 		>;
 		reg = <0x48>;
 		status = "disabled";
@@ -481,6 +487,7 @@
 		pinctrl-0 = <
 			&pinctrl_cam1data
 			&pinctrl_cam1clk
+			&pinctrl_cam1ctrl
 		>;
 		reg = <0x48>;
 		status = "disabled";
@@ -519,6 +526,7 @@
 		pinctrl-0 = <
 			&pinctrl_cam1data
 			&pinctrl_cam1clk
+			&pinctrl_cam1ctrl
 		>;
 		reg = <0x48>;
 		status = "disabled";
@@ -558,6 +566,7 @@
 		pinctrl-0 = <
 			&pinctrl_cam1data
 			&pinctrl_cam1clk
+			&pinctrl_cam1ctrl
 		>;
 		reg = <0x48>;
 		status = "disabled";
@@ -599,6 +608,7 @@
 		pinctrl-0 = <
 			&pinctrl_cam1data
 			&pinctrl_cam1clk
+			&pinctrl_cam1ctrl
 		>;
 
 		reg = <0x4e>;
@@ -657,6 +667,13 @@
 		>;
 	};
 
+	pinctrl_cam0ctrl: cam0ctrlgrp {
+		fsl,pins = <
+			MX6QDL_PAD_GPIO_19__GPIO4_IO05          0x000130b0
+			MX6QDL_PAD_KEY_COL2__GPIO4_IO10         0x000130b0
+		>;
+	};
+
 	pinctrl_cam1clk: cam1clkgrp {
 		fsl,pins = <
 			MX6QDL_PAD_GPIO_3__CCM_CLKO2		0xb9
@@ -687,6 +704,13 @@
 		fsl,pins = <
 			MX6QDL_PAD_EIM_DA10__GPIO3_IO10		0xa0b0
 			MX6QDL_PAD_EIM_DA8__GPIO3_IO08		0x4000a0b0
+		>;
+	};
+
+	pinctrl_cam1ctrl: cam1ctrlgrp {
+		fsl,pins = <
+			MX6QDL_PAD_EIM_A25__GPIO5_IO02          0x000130b0
+			MX6QDL_PAD_CSI0_DAT4__GPIO5_IO22        0x000130b0
 		>;
 	};
 
