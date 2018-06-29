@@ -46,32 +46,28 @@
 		};
 	};
 
-	leds2 {
+	user-leds {
 		compatible = "gpio-leds";
 
-		led1 {
-			label = "red:user1";
+		user-led0 {
 			gpios = <&leddim 0 GPIO_ACTIVE_HIGH>;
 			linux,default-trigger = "none";
 			default-state = "on";
 		};
 
-		led2 {
-			label = "yellow:user2";
+		user-led1 {
 			gpios = <&leddim 1 GPIO_ACTIVE_HIGH>;
 			linux,default-trigger = "none";
 			default-state = "on";
 		};
 
-		led3 {
-			label = "yellow:user3";
+		user-led2 {
 			gpios = <&leddim 2 GPIO_ACTIVE_HIGH>;
 			linux,default-trigger = "none";
 			default-state = "on";
 		};
 
-		led4 {
-			label = "green:user4";
+		user-led3 {
 			gpios = <&leddim 3 GPIO_ACTIVE_HIGH>;
 			linux,default-trigger = "none";
 			default-state = "on";
@@ -195,8 +191,7 @@
 };
 
 &gpio_leds {
-	user_led_gpio {
-		label = "phyflex:user_led_gpio";
+	user-led-gpio {
 		gpios = <&gpio2 24 GPIO_ACTIVE_HIGH>;
 		linux,default-trigger = "gpio";
 	};
