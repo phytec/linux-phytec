@@ -49,13 +49,11 @@
 	gpio_leds: leds {
 		compatible = "gpio-leds";
 
-		green {
-			label = "phyflex:green";
+		phyflex-green {
 			gpios = <&gpio1 30 GPIO_ACTIVE_HIGH>;
 		};
 
-		red {
-			label = "phyflex:red";
+		phyflex-red {
 			gpios = <&gpio2 31 GPIO_ACTIVE_HIGH>;
 			linux,default-trigger = "heartbeat";
 		};
