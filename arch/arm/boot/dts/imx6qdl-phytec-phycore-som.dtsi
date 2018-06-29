@@ -28,8 +28,7 @@
 		pinctrl-names = "default";
 		pinctrl-0 = <&pinctrl_gpioleds_som>;
 
-		som-led-green {
-			label = "phycore:green";
+		phycore-green {
 			gpios = <&gpio1 4 GPIO_ACTIVE_HIGH>;
 			linux,default-trigger = "heartbeat";
 		};
