@@ -216,9 +216,8 @@ static int da9063_wdt_probe(struct platform_device *pdev)
 
 	watchdog_set_drvdata(wdd, da9063);
 
-	/* Change the timeout to the default value if the watchdog is running */
 	if (da9063_wdt_is_running(da9063)) {
-		da9063_wdt_update_timeout(da9063, DA9063_WDG_TIMEOUT);
+		da9063_wdt_ping(wdd);
 		set_bit(WDOG_HW_RUNNING, &wdd->status);
 	}
 
