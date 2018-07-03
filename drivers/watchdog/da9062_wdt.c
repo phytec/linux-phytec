@@ -242,14 +242,12 @@ static int da9062_wdt_probe(struct platform_device *pdev)
 	watchdog_set_drvdata(&wdt->wdtdev, wdt);
 
 	if (da9062_wdt_is_running(wdt)) {
-		ret = da9062_wdt_set_timeout(&wdt->wdtdev, wdt->wdtdev.timeout);
+		ret = da9062_wdt_ping(&wdt->wdtdev);
 		if (ret < 0)
 			return ret;
 
 		set_bit(WDOG_HW_RUNNING, &wdt->wdtdev.status);
-		dev_info(wdt->hw->dev,
-			 "watchdog is running, setting default timeout: %u sec\n",
-			 wdt->wdtdev.timeout);
+		dev_info(wdt->hw->dev, "watchdog is running");
 	}
 
 	ret = devm_watchdog_register_device(&pdev->dev, &wdt->wdtdev);
