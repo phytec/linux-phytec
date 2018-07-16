@@ -115,7 +115,7 @@ struct vm050 {
 	/* shadow some bits of the control registers; the 'enable' and 'reset'
 	 * bits will be set depending on the context */
 	struct {
-		uint16_t		r1[0x6 - 0x1];
+		uint16_t		r1[6];
 		uint16_t		r13[1];
 		uint16_t		o[1];
 	}				reg_ctrl;
