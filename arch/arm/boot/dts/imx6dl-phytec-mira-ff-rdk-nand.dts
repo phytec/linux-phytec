@@ -14,7 +14,7 @@
 
 / {
 	model = "PHYTEC phyBOARD-Mira DualLight/Solo full featured with NAND";
-	compatible = "phytec,imx6dl-pbac06-emmc", "phytec,imx6dl-pbac06",
+	compatible = "phytec,imx6dl-pbac06-nand", "phytec,imx6dl-pbac06",
 		     "phytec,imx6qdl-pcm058", "fsl,imx6dl";
 
 	chosen {
@@ -55,10 +55,6 @@
 };
 
 &leddim {
-	status = "okay";
-};
-
-&m25p80 {
 	status = "okay";
 };
 
