@@ -10,6 +10,7 @@ Optional property:
 - #clock-cells: Should be 0.
 - clock-output-names:
   overwrite the default clock name "pcf8563-clkout"
+- disable-clkout: Disables the clkout feature
 
 Example:
 
