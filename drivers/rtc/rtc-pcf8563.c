@@ -561,6 +561,7 @@ static int pcf8563_probe(struct i2c_client *client,
 				const struct i2c_device_id *id)
 {
 	struct pcf8563 *pcf8563;
+	struct device_node *node = client->dev.of_node;
 	int err;
 	unsigned char buf;
 	unsigned char alm_pending;
@@ -617,7 +618,8 @@ static int pcf8563_probe(struct i2c_client *client,
 
 #ifdef CONFIG_COMMON_CLK
 	/* register clk in common clk framework */
-	pcf8563_clkout_register_clk(pcf8563);
+	if (!of_property_read_bool(node, "disable-clkout"));
+		pcf8563_clkout_register_clk(pcf8563);
 #endif
 
 	/* the pcf8563 alarm only supports a minute accuracy */
