@@ -618,7 +618,7 @@ static int pcf8563_probe(struct i2c_client *client,
 
 #ifdef CONFIG_COMMON_CLK
 	/* register clk in common clk framework */
-	if (!of_property_read_bool(node, "disable-clkout"));
+	if (!of_property_read_bool(node, "disable-clkout"))
 		pcf8563_clkout_register_clk(pcf8563);
 #endif
 
