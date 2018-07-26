@@ -727,6 +727,9 @@ static const struct regmap_range da9062_aa_writeable_ranges[] = {
 		.range_min = DA9062AA_BBAT_CONT,
 		.range_max = DA9062AA_BBAT_CONT,
 	}, {
+		.range_min = DA9062AA_CONFIG_J,
+		.range_max = DA9062AA_CONFIG_J,
+	}, {
 		/* CONFIG_I must be writable to set WATCHDOG_SD */
 		.range_min = DA9062AA_CONFIG_I,
 		.range_max = DA9062AA_CONFIG_I,
@@ -904,6 +907,14 @@ static int da9062_i2c_probe(struct i2c_client *i2c,
 	}
 
 	irq_base = regmap_irq_chip_get_base(chip->regmap_irq);
+
+	/* Set bit 6 (TWOWIRE_TO) of register 0x10F (DA9062AA_CONFIG_J) to 0:
+	 *    Disables automatic reset of 2-WIRE-IF
+	 */
+	ret = regmap_update_bits(chip->regmap, DA9062AA_CONFIG_J, 0x40, 0x0);
+	if (ret < 0)
+		dev_warn(chip->dev, "Cannot disable i2c reset timeout (%d)\n",
+			 ret);
 
 	ret = mfd_add_devices(chip->dev, PLATFORM_DEVID_NONE, cell,
 			      cell_num, NULL, irq_base,
