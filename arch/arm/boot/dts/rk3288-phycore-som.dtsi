@@ -49,6 +49,10 @@
 	};
 };
 
+&cpu0 {
+	cpu0-supply = <&vdd_cpu>;
+};
+
 /* ADC */
 &pwm1 {
 	status = "okay";
