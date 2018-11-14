@@ -22,6 +22,35 @@
 			regulator-boot-on;
 		};
 	};
+
+	/* User IO */
+	user_leds: user_leds {
+		compatible = "gpio-leds";
+		pinctrl-names = "default";
+		pinctrl-0 = <&user_leds_pins>;
+
+		run_stop-led {
+			gpios = <&gpio2 22 GPIO_ACTIVE_HIGH>;
+			linux,default-trigger = "gpio";
+			default-state = "on";
+		};
+
+		error-led {
+			gpios = <&gpio3 15 GPIO_ACTIVE_LOW>;
+			linux,default-trigger = "gpio";
+			default-state = "on";
+		};
+	};
+};
+
+/* User Leds */
+&am33xx_pinmux {
+	user_leds_pins: pinmux_user_leds {
+		pinctrl-single,pins = <
+			AM33XX_IOPAD(0x8e0, PIN_OUTPUT_PULLDOWN | MUX_MODE7)    /* lcd_hsync.gpio2_22 */
+			AM33XX_IOPAD(0x994, PIN_OUTPUT_PULLDOWN | MUX_MODE7)    /* mcasp0_fsx.gpio3_15 */
+		>;
+	};
 };
 
 /* CAN Busses */
