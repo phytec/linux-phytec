@@ -1871,7 +1871,11 @@ int __i2c_transfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
 	/* Retry automatically on arbitration loss */
 	orig_jiffies = jiffies;
 	for (ret = 0, try = 0; try <= adap->retries; try++) {
-		ret = adap->algo->master_xfer(adap, msgs, num);
+		if ((in_atomic() || irqs_disabled()) && adap->algo->master_xfer_irqless)
+			ret = adap->algo->master_xfer_irqless(adap, msgs, num);
+		else
+			ret = adap->algo->master_xfer(adap, msgs, num);
+
 		if (ret != -EAGAIN)
 			break;
 		if (time_after(jiffies, orig_jiffies + adap->timeout))
