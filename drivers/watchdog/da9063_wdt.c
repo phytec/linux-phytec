@@ -14,6 +14,7 @@
 #include <linux/platform_device.h>
 #include <linux/uaccess.h>
 #include <linux/slab.h>
+#include <linux/i2c.h>
 #include <linux/delay.h>
 #include <linux/mfd/da9063/registers.h>
 #include <linux/mfd/da9063/core.h>
@@ -161,11 +162,20 @@ static int da9063_wdt_restart(struct watchdog_device *wdd, unsigned long action,
 			      void *data)
 {
 	struct da9063 *da9063 = watchdog_get_drvdata(wdd);
+	struct i2c_client *client = da9063->i2c;
+	__u8 buf[3] = {DA9063_REG_CONTROL_F, DA9063_SHUTDOWN, 0x0};
+	struct i2c_msg msgs[1] = {
+		{
+			.addr = client->addr,
+			.flags = (client->flags & I2C_M_TEN),
+			.len = sizeof(buf),
+			.buf = buf,
+		}
+	};
 	int ret;
 
-	ret = regmap_write(da9063->regmap, DA9063_REG_CONTROL_F,
-			   DA9063_SHUTDOWN);
-	if (ret)
+	ret = i2c_transfer(client->adapter, msgs, sizeof(msgs));
+	if (ret < 0)
 		dev_alert(da9063->dev, "Failed to shutdown (err = %d)\n",
 			  ret);
 
