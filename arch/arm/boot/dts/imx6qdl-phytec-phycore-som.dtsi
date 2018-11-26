@@ -202,6 +202,14 @@
 	status = "disabled";
 };
 
+&wdog1 {
+	/*
+	 * Rely on PMIC reboot handler. Internal i.MX6 watchdog, that is also
+	 * used for reboot, does not reset all external PMIC voltages on reset.
+	 */
+	status = "disabled";
+};
+
 &iomuxc {
 	pinctrl_enet: enetgrp {
 		fsl,pins = <
