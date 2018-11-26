@@ -30,6 +30,18 @@ extern int		__i2c_first_dynamic_bus_num;
 int i2c_check_addr_validity(unsigned addr, unsigned short flags);
 int i2c_check_7bit_addr_validity_strict(unsigned short addr);
 
+static inline int __i2c_lock_bus_helper(struct i2c_adapter *adap)
+{
+	int ret = 0;
+
+	if (in_atomic() || irqs_disabled())
+		ret = i2c_trylock_bus(adap, I2C_LOCK_SEGMENT) ? 0 : -EAGAIN;
+	else
+		i2c_lock_bus(adap, I2C_LOCK_SEGMENT);
+
+	return ret;
+}
+
 #ifdef CONFIG_ACPI
 const struct acpi_device_id *
 i2c_acpi_match_device(const struct acpi_device_id *matches,
