@@ -1165,14 +1165,6 @@ static int i2c_imx_probe(struct platform_device *pdev)
 	/* Set up platform driver data */
 	platform_set_drvdata(pdev, i2c_imx);
 
-	/*
-	 * Driver's PM callbacks are safe to be called in IRQ disabled
-	 * contexts. Providing this information to the PM subsystem is required
-	 * for the 'master_xfer_irqless' implementation that calls PM routines
-	 * in IRQ disabled/atomic contexts, too.
-	 */
-	pm_runtime_irq_safe(&pdev->dev);
-
 	pm_runtime_set_autosuspend_delay(&pdev->dev, I2C_PM_TIMEOUT);
 	pm_runtime_use_autosuspend(&pdev->dev);
 	pm_runtime_set_active(&pdev->dev);
