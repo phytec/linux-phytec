@@ -18,6 +18,8 @@
 #include <linux/err.h>
 #include <linux/i2c.h>
 
+#include "i2c-core.h"
+
 #define CREATE_TRACE_POINTS
 #include <trace/events/smbus.h>
 
@@ -499,7 +501,10 @@ s32 i2c_smbus_xfer(struct i2c_adapter *adapter, u16 addr, unsigned short flags,
 	flags &= I2C_M_TEN | I2C_CLIENT_PEC | I2C_CLIENT_SCCB;
 
 	if (adapter->algo->smbus_xfer) {
-		i2c_lock_bus(adapter, I2C_LOCK_SEGMENT);
+		res = __i2c_lock_bus_helper(adapter);
+		if (res)
+			goto trace;
+
 
 		/* Retry automatically on arbitration loss */
 		orig_jiffies = jiffies;
