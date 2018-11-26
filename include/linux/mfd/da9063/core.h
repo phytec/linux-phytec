@@ -84,6 +84,7 @@ struct da9063 {
 
 	/* Control interface */
 	struct regmap	*regmap;
+	struct i2c_client *i2c;
 
 	/* Interrupts */
 	int		chip_irq;
