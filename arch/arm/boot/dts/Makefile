@@ -558,8 +558,8 @@ dtb-$(CONFIG_SOC_IMX6UL) += \
 	imx6ul-isiot-nand.dtb \
 	imx6ul-liteboard.dtb \
 	imx6ul-opos6uldev.dtb \
-	imx6ul-phytec-phyboard-segin-ff-rdk.dtb \
-	imx6ul-phytec-phyboard-segin-ff-rdk-rs485.dtb \
+	imx6ul-phytec-segin-ff-rdk-nand.dtb \
+	imx6ul-phytec-segin-ff-rdk-nand-rs485.dtb \
 	imx6ul-pico-hobbit.dtb \
 	imx6ul-tx6ul-0010.dtb \
 	imx6ul-tx6ul-0011.dtb \
@@ -567,7 +567,7 @@ dtb-$(CONFIG_SOC_IMX6UL) += \
 	imx6ull-14x14-evk.dtb \
 	imx6ull-colibri-eval-v3.dtb \
 	imx6ull-colibri-wifi-eval-v3.dtb \
-	imx6ull-phytec-phyboard-segin-lc-rdk.dtb
+	imx6ull-phytec-segin-lc-rdk-nand.dtb
 dtb-$(CONFIG_SOC_IMX7D) += \
 	imx7d-cl-som-imx7.dtb \
 	imx7d-colibri-emmc-eval-v3.dtb \
