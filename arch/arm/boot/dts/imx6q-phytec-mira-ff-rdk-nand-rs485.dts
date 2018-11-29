@@ -63,6 +63,7 @@
 };
 
 &uart3 {
+	rts-gpios = <&gpio3 23 GPIO_ACTIVE_HIGH>;
 	linux,rs485-enabled-at-boot-time;
 	rs485-rts-active-high;
 	status = "okay";
@@ -78,4 +79,14 @@
 
 &usdhc1 {
 	status = "okay";
+};
+
+&iomuxc {
+	pinctrl_uart3: uart3grp {
+		fsl,pins = <
+			MX6QDL_PAD_EIM_D23__GPIO3_IO23		0x1a0b1
+			MX6QDL_PAD_EIM_D24__UART3_TX_DATA	0x1b0b1
+			MX6QDL_PAD_EIM_D25__UART3_RX_DATA	0x1b0b1
+		>;
+	};
 };
