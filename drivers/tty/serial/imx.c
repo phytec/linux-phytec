@@ -1417,6 +1417,10 @@ static void imx_shutdown(struct uart_port *port)
 	temp = readl(sport->port.membase + UCR2);
 	temp &= ~(UCR2_TXEN);
 	writel(temp, sport->port.membase + UCR2);
+
+	temp = readl(sport->port.membase + UCR4);
+	temp &= ~(UCR4_OREN);
+	writel(temp, sport->port.membase + UCR4);
 	spin_unlock_irqrestore(&sport->port.lock, flags);
 
 	/*
