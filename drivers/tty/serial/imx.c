@@ -424,15 +424,6 @@ static void imx_stop_rx(struct uart_port *port)
 	struct imx_port *sport = (struct imx_port *)port;
 	unsigned long ucr1, ucr2;
 
-	if (sport->dma_is_enabled && sport->dma_is_rxing) {
-		if (sport->port.suspended) {
-			dmaengine_terminate_all(sport->dma_chan_rx);
-			sport->dma_is_rxing = 0;
-		} else {
-			return;
-		}
-	}
-
 	ucr1 = readl(sport->port.membase + UCR1);
 	ucr2 = readl(sport->port.membase + UCR2);
 
