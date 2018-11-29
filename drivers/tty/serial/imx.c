@@ -1215,12 +1215,12 @@ static void imx_enable_dma(struct imx_port *sport)
 {
 	unsigned long temp;
 
+	imx_setup_ufcr(sport, TXTL_DMA, RXTL_DMA);
+
 	/* set UCR1 */
 	temp = readl(sport->port.membase + UCR1);
 	temp |= UCR1_RDMAEN | UCR1_TDMAEN | UCR1_ATDMAEN;
 	writel(temp, sport->port.membase + UCR1);
-
-	imx_setup_ufcr(sport, TXTL_DMA, RXTL_DMA);
 
 	sport->dma_is_enabled = 1;
 }
