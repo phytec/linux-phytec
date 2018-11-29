@@ -378,6 +378,7 @@ static void imx_stop_tx(struct uart_port *port)
 			imx_port_rts_active(sport, &temp);
 		else
 			imx_port_rts_inactive(sport, &temp);
+		temp |= UCR2_RXEN;
 
 		if (port->rs485.delay_rts_after_send > 0)
 			mdelay(port->rs485.delay_rts_after_send);
@@ -586,6 +587,8 @@ static void imx_start_tx(struct uart_port *port)
 			imx_port_rts_active(sport, &temp);
 		else
 			imx_port_rts_inactive(sport, &temp);
+		if (!(port->rs485.flags & SER_RS485_RX_DURING_TX))
+			temp &= ~UCR2_RXEN;
 		if (port->rs485.delay_rts_before_send > 0)
 			mdelay(port->rs485.delay_rts_before_send);
 
@@ -1731,20 +1734,27 @@ static int imx_rs485_config(struct uart_port *port,
 			    struct serial_rs485 *rs485conf)
 {
 	struct imx_port *sport = (struct imx_port *)port;
+	unsigned long temp;
 
 	/* RTS is required to control the transmitter */
 	if (!sport->have_rtscts && !sport->have_rtsgpio)
 		rs485conf->flags &= ~SER_RS485_ENABLED;
 
 	if (rs485conf->flags & SER_RS485_ENABLED) {
-		unsigned long temp;
-
 		/* disable transmitter */
 		temp = readl(sport->port.membase + UCR2);
 		if (rs485conf->flags & SER_RS485_RTS_AFTER_SEND)
 			imx_port_rts_active(sport, &temp);
 		else
 			imx_port_rts_inactive(sport, &temp);
+		writel(temp, sport->port.membase + UCR2);
+	}
+
+	/* Make sure Rx is enabled in case Tx is active with Rx disabled */
+	if (!(rs485conf->flags & SER_RS485_ENABLED) ||
+	    rs485conf->flags & SER_RS485_RX_DURING_TX) {
+		temp = readl(sport->port.membase + UCR2);
+		temp |= UCR2_RXEN;
 		writel(temp, sport->port.membase + UCR2);
 	}
 
