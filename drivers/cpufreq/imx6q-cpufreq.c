@@ -540,8 +540,10 @@ static int imx6q_cpufreq_probe(struct platform_device *pdev)
 	}
 
 	if (of_machine_is_compatible("fsl,imx6ul") ||
-	    of_machine_is_compatible("fsl,imx6ull"))
+	    of_machine_is_compatible("fsl,imx6ull")) {
 		imx6ul_opp_check_speed_grading(cpu_dev);
+		num = dev_pm_opp_get_opp_count(cpu_dev);
+	}
 
 	ret = dev_pm_opp_init_cpufreq_table(cpu_dev, &freq_table);
 	if (ret) {
