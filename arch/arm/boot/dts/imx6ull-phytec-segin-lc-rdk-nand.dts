@@ -10,9 +10,9 @@
 /dts-v1/;
 #include <dt-bindings/input/input.h>
 #include "imx6ull.dtsi"
-#include "imx6ul-phytec-phycore-som.dtsi"
-#include "imx6ul-phytec-segin.dtsi"
-#include "imx6ul-phytec-segin-peb-eval-01.dtsi"
+#include "imx6ull-phytec-phycore-som.dtsi"
+#include "imx6ull-phytec-segin.dtsi"
+#include "imx6ull-phytec-segin-peb-eval-01.dtsi"
 
 / {
 
