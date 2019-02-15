@@ -205,7 +205,7 @@
 	pinctrl-0 = <&uart1_rs485_pins>;
 	status = "okay";
 	rs485-rts-active-high;
-	rts-gpios = <&gpio0 13 GPIO_ACTIVE_HIGH>;
+	rts-gpio = <&gpio0 13 GPIO_ACTIVE_HIGH>;
 	rs485-rts-delay = <0 0>;
 	linux,rs485-enabled-at-boot-time;
 };
