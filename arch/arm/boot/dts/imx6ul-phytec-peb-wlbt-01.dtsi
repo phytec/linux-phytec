@@ -11,18 +11,15 @@
 #include <dt-bindings/interrupt-controller/irq.h>
 
 / {
-	regulators {
-		reg_wlan_en: regulator@7 {
-			compatible = "regulator-fixed";
-			reg = <7>;
-			regulator-name = "wlan_en";
-			regulator-min-microvolt = <3300000>;
-			regulator-max-microvolt = <3300000>;
-			gpio = <&gpio5 9 GPIO_ACTIVE_HIGH>;
-			startup-delay-us = <70000>; /* card specific delay */
-			enable-active-high;
-			status = "disabled";
-		};
+	reg_wlan_en: regulator-wlan-en {
+		compatible = "regulator-fixed";
+		regulator-name = "wlan_en";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+		gpio = <&gpio5 9 GPIO_ACTIVE_HIGH>;
+		startup-delay-us = <70000>; /* card specific delay */
+		enable-active-high;
+		status = "disabled";
 	};
 };
 
