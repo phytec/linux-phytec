@@ -17,48 +17,39 @@
 		rtc1 = &snvs_rtc;
 	};
 
-	regulators {
-		compatible = "simple-bus";
-		#address-cells = <1>;
-		#size-cells = <0>;
+	reg_adc1_vref_3v3: regulator-adc1 {
+		compatible = "regulator-fixed";
+		regulator-name = "vref-3v3";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+	};
 
-		reg_sound_1v8: regulator@1 {
-			compatible = "regulator-fixed";
-			reg = <1>;
-			regulator-name = "i2s-audio-1v8";
-			regulator-min-microvolt = <1800000>;
-			regulator-max-microvolt = <1800000>;
-			status = "disabled";
-		};
+	reg_can1_en: regulator-can1-en {
+		compatible = "regulator-fixed";
+		pinctrl-names = "default";
+		pinctrl-0 = <&princtrl_flexcan1_en>;
+		regulator-name = "Can";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+		gpio = <&gpio5 2 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+		status = "disabled";
+	};
 
-		reg_sound_3v3: regulator@2 {
-			compatible = "regulator-fixed";
-			reg = <2>;
-			regulator-name = "i2s-audio-3v3";
-			regulator-min-microvolt = <3300000>;
-			regulator-max-microvolt = <3300000>;
-			status = "disabled";
-		};
+	reg_sound_1v8: regulator-sound-1v8 {
+		compatible = "regulator-fixed";
+		regulator-name = "i2s-audio-1v8";
+		regulator-min-microvolt = <1800000>;
+		regulator-max-microvolt = <1800000>;
+		status = "disabled";
+	};
 
-		reg_can1_en: regulator@3 {
-			compatible = "regulator-fixed";
-			reg = <3>;
-			pinctrl-names = "default";
-			pinctrl-0 = <&princtrl_flexcan1_en>;
-			regulator-name = "Can";
-			regulator-min-microvolt = <3300000>;
-			regulator-max-microvolt = <3300000>;
-			gpio = <&gpio5 2 GPIO_ACTIVE_HIGH>;
-			enable-active-high;
-			status = "disabled";
-		};
-
-		reg_adc1_vref_3v3: regulator@5 {
-			compatible = "regulator-fixed";
-			regulator-name = "vref-3v3";
-			regulator-min-microvolt = <3300000>;
-			regulator-max-microvolt = <3300000>;
-		};
+	reg_sound_3v3: regulator-sound-3v3 {
+		compatible = "regulator-fixed";
+		regulator-name = "i2s-audio-3v3";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+		status = "disabled";
 	};
 
 	sound: sound {
