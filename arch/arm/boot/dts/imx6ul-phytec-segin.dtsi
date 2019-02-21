@@ -83,6 +83,18 @@
 
 };
 
+&adc1 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_adc1>;
+	vref-supply = <&reg_adc1_vref_3v3>;
+	status = "disabled";
+	/*
+	 * driver can not separate a specific channel so we request 4 channels
+	 * here - we need only the fourth channel
+	 */
+	num-channels = <4>;
+};
+
 &can1 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_flexcan1>;
@@ -210,19 +222,13 @@
 	status = "disabled";
 };
 
-&adc1 {
-	pinctrl-names = "default";
-	pinctrl-0 = <&pinctrl_adc1>;
-	vref-supply = <&reg_adc1_vref_3v3>;
-	status = "disabled";
-	/*
-	 * driver can not separate a specific channel so we request 4 channels
-	 * here - we need only the fourth channel
-	 */
-	num-channels = <4>;
-};
-
 &iomuxc {
+	pinctrl_adc1: adc1grp {
+		fsl,pins = <
+			MX6UL_PAD_GPIO1_IO03__GPIO1_IO03	0xb0
+		>;
+	};
+
 	pinctrl_enet2: enet2grp {
 		fsl,pins = <
 			MX6UL_PAD_ENET2_RX_EN__ENET2_RX_EN	0x1b0b0
@@ -323,12 +329,6 @@
 			MX6UL_PAD_SD1_DATA1__USDHC1_DATA1	0x170f9
 			MX6UL_PAD_SD1_DATA2__USDHC1_DATA2	0x170f9
 			MX6UL_PAD_SD1_DATA3__USDHC1_DATA3	0x170f9
-		>;
-	};
-
-	pinctrl_adc1: adc1grp {
-		fsl,pins = <
-			MX6UL_PAD_GPIO1_IO03__GPIO1_IO03	0xb0
 		>;
 	};
 };
