@@ -35,8 +35,7 @@
 		compatible = "gpio-leds";
 		status = "okay";
 
-		som_green {
-			label = "phycore:green";
+		phycore-green {
 			gpios = <&gpio5 4 GPIO_ACTIVE_HIGH>;
 			linux,default-trigger = "heartbeat";
 		};
