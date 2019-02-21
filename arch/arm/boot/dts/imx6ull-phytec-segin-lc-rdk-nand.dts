@@ -24,6 +24,14 @@
 	status = "okay";
 };
 
+&ethphy1 {
+	status = "okay";
+};
+
+&fec1 {
+	status = "okay";
+};
+
 &i2c_rtc {
 	status = "okay";
 };
