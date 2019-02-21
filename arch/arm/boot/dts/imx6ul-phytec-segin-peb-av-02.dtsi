@@ -20,18 +20,15 @@
 		status = "disabled";
 	};
 
-	regulators {
-		reg_backlight_en: regulator@4 {
-			compatible = "regulator-fixed";
-			reg = <6>;
-			pinctrl-names = "default";
-			pinctrl-0 = <&pinctrl_backlight_en>;
-			regulator-name = "Backlight";
-			regulator-min-microvolt = <3300000>;
-			regulator-max-microvolt = <3300000>;
-			gpio = <&gpio1 18 GPIO_ACTIVE_HIGH>;
-			enable-active-high;
-		};
+	reg_backlight_en: regulator-backlight-en {
+		compatible = "regulator-fixed";
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_backlight_en>;
+		regulator-name = "Backlight";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+		gpio = <&gpio1 18 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
 	};
 };
 
