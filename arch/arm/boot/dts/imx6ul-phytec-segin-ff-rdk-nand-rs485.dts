@@ -79,6 +79,7 @@
 };
 
 &uart5 {
+	rts-gpios = <&gpio1 9 GPIO_ACTIVE_HIGH>;
 	rs485-rts-active-high;
 	linux,rs485-enabled-at-boot-time;
 	status = "okay";
@@ -94,4 +95,14 @@
 
 &usdhc1 {
 	status = "okay";
+};
+
+&iomuxc {
+	pinctrl_uart5: uart5grp {
+		fsl,pins = <
+			MX6UL_PAD_UART5_TX_DATA__UART5_DCE_TX	0x1b0b1
+			MX6UL_PAD_UART5_RX_DATA__UART5_DCE_RX	0x1b0b1
+			MX6UL_PAD_GPIO1_IO09__GPIO1_IO09	0x1a0b1
+		>;
+	};
 };
