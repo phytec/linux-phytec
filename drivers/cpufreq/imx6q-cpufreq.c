@@ -25,6 +25,7 @@
 #define DC_VOLTAGE_MAX		1400000
 #define FREQ_1P2_GHZ		1200000000
 #define FREQ_800_MHZ            792000000
+#define FREQ_528_MHZ		528000000
 #define FREQ_400_MHZ            396000000
 
 static struct regulator *arm_reg;
@@ -63,6 +64,7 @@ static struct cpufreq_frequency_table *freq_table;
 static unsigned int max_freq;
 static unsigned int transition_latency;
 static bool bypass;
+static bool ignore_dc_reg;
 
 static u32 *imx6_soc_volt;
 static u32 soc_opp_count;
@@ -366,7 +368,7 @@ static int imx6q_cpufreq_suspend(struct cpufreq_policy *policy)
 {
 	int ret;
 
-	if (!IS_ERR(dc_reg))
+	if (!IS_ERR(dc_reg) && !ignore_dc_reg)
 		regulator_set_voltage_tol(dc_reg, DC_VOLTAGE_MAX, 0);
 
 	if (bypass) {
@@ -398,7 +400,7 @@ static int imx6q_cpufreq_resume(struct cpufreq_policy *policy)
 {
 	int ret;
 
-	if (!IS_ERR(dc_reg))
+	if (!IS_ERR(dc_reg) && !ignore_dc_reg)
 		regulator_set_voltage_tol(dc_reg, DC_VOLTAGE_MIN, 0);
 
 	if (bypass) {
@@ -610,8 +612,6 @@ static int imx6q_cpufreq_probe(struct platform_device *pdev)
 	}
 
 	dc_reg = devm_regulator_get_optional(cpu_dev, "dc");
-	if (!IS_ERR(dc_reg))
-		regulator_set_voltage_tol(dc_reg, DC_VOLTAGE_MIN, 0);
 
 	ret = dev_pm_opp_of_add_table(cpu_dev);
 	if (ret < 0) {
@@ -647,6 +647,15 @@ static int imx6q_cpufreq_probe(struct platform_device *pdev)
 		dev_err(cpu_dev, "failed to init cpufreq table: %d\n", ret);
 		goto out_free_opp;
 	}
+
+	/*
+	 * On i.MX 6UL/ULL if the SOC is operated with override frequency the
+	 * dc regulator should not be touched.
+	 */
+	if (freq_table[num - 1].frequency * 1000 > FREQ_528_MHZ)
+		ignore_dc_reg = true;
+	if (!IS_ERR(dc_reg) && !ignore_dc_reg)
+		regulator_set_voltage_tol(dc_reg, DC_VOLTAGE_MIN, 0);
 
 	/* Make imx6_soc_volt array's size same as arm opp number */
 	imx6_soc_volt = devm_kcalloc(cpu_dev, num, sizeof(*imx6_soc_volt),
