@@ -29,6 +29,25 @@
 		reg = <0x80000000 0x8000000>;
 	};
 
+	regulators {
+		compatible = "simple-bus";
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		reg_gpio_dvfs: regulator-gpio {
+			compatible = "regulator-gpio";
+			pinctrl-names = "default";
+			pinctrl-0 = <&pinctrl_dvfs>;
+			regulator-min-microvolt = <1300000>;
+			regulator-max-microvolt = <1400000>;
+			regulator-ramp-delay = <500>;
+			regulator-name = "gpio_dvfs";
+			regulator-type = "voltage";
+			gpios = <&gpio4 14 GPIO_ACTIVE_HIGH>;
+			states = <1300000 0x1 1400000 0x0>;
+		};
+	};
+
 	gpio_leds_som: somleds {
 		pinctrl-names = "default";
 		pinctrl-0 = <&pinctrl_gpioleds_som>;
@@ -40,6 +59,10 @@
 			linux,default-trigger = "heartbeat";
 		};
 	};
+};
+
+&cpu0 {
+	dc-supply = <&reg_gpio_dvfs>;
 };
 
 &fec1 {
@@ -115,6 +138,12 @@
 
 	pinctrl_gpioleds_som: gpioledssomgrp {
 		fsl,pins = <MX6UL_PAD_SNVS_TAMPER4__GPIO5_IO04	0x0b0b0>;
+	};
+
+	pinctrl_dvfs: dvfsgrp {
+		fsl,pins = <
+			MX6UL_PAD_NAND_CE1_B__GPIO4_IO14	0x79
+		>;
 	};
 
 	pinctrl_gpmi_nand: gpminandgrp {
