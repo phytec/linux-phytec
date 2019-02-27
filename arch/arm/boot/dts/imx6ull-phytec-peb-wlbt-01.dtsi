@@ -6,15 +6,23 @@
 
 #include "imx6ul-phytec-peb-wlbt-01.dtsi"
 
-&iomuxc {
-	/delete-node/ wlangrp;
+&pinctrl_wlan {
+	fsl,pins = <
+		MX6UL_PAD_GPIO1_IO03__GPIO1_IO03        0x10b0
+	>;
 };
 
 &iomuxc_snvs {
-	pinctrl_wlan: wlangrp {
+	pinctrl_snvswlan: snvswlangrp {
 		fsl,pins = <
 			MX6ULL_PAD_SNVS_TAMPER9__GPIO5_IO09	0x110a0
-			MX6UL_PAD_GPIO1_IO03__GPIO1_IO03	0x10b0
 		>;
 	};
+};
+
+&usdhc2 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_usdhc2_wlan
+		     &pinctrl_wlan
+		     &pinctrl_snvswlan>;
 };
