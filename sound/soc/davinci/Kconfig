@@ -40,6 +40,11 @@ config SND_DAVINCI_SOC_GENERIC_EVM
 	select SND_SOC_TLV320AIC3X
 	select SND_DAVINCI_SOC_MCASP
 
+config SND_DAVINCI_SOC_PHYCORE
+	tristate
+	select SND_SOC_WM8974
+	select SND_DAVINCI_SOC_MCASP
+
 config SND_AM33XX_SOC_EVM
 	tristate "SoC Audio for the AM33XX chip based boards"
 	depends on SND_EDMA_SOC && SOC_AM33XX && I2C
@@ -49,6 +54,15 @@ config SND_AM33XX_SOC_EVM
 	  boards using McASP and TLV320AIC3X codec. For example AM335X-EVM,
 	  AM335X-EVMSK, and BeagelBone with AudioCape boards have this
 	  setup.
+
+config SND_AM33XX_SOC_PHYTEC
+	tristate "SoC Audio for the Phytec's AM335X boards"
+	depends on SND_EDMA_SOC && SOC_AM33XX && I2C
+	select SND_DAVINCI_SOC_PHYCORE
+	help
+	  Say Y or M if you want to add support for SoC audio on Phytec's AM335X
+	  boards using McASP and different codecs, for example the phyCORE-AM335X
+	  with the Wolfson WM8974.
 
 config SND_DAVINCI_SOC_EVM
 	tristate "SoC Audio support for DaVinci DM6446, DM355 or DM365 EVM"
