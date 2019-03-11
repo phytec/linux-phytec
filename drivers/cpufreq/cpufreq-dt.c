@@ -161,6 +161,7 @@ static int cpufreq_init(struct cpufreq_policy *policy)
 	bool fallback = false;
 	const char *name;
 	int ret;
+	unsigned long clock_latency;
 
 	cpu_dev = get_cpu_device(policy->cpu);
 	if (!cpu_dev) {
@@ -278,6 +279,11 @@ static int cpufreq_init(struct cpufreq_policy *policy)
 		transition_latency = CPUFREQ_ETERNAL;
 
 	policy->cpuinfo.transition_latency = transition_latency;
+
+	clock_latency = dev_pm_opp_get_max_clock_latency(cpu_dev);
+	if (clock_latency)
+		policy->transition_delay_us = clock_latency;
+
 	policy->dvfs_possible_from_any_cpu = true;
 
 	return 0;
