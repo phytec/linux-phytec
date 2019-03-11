@@ -1,0 +1,44 @@
+/*
+ * Copyright (C) 2016 Phytec Messtechnik GmbH
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 as
+ * published by the Free Software Foundation.
+ */
+
+#include "am335x-phytec-lcd.dtsi"
+
+&am33xx_pinmux {
+	hdmi_pins: pinmux_hdmi {
+		pinctrl-single,pins = <
+			AM33XX_IOPAD(0x880, PIN_OUTPUT | MUX_MODE7)	/* gpmc_csn1.x_av_int_gpio1_30	*/
+		>;
+	};
+};
+
+&lcdc {
+	port {
+		lcdc_out: endpoint@0 {
+			remote-endpoint = <&hdmi_in>;
+		};
+	};
+};
+
+&i2c0 {
+	tda19988@70 {
+		compatible = "nxp,tda998x";
+		pinctrl-0 = <&lcd_pins &hdmi_pins>;
+		pinctrl-names = "default";
+		reg = <0x70>;
+		status = "disabled";
+
+		ports {
+			port@0 {
+				hdmi_in: endpoint@0 {
+					remote-endpoint = <&lcdc_out>;
+				};
+			};
+		};
+	};
+};
+
