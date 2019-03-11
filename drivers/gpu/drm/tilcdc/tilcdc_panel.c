@@ -157,6 +157,7 @@ static int panel_connector_get_modes(struct drm_connector *connector)
 			break;
 
 		drm_display_mode_from_videomode(&vm, mode);
+		drm_bus_flags_from_videomode(&vm, &(mode->private_flags));
 
 		mode->type = DRM_MODE_TYPE_DRIVER;
 
