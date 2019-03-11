@@ -711,6 +711,10 @@ dtb-$(CONFIG_SOC_AM33XX) += \
 	am335x-pdu001.dtb \
 	am335x-pepper.dtb \
 	am335x-phycore-rdk.dtb \
+	am335x-phycore-nand-eeprom-rtc.dtb \
+	am335x-phycore-nand-eeprom-rtc-spi-tmp.dtb \
+	am335x-phycore-nand-eeprom.dtb \
+	am335x-phycore-nand-none.dtb \
 	am335x-pocketbeagle.dtb \
 	am335x-sancloud-bbe.dtb \
 	am335x-shc.dtb \
