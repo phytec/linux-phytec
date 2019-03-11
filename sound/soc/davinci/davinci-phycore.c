@@ -16,6 +16,7 @@
 #include <sound/core.h>
 #include <sound/soc.h>
 #include <sound/pcm_params.h>
+#include "davinci-mcasp.h"
 
 #define DRV_NAME "davinci_phycore"
 
@@ -76,13 +77,6 @@ static int phycore_hw_params(struct snd_pcm_substream *substream,
 	unsigned sysclk = ((struct snd_soc_card_drvdata_davinci *)
 			   snd_soc_card_get_drvdata(soc_card))->sysclk;
 
-	/* set the mcasp system clock */
-	ret = snd_soc_dai_set_sysclk(cpu_dai, 0, sysclk, SND_SOC_CLOCK_IN);
-	if (ret < 0) {
-		dev_err(&pdev->dev, "can't set CPU DAI sysclock: %d\n", ret);
-		return ret;
-	}
-
 	/* The codec can operate either in clock slave or in clock master mode
 	 * mixed clocked modes are not supported by the codec. We need to setup
 	 * the clocking for those two cases.
@@ -90,6 +84,14 @@ static int phycore_hw_params(struct snd_pcm_substream *substream,
 	if ((soc_card->dai_link->dai_fmt & SND_SOC_DAIFMT_MASTER_MASK)
 						== SND_SOC_DAIFMT_CBS_CFS) {
 		/* Codec is clock slave */
+		/* set the mcasp system clock */
+		ret = snd_soc_dai_set_sysclk(cpu_dai, 0, sysclk,
+						SND_SOC_CLOCK_OUT);
+		if (ret < 0) {
+			dev_err(&pdev->dev, "can't set CPU DAI sysclock: %d\n",
+				ret);
+			return ret;
+		}
 
 		/* set mcasp MCLK div */
 		ret = snd_soc_dai_set_clkdiv(cpu_dai, 0, 1);
@@ -131,6 +133,15 @@ static int phycore_hw_params(struct snd_pcm_substream *substream,
 		 * performance is much better
 		 */
 		pll_out = rate * 256 * 2;
+
+		/* set the mcasp system clock */
+		ret = snd_soc_dai_set_sysclk(cpu_dai, MCASP_CLK_HCLK_AHCLK,
+						sysclk, SND_SOC_CLOCK_IN);
+		if (ret < 0) {
+			dev_err(&pdev->dev, "can't set CPU DAI sysclock: %d\n",
+				ret);
+			return ret;
+		}
 	}
 
 	/* set the codec pll */
