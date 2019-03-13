@@ -489,6 +489,7 @@ static int mt9p031_s_stream(struct v4l2_subdev *subdev, int enable)
 {
 	struct mt9p031 *mt9p031 = to_mt9p031(subdev);
 	struct i2c_client *client = v4l2_get_subdevdata(subdev);
+	int val;
 	int ret;
 
 	if (!enable) {
@@ -522,7 +523,9 @@ static int mt9p031_s_stream(struct v4l2_subdev *subdev, int enable)
 	if (ret < 0)
 		return ret;
 	/* disbale reset + pause restart */
-	ret = mt9p031_write(client, MT9P031_FRAME_RESTART, 0);
+	val = mt9p031_read(client, MT9P031_FRAME_RESTART);
+	val &= ~MT9P031_FRAME_PAUSE_RESTART_SET;
+	ret = mt9p031_write(client, MT9P031_FRAME_RESTART, val);
 	if (ret < 0)
 		return ret;
 
