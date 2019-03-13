@@ -1873,6 +1873,16 @@ static int mx6s_csi_probe(struct platform_device *pdev)
 	snprintf(csi_dev->v4l2_dev.name,
 		 sizeof(csi_dev->v4l2_dev.name), "CSI");
 
+	v4l2_ctrl_handler_init(&csi_dev->ctrl_handler, 0);
+
+	csi_dev->v4l2_dev.ctrl_handler = &csi_dev->ctrl_handler;
+
+	if (csi_dev->ctrl_handler.error) {
+		ret = csi_dev->ctrl_handler.error;
+		goto err_ctrl;
+
+	}
+
 	ret = v4l2_device_register(dev, &csi_dev->v4l2_dev);
 	if (ret < 0) {
 		dev_err(dev, "v4l2_device_register() failed: %d\n", ret);
@@ -1934,6 +1944,8 @@ err_irq:
 	video_unregister_device(csi_dev->vdev);
 err_vdev:
 	v4l2_device_unregister(&csi_dev->v4l2_dev);
+err_ctrl:
+	v4l2_ctrl_handler_free(&csi_dev->ctrl_handler);
 	return ret;
 }
 
@@ -1947,6 +1959,8 @@ static int mx6s_csi_remove(struct platform_device *pdev)
 
 	video_unregister_device(csi_dev->vdev);
 	v4l2_device_unregister(&csi_dev->v4l2_dev);
+
+	v4l2_ctrl_handler_free(&csi_dev->ctrl_handler);
 
 	pm_runtime_disable(csi_dev->dev);
 	return 0;
