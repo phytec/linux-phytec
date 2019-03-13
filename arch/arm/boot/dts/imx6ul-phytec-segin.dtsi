@@ -24,6 +24,13 @@
 		regulator-max-microvolt = <3300000>;
 	};
 
+	reg_vcc_cam0: regulator-cam0 {
+		compatible = "regulator-fixed";
+		regulator-name = "VCC_CAM0";
+		regulator-min-microvolt = <2800000>;
+		regulator-max-microvolt = <2800000>;
+	};
+
 	reg_can1_en: regulator-can1-en {
 		compatible = "regulator-fixed";
 		pinctrl-names = "default";
@@ -107,6 +114,16 @@
 	assigned-clock-rates = <786432000>;
 };
 
+&csi {
+	status = "okay";
+
+	port {
+		csi1_ep: endpoint {
+			remote-endpoint = <&cam0_ep>;
+		};
+	};
+};
+
 &ecspi3 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_ecspi3>;
@@ -133,6 +150,40 @@
 };
 
 &i2c1 {
+	cam0: cam0@48 {
+		compatible = "aptina,mt9v024";
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_cam0>;
+		clocks = <&clks IMX6UL_CLK_CSI>;
+		clock-names = "csi_mclk";
+		reg = <0x48>;
+		status = "disabled";
+
+		assigned-clocks =
+			<&clks IMX6UL_CLK_CSI_SEL>,
+			<&clks IMX6UL_CLK_CSI>;
+
+		assigned-clock-parents =
+			<&clks IMX6UL_CLK_PLL2_PFD2>;
+
+		assigned-clock-rates =
+			<0>, <50000000>;
+
+		vdd-supply = <&reg_vcc_cam0>;
+		vdd_io-supply = <&reg_vcc_cam0>;
+		vaa-supply = <&reg_vcc_cam0>;
+
+		port {
+			cam0_ep: endpoint {
+				remote-endpoint = <&csi1_ep>;
+				link-frequencies = /bits/ 64 <24000000>;
+				bus-width = <8>;
+				hsync-active = <1>;
+				vsync-active = <1>;
+			};
+		};
+	};
+
 	codec: tlv320@18 {
 		compatible = "ti,tlv320aic3007";
 		#sound-dai-cells = <0>;
@@ -244,6 +295,23 @@
 	pinctrl_adc1: adc1grp {
 		fsl,pins = <
 			MX6UL_PAD_GPIO1_IO03__GPIO1_IO03	0xb0
+		>;
+	};
+
+	pinctrl_cam0: cam0grp {
+		fsl,pins = <
+			MX6UL_PAD_CSI_MCLK__CSI_MCLK		0x1b088
+			MX6UL_PAD_CSI_PIXCLK__CSI_PIXCLK	0x1b088
+			MX6UL_PAD_CSI_VSYNC__CSI_VSYNC		0x1b088
+			MX6UL_PAD_CSI_HSYNC__CSI_HSYNC		0x1b088
+			MX6UL_PAD_CSI_DATA00__CSI_DATA02	0x1b088
+			MX6UL_PAD_CSI_DATA01__CSI_DATA03	0x1b088
+			MX6UL_PAD_CSI_DATA02__CSI_DATA04	0x1b088
+			MX6UL_PAD_CSI_DATA03__CSI_DATA05	0x1b088
+			MX6UL_PAD_CSI_DATA04__CSI_DATA06	0x1b088
+			MX6UL_PAD_CSI_DATA05__CSI_DATA07	0x1b088
+			MX6UL_PAD_CSI_DATA06__CSI_DATA08	0x1b088
+			MX6UL_PAD_CSI_DATA07__CSI_DATA09	0x1b088
 		>;
 	};
 
