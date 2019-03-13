@@ -1469,19 +1469,21 @@ static int mx6s_vidioc_s_fmt_vid_cap(struct file *file, void *priv,
 				    struct v4l2_format *f)
 {
 	struct mx6s_csi_dev *csi_dev = video_drvdata(file);
+	struct v4l2_pix_format *pix = &csi_dev->pix;
 	int ret;
 
 	ret = mx6s_vidioc_try_fmt_vid_cap(file, csi_dev, f);
 	if (ret < 0)
 		return ret;
 
-	csi_dev->fmt           = format_by_fourcc(f->fmt.pix.pixelformat);
-	csi_dev->mbus_code     = csi_dev->fmt->mbus_code;
-	csi_dev->pix.width     = f->fmt.pix.width;
-	csi_dev->pix.height    = f->fmt.pix.height;
-	csi_dev->pix.sizeimage = f->fmt.pix.sizeimage;
-	csi_dev->pix.field     = f->fmt.pix.field;
-	csi_dev->type          = f->type;
+	csi_dev->fmt		= format_by_fourcc(f->fmt.pix.pixelformat);
+	csi_dev->mbus_code	= csi_dev->fmt->mbus_code;
+	pix->width		= f->fmt.pix.width;
+	pix->height		= f->fmt.pix.height;
+	pix->pixelformat	= csi_dev->fmt->fourcc;
+	pix->sizeimage		= f->fmt.pix.sizeimage;
+	pix->field		= f->fmt.pix.field;
+	csi_dev->type		= f->type;
 	dev_dbg(csi_dev->dev, "set to pixelformat '%4.6s'\n",
 			(char *)&csi_dev->fmt->name);
 
