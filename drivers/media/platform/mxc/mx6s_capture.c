@@ -1405,8 +1405,8 @@ static int mx6s_vidioc_enum_fmt_vid_cap(struct file *file, void  *priv,
 		code.index++;
 	}
 
-	if (!fmt) {
-		dev_err(csi_dev->dev, "No valid fmt found.\n");
+	if (!fmt && index < 0) {
+		dev_err(csi_dev->dev, "No valid format found.\n");
 		return -EINVAL;
 	}
 
