@@ -413,7 +413,6 @@ struct mx6s_fmt *format_by_mbus(u32 code)
 			return formats + i;
 	}
 
-	pr_err("unknown mbus:0x%x\n", code);
 	return NULL;
 }
 
