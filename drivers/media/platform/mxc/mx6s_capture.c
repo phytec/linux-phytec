@@ -355,6 +355,7 @@ struct mx6s_csi_dev {
 	u32			mbus_code;
 
 	unsigned int frame_count;
+	unsigned int open_count;
 
 	struct list_head	capture;
 	struct list_head	active_bufs;
@@ -1189,6 +1190,12 @@ static int mx6s_csi_open(struct file *file)
 	if (mutex_lock_interruptible(&csi_dev->lock))
 		return -ERESTARTSYS;
 
+	if (csi_dev->open_count > 0) {
+		csi_dev->open_count++;
+		mutex_unlock(&csi_dev->lock);
+		return ret;
+	}
+
 	q->type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 	q->io_modes = VB2_MMAP | VB2_USERPTR;
 	q->drv_priv = csi_dev;
@@ -1206,6 +1213,7 @@ static int mx6s_csi_open(struct file *file)
 
 	v4l2_subdev_call(sd, core, s_power, 1);
 	mx6s_csi_init(csi_dev);
+	csi_dev->open_count++;
 
 	mutex_unlock(&csi_dev->lock);
 
@@ -1221,6 +1229,11 @@ static int mx6s_csi_close(struct file *file)
 	struct v4l2_subdev *sd = csi_dev->sd;
 
 	mutex_lock(&csi_dev->lock);
+
+	if (--csi_dev->open_count > 0) {
+		mutex_unlock(&csi_dev->lock);
+		return 0;
+	}
 
 	vb2_queue_release(&csi_dev->vb2_vidq);
 
