@@ -14,8 +14,10 @@
 #include <linux/regmap.h>
 #include <asm/mach/arch.h>
 #include <asm/mach/map.h>
+#include <asm/system_info.h>
 
 #include "common.h"
+#include "hardware.h"
 #include "cpuidle.h"
 
 static void __init imx6ul_enet_clk_init(void)
@@ -60,6 +62,12 @@ static inline void imx6ul_enet_init(void)
 static void __init imx6ul_init_machine(void)
 {
 	struct device *parent;
+
+	system_rev = imx_get_soc_revision();
+	if (cpu_is_imx6ull())
+		imx_print_silicon_rev("i.MX 6ULL", system_rev);
+	else
+		imx_print_silicon_rev("i.MX 6UL", system_rev);
 
 	parent = imx_soc_device_init();
 	if (parent == NULL)
