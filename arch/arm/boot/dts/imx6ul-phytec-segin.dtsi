@@ -107,6 +107,23 @@
 	assigned-clock-rates = <786432000>;
 };
 
+&ecspi3 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_ecspi3>;
+	cs-gpios = <&gpio1 20 GPIO_ACTIVE_LOW>;
+	dmas = <&sdma 7 8 0>,
+	       <&sdma 8 8 0>;
+	dma-names = "rx", "tx";
+	status = "disabled";
+
+	spi_dev0: spi@0 {
+		compatible = "spidev";
+		spi-max-frequency = <57600000>;
+		reg = <0>;
+		status = "disabled";
+	};
+};
+
 &fec2 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_enet2>;
@@ -227,6 +244,15 @@
 	pinctrl_adc1: adc1grp {
 		fsl,pins = <
 			MX6UL_PAD_GPIO1_IO03__GPIO1_IO03	0xb0
+		>;
+	};
+
+	pinctrl_ecspi3: ecspi3grp {
+		fsl,pins = <
+			MX6UL_PAD_UART2_RX_DATA__ECSPI3_SCLK	0x100b1
+			MX6UL_PAD_UART2_RTS_B__ECSPI3_MISO	0x100b1
+			MX6UL_PAD_UART2_CTS_B__ECSPI3_MOSI	0x100b1
+			MX6UL_PAD_UART2_TX_DATA__GPIO1_IO20	0x10b0
 		>;
 	};
 
