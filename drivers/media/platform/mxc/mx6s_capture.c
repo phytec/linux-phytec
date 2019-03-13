@@ -1401,24 +1401,35 @@ static int mx6s_vidioc_enum_fmt_vid_cap(struct file *file, void  *priv,
 	struct mx6s_csi_dev *csi_dev = video_drvdata(file);
 	struct v4l2_subdev *sd = csi_dev->sd;
 	struct v4l2_subdev_mbus_code_enum code = {
-		.which = V4L2_SUBDEV_FORMAT_ACTIVE,
-		.index = f->index,
+		.which = V4L2_SUBDEV_FORMAT_TRY,
+		.index = 0,
 	};
 	struct mx6s_fmt *fmt;
-	int ret;
+	int ret = 0;
+	int index = -1;
 
 	WARN_ON(priv != file->private_data);
 
-	ret = v4l2_subdev_call(sd, pad, enum_mbus_code, NULL, &code);
-	if (ret < 0) {
-		/* no more formats */
-		dev_dbg(csi_dev->dev, "No more fmt\n");
+	while(!ret) {
+		ret = v4l2_subdev_call(sd, pad, enum_mbus_code, NULL, &code);
+		fmt = format_by_mbus(code.code);
+		if (fmt)
+			index++;
+
+		if (index == f->index)
+			break;
+
+		code.index++;
+	}
+
+	if (!fmt) {
+		dev_err(csi_dev->dev, "No valid fmt found.\n");
 		return -EINVAL;
 	}
 
-	fmt = format_by_mbus(code.code);
-	if (!fmt) {
-		dev_err(csi_dev->dev, "mbus (0x%08x) invalid.\n", code.code);
+	if (f->index > index) {
+		/* no more formats */
+		dev_dbg(csi_dev->dev, "No more fmt\n");
 		return -EINVAL;
 	}
 
