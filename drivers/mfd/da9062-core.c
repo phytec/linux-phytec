@@ -614,6 +614,7 @@ static int da9062_i2c_probe(struct i2c_client *i2c,
 
 	i2c_set_clientdata(i2c, chip);
 	chip->dev = &i2c->dev;
+	chip->i2c = i2c;
 
 	if (!i2c->irq) {
 		dev_err(chip->dev, "No IRQ configured\n");
