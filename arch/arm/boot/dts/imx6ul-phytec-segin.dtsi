@@ -115,8 +115,6 @@
 };
 
 &csi {
-	status = "okay";
-
 	port {
 		csi1_ep: endpoint {
 			remote-endpoint = <&cam0_ep>;
