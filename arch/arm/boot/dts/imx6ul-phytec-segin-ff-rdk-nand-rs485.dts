@@ -1,10 +1,7 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
 /*
  * Copyright (C) 2017 PHYTEC Messtechnik GmbH
  * Author: Stefan Riedmüller <s.riedmueller@phytec.de>
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation.
  */
 
 /dts-v1/;
@@ -17,8 +14,7 @@
 #include "imx6ul-phytec-peb-wlbt-01.dtsi"
 
 / {
-
-	model = "Phytec phyBOARD-Segin i.MX6 UltraLite Full Featured";
+	model = "PHYTEC phyBOARD-Segin i.MX 6UL Full Featured with NAND";
 	compatible = "phytec,imx6ul-pbacd10", "phytec,imx6ul-pcl063","fsl,imx6ul";
 };
 
