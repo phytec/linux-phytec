@@ -33,6 +33,10 @@
 	status = "okay";
 };
 
+&csi {
+	status = "okay";
+};
+
 &ethphy1 {
 	status = "okay";
 };
