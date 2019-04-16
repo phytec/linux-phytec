@@ -1,10 +1,7 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
 /*
  * Copyright (C) 2016 PHYTEC Messtechnik GmbH
  * Author: Christian Hemp <c.hemp@phytec.de>
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation.
  */
 
 #include <dt-bindings/gpio/gpio.h>
@@ -13,7 +10,7 @@
 
 / {
 
-	model = "Phytec phyCORE i.MX6 UltraLite";
+	model = "PHYTEC phyCORE-i.MX 6UL";
 	compatible = "phytec,imx6ul-pcl063", "fsl,imx6ul";
 
 	chosen {
