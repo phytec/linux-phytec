@@ -49,13 +49,12 @@
 	status = "okay";
 
 	i2c_rtc: rtc@68 {
-		compatible = "rv4162";
+		compatible = "nxp,pcf8523";
 		reg = <0x68>;
 		pinctrl-names = "default";
 		pinctrl-0 = <&i2c_rtc_int>;
 		interrupt-parent = <&gpio5>;
 		interrupts = <10 0>;
-		status = "disabled";
 	};
 };
 
