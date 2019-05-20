@@ -3148,26 +3148,24 @@ int regulator_allow_bypass(struct regulator *regulator, bool enable)
 	mutex_lock(&rdev->mutex);
 
 	if (enable && !regulator->bypass) {
-		rdev->bypass_count++;
-
-		if (rdev->bypass_count == rdev->open_count) {
-			ret = rdev->desc->ops->set_bypass(rdev, enable);
-			if (ret != 0)
-				rdev->bypass_count--;
-		}
+		ret = rdev->desc->ops->set_bypass(rdev, enable);
 
 	} else if (!enable && regulator->bypass) {
 		rdev->bypass_count--;
 
-		if (rdev->bypass_count != rdev->open_count) {
+		if (rdev->bypass_count < 1) {
 			ret = rdev->desc->ops->set_bypass(rdev, enable);
-			if (ret != 0)
+			if (ret == 0)
+				regulator->bypass = enable;
+			else
 				rdev->bypass_count++;
 		}
 	}
 
-	if (ret == 0)
+	if (enable && ret == 0) {
+		rdev->bypass_count++;
 		regulator->bypass = enable;
+	}
 
 	mutex_unlock(&rdev->mutex);
 
