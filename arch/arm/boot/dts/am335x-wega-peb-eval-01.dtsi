@@ -32,19 +32,19 @@
 		pinctrl-0 = <&user_leds_pins>;
 		status = "disabled";
 
-		user_led0 {
+		user-led0 {
 			gpios = <&gpio3 9 GPIO_ACTIVE_HIGH>;
 			linux,default-trigger = "gpio";
 			default-state = "on";
 		};
 
-		user_led1 {
+		user-led1 {
 			gpios = <&gpio2 19 GPIO_ACTIVE_HIGH>;
 			linux,default-trigger = "gpio";
 			default-state = "on";
 		};
 
-		user_led2 {
+		user-led2 {
 			gpios = <&gpio2 18 GPIO_ACTIVE_HIGH>;
 			linux,default-trigger = "gpio";
 			default-state = "on";
