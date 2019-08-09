@@ -240,7 +240,7 @@
 	i2c_rtc: rtc@68 {
 		pinctrl-names = "default";
 		pinctrl-0 = <&pinctrl_rtc_int>;
-		compatible = "mc,rv4162";
+		compatible = "microcrystal,rv4162";
 		reg = <0x68>;
 		interrupt-parent = <&gpio7>;
 		interrupts = <8 IRQ_TYPE_LEVEL_HIGH>;
