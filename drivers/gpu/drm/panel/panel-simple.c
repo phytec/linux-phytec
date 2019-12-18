@@ -946,20 +946,6 @@ static const struct drm_display_mode dataimage_scf0700c48ggu18_mode = {
 	.flags = DRM_MODE_FLAG_NVSYNC | DRM_MODE_FLAG_NHSYNC,
 };
 
-static const struct drm_display_mode edt_etm0350g0dh6_mode = {
-	.clock = 6520,
-	.hdisplay = 320,
-	.hsync_start = 320 + 20,
-	.hsync_end = 320 + 20 + 68,
-	.htotal = 320 + 20 + 68,
-	.vdisplay = 240,
-	.vsync_start = 240 + 4,
-	.vsync_end = 240 + 4 + 18,
-	.vtotal = 240 + 4 + 18,
-	.vrefresh = 60,
-	.flags = DRM_MODE_FLAG_NVSYNC | DRM_MODE_FLAG_NHSYNC,
-};
-
 static const struct panel_desc dataimage_scf0700c48ggu18 = {
 	.modes = &dataimage_scf0700c48ggu18_mode,
 	.num_modes = 1,
@@ -999,6 +985,20 @@ static const struct panel_desc dlc_dlc0700yzg_1 = {
 		.disable = 200,
 	},
 	.bus_format = MEDIA_BUS_FMT_RGB666_1X7X3_SPWG,
+};
+
+static const struct drm_display_mode edt_etm0350g0dh6_mode = {
+	.clock = 6520,
+	.hdisplay = 320,
+	.hsync_start = 320 + 20,
+	.hsync_end = 320 + 20 + 68,
+	.htotal = 320 + 20 + 68,
+	.vdisplay = 240,
+	.vsync_start = 240 + 4,
+	.vsync_end = 240 + 4 + 18,
+	.vtotal = 240 + 4 + 18,
+	.vrefresh = 60,
+	.flags = DRM_MODE_FLAG_NVSYNC | DRM_MODE_FLAG_NHSYNC,
 };
 
 static const struct panel_desc edt_etm0350g0dh6 = {
