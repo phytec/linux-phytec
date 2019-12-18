@@ -17,7 +17,6 @@
 		 */
 		device_type = "memory";
 		reg = <0x10000000 0x80000000>; /* 128 MiB memory */
-		
 	};
 
 	aliases {
@@ -63,10 +62,12 @@
 		compatible = "i2c-gpio";
 		pinctrl-names = "default";
 		pinctrl-0 = <&pinctrl_i2c_gpio>;
-		gpios = <&gpio4 13 GPIO_ACTIVE_HIGH /* sda */
-			 &gpio4 12 GPIO_ACTIVE_HIGH /* scl */
+		gpios = <&gpio4 13 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)/* sda */
+			 &gpio4 12 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)/* scl */
 			>;
 		i2c-gpio,delay-us = <2>;
+		i2c-gpio,sda-open-drain;
+		i2c-gpio,scl-open-drain;
 		status = "okay";
 
 		#address-cells = <1>;
