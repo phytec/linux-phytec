@@ -7,6 +7,17 @@ compatible with the simple-panel binding, which is specified in
 simple-panel.txt
 
 
+3,5" WVGA TFT Panels
+--------------------
+
++-----------------+---------------------+-------------------------------------+
+| Identifier      | compatbile          | description                         |
++=================+=====================+=====================================+
+| ETM0350G0DH6    | edt,etm0350g0dh6    | 3.5" WVGA TFT LCD panel with        |
+|                 |                     | capacitive multitouch               |
++-----------------+---------------------+-------------------------------------+
+
+
 5,7" WVGA TFT Panels
 --------------------
 
