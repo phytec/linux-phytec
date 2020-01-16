@@ -24,11 +24,13 @@ enum {
 	error = -1,
 	new_key,
 	load_blob,
+	load_plain,
 };
 
 static const match_table_t key_tokens = {
 	{new_key, "new"},
 	{load_blob, "load"},
+	{load_plain, "load_plain"},
 	{error, NULL}
 };
 
@@ -115,6 +117,25 @@ static int parse_inputdata(char *data, struct secure_key_payload *p)
 		}
 		ret = load_blob;
 
+		break;
+	case load_plain:
+		/* first argument is plain data*/
+		c = strsep(&data, " \t");
+		if (!c) {
+			ret = -EINVAL;
+			goto out;
+		}
+		p->key_len = strlen(c) / 2;
+		if (p->key_len > MAX_KEY_SIZE) {
+			ret = -EINVAL;
+			goto out;
+		}
+		ret = hex2bin(p->key, c, p->key_len);
+		if (ret < 0) {
+			ret = -EINVAL;
+			goto out;
+		}
+		ret = load_plain;
 		break;
 	case error:
 		ret = -EINVAL;
@@ -206,6 +227,15 @@ static int secure_instantiate(struct key *key,
 		ret = key_blob(payload, sk_op_type, dev);
 		if (ret != 0) {
 			pr_info("secure_key: key_blob encap fail (%d)\n", ret);
+			goto out;
+		}
+		break;
+	case load_plain:
+		/* Generate red blob of plain key bytes with CAAM */
+		sk_op_type = sk_red_blob_enc;
+		ret = key_blob(payload, sk_op_type, dev);
+		if (ret != 0) {
+			pr_info("secure_key: key_blob plain fail (%d)\n", ret);
 			goto out;
 		}
 		break;
