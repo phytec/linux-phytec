@@ -155,6 +155,8 @@ extern struct key_type key_type_keyring;
 extern int register_key_type(struct key_type *ktype);
 extern void unregister_key_type(struct key_type *ktype);
 
+extern struct key_type *get_key_type(const char *type_name, size_t string_size);
+
 extern int key_payload_reserve(struct key *key, size_t datalen);
 extern int key_instantiate_and_link(struct key *key,
 				    const void *data,

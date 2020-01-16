@@ -1156,6 +1156,48 @@ void unregister_key_type(struct key_type *ktype)
 }
 EXPORT_SYMBOL(unregister_key_type);
 
+/**
+ * get_key_type - Get the type of key using its name
+ * @type_name: Name of the key type to get
+ * @string_size: Size of the string to match
+ *
+ * The functions support null ended string (string_size == 0) as well as
+ * pointer on a string matching a number of characters (string_size > 0)
+ *
+ * Returns a pointer on the key type if successful, -ENOENT if the key type
+ * is not registered.
+ */
+struct key_type *get_key_type(const char *type_name, size_t string_size)
+{
+	struct key_type *p;
+	struct key_type *ktype = ERR_PTR(-ENOENT);
+
+	if (!type_name)
+		return ktype;
+
+	down_read(&key_types_sem);
+
+	/* Search the key type in the list */
+	list_for_each_entry(p, &key_types_list, link) {
+		if (string_size) {
+			if (strncmp(p->name, type_name, string_size) == 0) {
+				ktype = p;
+				break;
+			}
+		} else {
+			if (strcmp(p->name, type_name) == 0) {
+				ktype = p;
+				break;
+			}
+		}
+	}
+
+	up_read(&key_types_sem);
+
+	return ktype;
+}
+EXPORT_SYMBOL(get_key_type);
+
 /*
  * Initialise the key management state.
  */
