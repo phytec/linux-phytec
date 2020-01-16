@@ -35,6 +35,7 @@
 #include <crypto/authenc.h>
 #include <linux/rtnetlink.h> /* for struct rtattr and RTA macros only */
 #include <keys/user-type.h>
+#include <linux/key-type.h>
 
 #include <linux/device-mapper.h>
 
@@ -2002,6 +2003,7 @@ static int crypt_set_keyring_key(struct crypt_config *cc, const char *key_string
 	int ret;
 	struct key *key;
 	const struct user_key_payload *ukp;
+	struct key_type *type;
 
 	/*
 	 * Reject key_string with whitespace. dm core currently lacks code for
@@ -2017,16 +2019,15 @@ static int crypt_set_keyring_key(struct crypt_config *cc, const char *key_string
 	if (!key_desc || key_desc == key_string || !strlen(key_desc + 1))
 		return -EINVAL;
 
-	if (strncmp(key_string, "logon:", key_desc - key_string + 1) &&
-	    strncmp(key_string, "user:", key_desc - key_string + 1))
-		return -EINVAL;
+	type = get_key_type(key_string, key_desc - key_string);
+	if (!type)
+		return -ENOENT;
 
 	new_key_string = kstrdup(key_string, GFP_KERNEL);
 	if (!new_key_string)
 		return -ENOMEM;
 
-	key = request_key(key_string[0] == 'l' ? &key_type_logon : &key_type_user,
-			  key_desc + 1, NULL);
+	key = request_key(type, key_desc + 1, NULL);
 	if (IS_ERR(key)) {
 		kzfree(new_key_string);
 		return PTR_ERR(key);
