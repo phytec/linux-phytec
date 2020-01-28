@@ -119,6 +119,12 @@
 				regulator-ramp-delay = <2500>;
 				regulator-initial-mode = <2>; /* SYNC */
 				regulator-always-on;
+				regulator-state-standby {
+					regulator-on-in-suspend;
+				};
+				regulator-state-mem {
+					regulator-on-in-suspend;
+				};
 			};
 
 			vdd_soc: buck2 {
@@ -128,6 +134,12 @@
 				regulator-ramp-delay = <2500>;
 				regulator-initial-mode = <2>; /* SYNC */
 				regulator-always-on;
+				regulator-state-standby {
+					regulator-on-in-suspend;
+				};
+				regulator-state-mem {
+					regulator-on-in-suspend;
+				};
 			};
 
 			vdd_ddr3_1p5: buck3 {
@@ -136,6 +148,12 @@
 				regulator-max-microvolt = <1500000>;
 				regulator-initial-mode = <2>; /* SYNC */
 				regulator-always-on;
+				regulator-state-standby {
+					regulator-on-in-suspend;
+				};
+				regulator-state-mem {
+					regulator-on-in-suspend;
+				};
 			};
 
 			vdd_eth_1p2: buck4 {
@@ -144,6 +162,12 @@
 				regulator-max-microvolt = <1200000>;
 				regulator-initial-mode = <2>; /* SYNC */
 				regulator-always-on;
+				regulator-state-standby {
+					regulator-on-in-suspend;
+				};
+				regulator-state-mem {
+					regulator-on-in-suspend;
+				};
 			};
 
 			vdd_snvs: ldo1 {
@@ -151,6 +175,12 @@
 				regulator-min-microvolt = <3000000>;
 				regulator-max-microvolt = <3000000>;
 				regulator-always-on;
+				regulator-state-standby {
+					regulator-on-in-suspend;
+				};
+				regulator-state-mem {
+					regulator-on-in-suspend;
+				};
 			};
 
 			vdd_high: ldo2 {
@@ -158,18 +188,36 @@
 				regulator-min-microvolt = <3000000>;
 				regulator-max-microvolt = <3000000>;
 				regulator-always-on;
+				regulator-state-standby {
+					regulator-on-in-suspend;
+				};
+				regulator-state-mem {
+					regulator-on-in-suspend;
+				};
 			};
 
 			vdd_eth_io: ldo3 {
 				regulator-name = "vdd_eth_io";
 				regulator-min-microvolt = <2500000>;
 				regulator-max-microvolt = <2500000>;
+				regulator-state-standby {
+					regulator-on-in-suspend;
+				};
+				regulator-state-mem {
+					regulator-on-in-suspend;
+				};
 			};
 
 			vdd_emmc_1p8: ldo4 {
 				regulator-name = "vdd_emmc";
 				regulator-min-microvolt = <1800000>;
 				regulator-max-microvolt = <1800000>;
+				regulator-state-standby {
+					regulator-on-in-suspend;
+				};
+				regulator-state-mem {
+					regulator-on-in-suspend;
+				};
 			};
 		};
 	};
