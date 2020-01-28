@@ -17,6 +17,7 @@
 			label = "Home";
 			gpios = <&gpio6 18 GPIO_ACTIVE_LOW>;
 			linux,code = <KEY_SLEEP>;
+			wakeup-source;
 		};
 
 		power {
