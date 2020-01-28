@@ -16,7 +16,7 @@
 		home {
 			label = "Home";
 			gpios = <&gpio6 18 GPIO_ACTIVE_LOW>;
-			linux,code = <KEY_HOME>;
+			linux,code = <KEY_SLEEP>;
 		};
 
 		power {
