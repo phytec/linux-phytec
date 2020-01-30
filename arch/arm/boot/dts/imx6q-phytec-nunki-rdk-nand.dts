@@ -8,6 +8,7 @@
 #include "imx6q.dtsi"
 #include "imx6qdl-phytec-phycore-som.dtsi"
 #include "imx6qdl-phytec-nunki.dtsi"
+#include "imx6q-phytec-nunki-phycam.dtsi"
 #include "imx6qdl-phytec-nunki-peb-av-02.dtsi"
 
 / {

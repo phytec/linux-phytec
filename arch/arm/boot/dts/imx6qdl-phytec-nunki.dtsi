@@ -23,7 +23,7 @@
 	csi_deserializer0: csi_deserializer0 {
 		compatible = "ti,scan921226h";
 		pinctrl-names = "default";
-		pinctrl-0 = <&pinctrl_cam0switch>;
+		pinctrl-0 = <&pinctrl_csi_des0>;
 		status = "okay";
 
 		enable-gpios = <&gpio5 20 GPIO_ACTIVE_HIGH>;
@@ -52,7 +52,7 @@
 	csi_deserializer1: csi_deserializer1 {
 		compatible = "ti,scan921226h";
 		pinctrl-names = "default";
-		pinctrl-0 = <&pinctrl_cam1switch>;
+		pinctrl-0 = <&pinctrl_csi_des1>;
 		status = "okay";
 
 		enable-gpios = <&gpio3 10 GPIO_ACTIVE_HIGH>;
@@ -91,20 +91,6 @@
 				remote-endpoint = <&lvds0_out>;
 			};
 		};
-	};
-
-	reg_vcc_cam0: regulator-cam0 {
-		compatible = "regulator-fixed";
-		regulator-name = "vcc_cam0";
-		regulator-min-microvolt = <2800000>;
-		regulator-max-microvolt = <2800000>;
-	};
-
-	reg_vcc_cam1: regulator-cam1 {
-		compatible = "regulator-fixed";
-		regulator-name = "vcc_cam1";
-		regulator-min-microvolt = <2800000>;
-		regulator-max-microvolt = <2800000>;
 	};
 
 	reg_flexcan1: regulator-flexcan1 {
@@ -246,384 +232,6 @@
 		interrupts = <8 IRQ_TYPE_LEVEL_HIGH>;
 		status = "disabled";
 	};
-
-	/* VM-011 CSI0 */
-	mt9p031_0: mt9p031_0@48 {
-		compatible = "aptina,mt9p031";
-		pinctrl-names = "default";
-		pinctrl-0 = <
-			&pinctrl_cam0data
-			&pinctrl_cam0clk
-			&pinctrl_cam0ctrl
-		>;
-		reg = <0x48>;
-		status = "disabled";
-
-		vdd-supply = <&reg_vcc_cam0>;
-		vdd_io-supply = <&reg_vcc_cam0>;
-		vaa-supply = <&reg_vcc_cam0>;
-
-		clocks = <&clks IMX6QDL_CLK_CKO1>;
-
-		assigned-clocks =
-			<&clks IMX6QDL_CLK_CKO1_SEL>,
-			<&clks IMX6QDL_CLK_CKO>,
-			<&clks IMX6QDL_CLK_PLL4_AUDIO_DIV>;
-
-		assigned-clock-parents =
-			<&clks IMX6QDL_CLK_PLL4_AUDIO_DIV>,
-			<&clks IMX6QDL_CLK_CKO1>;
-
-		assigned-clock-rates = <0>, <0>, <216000000>;
-
-		port {
-			mt9p031_ep0: endpoint {
-				remote-endpoint = <
-					&ipu1_csi0_mux_from_parallel_sensor
-				>;
-				input-clock-frequency = <54000000>;
-				pixel-clock-frequency = <54000000>;
-				bus-width = <8>;
-				hsync-active = <1>;
-				vsync-active = <1>;
-				pclk-sample = <1>;
-			};
-		};
-	};
-
-	/* VM-010 CSI0 */
-	mt9v024_0: mt9v024_0@48 {
-		compatible = "aptina,mt9v024";
-		pinctrl-names = "default";
-		pinctrl-0 = <
-			&pinctrl_cam0data
-			&pinctrl_cam0clk
-			&pinctrl_cam0ctrl
-		>;
-		reg = <0x48>;
-		status = "disabled";
-
-		clocks = <&clks IMX6QDL_CLK_CKO1>;
-
-		assigned-clocks =
-			<&clks IMX6QDL_CLK_CKO1_SEL>,
-			<&clks IMX6QDL_CLK_CKO>,
-			<&clks IMX6QDL_CLK_PLL4_AUDIO_DIV>;
-
-		assigned-clock-parents =
-			<&clks IMX6QDL_CLK_PLL4_AUDIO_DIV>,
-			<&clks IMX6QDL_CLK_CKO1>;
-
-		assigned-clock-rates = <0>, <0>, <216000000>;
-
-		port {
-			mt9v024_ep0_0: endpoint {
-				remote-endpoint = <
-					&ipu1_csi0_mux_from_parallel_sensor
-				>;
-				link-frequencies = /bits/ 64 <27000000>;
-				bus-width = <8>;
-				hsync-active = <1>;
-				vsync-active = <1>;
-			};
-		};
-        };
-
-	/* VM-009 CSI0 */
-	mt9m111_0: mt9m111_0@48 {
-		compatible = "micron,mt9m111";
-		pinctrl-names = "default";
-		pinctrl-0 = <
-			&pinctrl_cam0data
-			&pinctrl_cam0clk
-			&pinctrl_cam0ctrl
-		>;
-		reg = <0x48>;
-		status = "disabled";
-
-		clocks = <&clks IMX6QDL_CLK_CKO>;
-		clock-names = "mclk";
-		phytec,invert-pixclk;
-
-		assigned-clocks =
-			<&clks IMX6QDL_CLK_CKO1_SEL>,
-			<&clks IMX6QDL_CLK_CKO>,
-			<&clks IMX6QDL_CLK_PLL4_AUDIO_DIV>,
-			<&clks IMX6QDL_CLK_CKO1>;
-
-
-		assigned-clock-parents =
-			<&clks IMX6QDL_CLK_PLL4_AUDIO_DIV>,
-			<&clks IMX6QDL_CLK_CKO1>;
-
-		assigned-clock-rates = <0>, <0>, <216000000>, <54000000>;
-
-		port {
-			mt9m111_ep0: endpoint {
-				remote-endpoint = <
-					&ipu1_csi0_mux_from_parallel_sensor
-				>;
-				bus-width = <8>;
-				hsync-active = <1>;
-				vsync-active = <1>;
-			};
-		};
-	};
-
-	/* VM-012 CSI0 */
-	vm012_0: vm012_0@48 {
-		compatible = "phytec,vm012m";
-		pinctrl-names = "default";
-		pinctrl-0 = <
-			&pinctrl_cam0data
-			&pinctrl_cam0clk
-			&pinctrl_cam0ctrl
-		>;
-		reg = <0x48>;
-		status = "disabled";
-
-		clocks = <&clks IMX6QDL_CLK_CKO1>;
-		sysclk = <54000000>;
-
-		assigned-clocks =
-			<&clks IMX6QDL_CLK_CKO1_SEL>,
-			<&clks IMX6QDL_CLK_CKO>,
-			<&clks IMX6QDL_CLK_PLL4_AUDIO_DIV>;
-
-		assigned-clock-parents =
-			<&clks IMX6QDL_CLK_PLL4_AUDIO_DIV>,
-			<&clks IMX6QDL_CLK_CKO1>;
-
-		assigned-clock-rates = <0>, <0>, <216000000>;
-
-		port {
-			vm012_ep0: endpoint {
-				remote-endpoint = <
-					&ipu1_csi0_mux_from_parallel_sensor
-				>;
-				/* HACK: set some attribute; else BT.656 mode
-				will be assumed silently */
-				hsync-active = <1>;
-				vsync-active = <1>;
-				bus-width = <10>;
-			};
-		};
-	};
-
-	/* VM-050 CSI0 */
-	vm050_0: vm050_0@4a {
-		#gpio-cells = <2>;
-		compatible = "phytec,vm050";
-		pinctrl-names = "default";
-		pinctrl-0 = <
-			&pinctrl_cam0data
-			&pinctrl_cam0clk
-			&pinctrl_cam0ctrl
-		>;
-
-		reg = <0x4a>;
-		status = "disabled";
-
-		port {
-			vm050_ep0: endpoint {
-				/* HACK: set some attribute; else BT.656 mode
-				will be assumed silently */
-				hsync-active = <1>;
-				bus-width = <8>;
-				remote-endpoint = <&ipu1_csi0_mux_from_parallel_sensor>;
-			};
-		};
-	};
-
-	/* VM-011 CSI1 */
-	mt9p031_1: mt9p031_1@48 {
-		compatible = "aptina,mt9p031";
-		pinctrl-names = "default";
-		pinctrl-0 = <
-			&pinctrl_cam1data
-			&pinctrl_cam1clk
-			&pinctrl_cam1ctrl
-		>;
-		reg = <0x48>;
-		status = "disabled";
-
-		vdd-supply = <&reg_vcc_cam1>;
-		vdd_io-supply = <&reg_vcc_cam1>;
-		vaa-supply = <&reg_vcc_cam1>;
-
-		clocks = <&clks IMX6QDL_CLK_CKO2>;
-
-		assigned-clocks =
-			<&clks IMX6QDL_CLK_CKO2_SEL>,
-			<&clks IMX6QDL_CLK_ESAI_SEL>,
-			<&clks IMX6QDL_CLK_PLL4_AUDIO_DIV>,
-			<&clks IMX6QDL_CLK_ESAI_EXTAL>;
-
-		assigned-clock-parents =
-			<&clks IMX6QDL_CLK_ESAI_EXTAL>,
-			<&clks IMX6QDL_CLK_PLL4_AUDIO_DIV>;
-
-		assigned-clock-rates = <0>, <0>, <216000000>, <54000000>;
-
-		port {
-			mt9p031_ep1: endpoint {
-				remote-endpoint = <
-					&ipu2_csi1_mux_from_parallel_sensor
-				>;
-				input-clock-frequency = <54000000>;
-				pixel-clock-frequency = <54000000>;
-				bus-width = <8>;
-				hsync-active = <1>;
-				vsync-active = <1>;
-				pclk-sample = <1>;
-			};
-		};
-	};
-
-	/* VM-010 CSI1*/
-	mt9v024_1: mt9v024_1@48 {
-		compatible = "aptina,mt9v024";
-		pinctrl-names = "default";
-		pinctrl-0 = <
-			&pinctrl_cam1data
-			&pinctrl_cam1clk
-			&pinctrl_cam1ctrl
-		>;
-		reg = <0x48>;
-		status = "disabled";
-
-		clocks = <&clks IMX6QDL_CLK_CKO2>;
-
-		assigned-clocks =
-			<&clks IMX6QDL_CLK_CKO2_SEL>,
-			<&clks IMX6QDL_CLK_ESAI_SEL>,
-			<&clks IMX6QDL_CLK_PLL4_AUDIO_DIV>,
-			<&clks IMX6QDL_CLK_ESAI_EXTAL>;
-
-		assigned-clock-parents =
-			<&clks IMX6QDL_CLK_ESAI_EXTAL>,
-			<&clks IMX6QDL_CLK_PLL4_AUDIO_DIV>;
-
-		assigned-clock-rates = <0>, <0>, <216000000>, <54000000>;
-
-		port {
-			mt9v024_ep1_0: endpoint {
-				remote-endpoint = <
-					&ipu2_csi1_mux_from_parallel_sensor
-				>;
-				link-frequencies = /bits/ 64 <27000000>;
-				bus-width = <8>;
-				hsync-active = <1>;
-				vsync-active = <1>;
-			};
-		};
-        };
-
-	/* VM-009 CSI1 */
-	mt9m111_1: mt9m111_1@48 {
-		compatible = "micron,mt9m111";
-		pinctrl-names = "default";
-		pinctrl-0 = <
-			&pinctrl_cam1data
-			&pinctrl_cam1clk
-			&pinctrl_cam1ctrl
-		>;
-		reg = <0x48>;
-		status = "disabled";
-
-		clocks = <&clks IMX6QDL_CLK_CKO2>;
-		clock-names = "mclk";
-		phytec,invert-pixclk;
-
-		assigned-clocks =
-			<&clks IMX6QDL_CLK_CKO2_SEL>,
-			<&clks IMX6QDL_CLK_ESAI_SEL>,
-			<&clks IMX6QDL_CLK_PLL4_AUDIO_DIV>,
-			<&clks IMX6QDL_CLK_ESAI_EXTAL>;
-
-		assigned-clock-parents =
-			<&clks IMX6QDL_CLK_ESAI_EXTAL>,
-			<&clks IMX6QDL_CLK_PLL4_AUDIO_DIV>;
-
-		assigned-clock-rates = <0>, <0>, <216000000>, <54000000>;
-
-		port {
-			mt9m111_ep1: endpoint {
-				remote-endpoint = <
-					&ipu2_csi1_mux_from_parallel_sensor
-				>;
-				bus-width = <8>;
-				hsync-active = <1>;
-				vsync-active = <1>;
-			};
-		};
-	};
-
-	/* VM-012 CSI1 */
-	vm012_1: vm012_1@48 {
-		compatible = "phytec,vm012m";
-		pinctrl-names = "default";
-		pinctrl-0 = <
-			&pinctrl_cam1data
-			&pinctrl_cam1clk
-			&pinctrl_cam1ctrl
-		>;
-		reg = <0x48>;
-		status = "disabled";
-
-		clocks = <&clks IMX6QDL_CLK_CKO2>;
-		sysclk = <54000000>;
-
-		assigned-clocks =
-			<&clks IMX6QDL_CLK_CKO2_SEL>,
-			<&clks IMX6QDL_CLK_ESAI_SEL>,
-			<&clks IMX6QDL_CLK_PLL4_AUDIO_DIV>,
-			<&clks IMX6QDL_CLK_ESAI_EXTAL>;
-
-		assigned-clock-parents =
-			<&clks IMX6QDL_CLK_ESAI_EXTAL>,
-			<&clks IMX6QDL_CLK_PLL4_AUDIO_DIV>;
-
-		assigned-clock-rates = <0>, <0>, <216000000>, <216000000>;
-
-		port {
-			vm012_ep1: endpoint {
-				remote-endpoint = <
-					&ipu2_csi1_mux_from_parallel_sensor
-				>;
-				/* HACK: set some attribute; else BT.656 mode
-				will be assumed silently */
-				hsync-active = <1>;
-				vsync-active = <1>;
-				bus-width = <10>;
-			};
-		};
-	};
-
-	/* VM-050 CSI1 */
-	vm050_1: vm050_1@4e {
-		#gpio-cells = <2>;
-		compatible = "phytec,vm050";
-		pinctrl-names = "default";
-		pinctrl-0 = <
-			&pinctrl_cam1data
-			&pinctrl_cam1clk
-			&pinctrl_cam1ctrl
-		>;
-
-		reg = <0x4e>;
-		status = "disabled";
-
-		port {
-			vm050_ep1: endpoint {
-				/* HACK: set some attribute; else BT.656 mode
-				will be assumed silently */
-				hsync-active = <1>;
-				bus-width = <8>;
-				remote-endpoint = <&ipu2_csi1_mux_from_parallel_sensor>;
-			};
-		};
-	};
 };
 
 &i2c2 {
@@ -634,83 +242,17 @@
 };
 
 &iomuxc {
-	pinctrl_cam0clk: cam0clkgrp {
-		fsl,pins = <
-			MX6QDL_PAD_GPIO_0__CCM_CLKO1		0xb9
-			>;
-	};
-
-	pinctrl_cam0data: cam0datagrp {
-		fsl,pins = <
-			MX6QDL_PAD_CSI0_DAT8__IPU1_CSI0_DATA08	0x1b0b0
-			MX6QDL_PAD_CSI0_DAT9__IPU1_CSI0_DATA09	0x1b0b0
-			MX6QDL_PAD_CSI0_DAT10__IPU1_CSI0_DATA10	0x1b0b0
-			MX6QDL_PAD_CSI0_DAT11__IPU1_CSI0_DATA11	0x1b0b0
-			MX6QDL_PAD_CSI0_DAT12__IPU1_CSI0_DATA12 0x1b0b0
-			MX6QDL_PAD_CSI0_DAT13__IPU1_CSI0_DATA13 0x1b0b0
-			MX6QDL_PAD_CSI0_DAT14__IPU1_CSI0_DATA14 0x1b0b0
-			MX6QDL_PAD_CSI0_DAT15__IPU1_CSI0_DATA15 0x1b0b0
-			MX6QDL_PAD_CSI0_DAT16__IPU1_CSI0_DATA16 0x1b0b0
-			MX6QDL_PAD_CSI0_DAT17__IPU1_CSI0_DATA17 0x1b0b0
-			MX6QDL_PAD_CSI0_DAT18__IPU1_CSI0_DATA18 0x1b0b0
-			MX6QDL_PAD_CSI0_DAT19__IPU1_CSI0_DATA19 0x1b0b0
-			MX6QDL_PAD_CSI0_MCLK__IPU1_CSI0_HSYNC   0x1b0b0
-			MX6QDL_PAD_CSI0_PIXCLK__IPU1_CSI0_PIXCLK 0x4001b0b0
-			MX6QDL_PAD_CSI0_VSYNC__IPU1_CSI0_VSYNC  0x1b0b0
-		>;
-	};
-
-	pinctrl_cam0switch: cam0switchgrp {
+	pinctrl_csi_des0: csides0grp {
 		fsl,pins = <
 			MX6QDL_PAD_CSI0_DATA_EN__GPIO5_IO20	0x20b0
 			MX6QDL_PAD_EIM_DA9__GPIO3_IO09		0x4000a0b0
 		>;
 	};
 
-	pinctrl_cam0ctrl: cam0ctrlgrp {
-		fsl,pins = <
-			MX6QDL_PAD_GPIO_19__GPIO4_IO05          0x000130b0
-			MX6QDL_PAD_KEY_COL2__GPIO4_IO10         0x000130b0
-		>;
-	};
-
-	pinctrl_cam1clk: cam1clkgrp {
-		fsl,pins = <
-			MX6QDL_PAD_GPIO_3__CCM_CLKO2		0xb9
-		>;
-	};
-
-	pinctrl_cam1data: cam1datagrp {
-		fsl,pins = <
-			MX6QDL_PAD_EIM_DA1__IPU2_CSI1_DATA08	0xb0b1
-			MX6QDL_PAD_EIM_DA0__IPU2_CSI1_DATA09	0xb0b1
-			MX6QDL_PAD_EIM_D22__IPU2_CSI1_DATA10	0xb0b1
-			MX6QDL_PAD_EIM_EB0__IPU2_CSI1_DATA11	0xb0b1
-			MX6QDL_PAD_EIM_A17__IPU2_CSI1_DATA12	0xb0b1
-			MX6QDL_PAD_EIM_A18__IPU2_CSI1_DATA13	0xb0b1
-			MX6QDL_PAD_EIM_A19__IPU2_CSI1_DATA14	0xb0b1
-			MX6QDL_PAD_EIM_A20__IPU2_CSI1_DATA15	0xb0b1
-			MX6QDL_PAD_EIM_A21__IPU2_CSI1_DATA16	0xb0b1
-			MX6QDL_PAD_EIM_A22__IPU2_CSI1_DATA17	0xb0b1
-			MX6QDL_PAD_EIM_A23__IPU2_CSI1_DATA18	0xb0b1
-			MX6QDL_PAD_EIM_A24__IPU2_CSI1_DATA19	0xb0b1
-			MX6QDL_PAD_EIM_DA11__IPU2_CSI1_HSYNC	0xb0b1
-			MX6QDL_PAD_EIM_A16__IPU2_CSI1_PIXCLK	0xb0b1
-			MX6QDL_PAD_EIM_DA12__IPU2_CSI1_VSYNC	0xb0b1
-		>;
-	};
-
-	pinctrl_cam1switch: cam1switchgrp {
+	pinctrl_csi_des1: csides1grp {
 		fsl,pins = <
 			MX6QDL_PAD_EIM_DA10__GPIO3_IO10		0xa0b0
 			MX6QDL_PAD_EIM_DA8__GPIO3_IO08		0x4000a0b0
-		>;
-	};
-
-	pinctrl_cam1ctrl: cam1ctrlgrp {
-		fsl,pins = <
-			MX6QDL_PAD_EIM_A25__GPIO5_IO02          0x000130b0
-			MX6QDL_PAD_CSI0_DAT4__GPIO5_IO22        0x000130b0
 		>;
 	};
 
@@ -834,14 +376,6 @@
 			MX6QDL_PAD_EIM_BCLK__GPIO6_IO31		0xb0b1 /* CD */
 		>;
 	};
-};
-
-&ipu1_csi0_mux_from_parallel_sensor {
-	remote-endpoint = <&mt9p031_ep0>;
-};
-
-&ipu2_csi1_mux_from_parallel_sensor {
-	remote-endpoint = <&mt9p031_ep1>;
 };
 
 &ldb {
