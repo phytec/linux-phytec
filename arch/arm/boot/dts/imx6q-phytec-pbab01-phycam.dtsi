@@ -7,11 +7,30 @@
 #include "imx6qdl-phytec-pbab01-phycam.dtsi"
 
 / {
+	clk_cam1: clk-cam1 {
+		#clock-cells = <0>;
+
+		compatible = "fixed-clock";
+		clock-frequency = <27000000>;
+
+		status = "disabled";
+	};
+
 	reg_vcc_cam1: regulator-cam1 {
 		compatible = "regulator-fixed";
 		regulator-name = "VCC_CAM1";
 		regulator-min-microvolt = <2800000>;
 		regulator-max-microvolt = <2800000>;
+	};
+
+	thermal-zones {
+		vm016_1_thermal: vm016-1-thermal {
+			polling-delay = <0>;
+			polling-delay-passive = <0>;
+
+			thermal-sensors = <&vm016_1>;
+			status = "disabled";
+		};
 	};
 };
 
@@ -173,6 +192,70 @@
 				hsync-active = <1>;
 				vsync-active = <1>;
 				bus-width = <10>;
+			};
+		};
+	};
+
+	/* VM-016 */
+	vm016_1: vm016@18 {
+		#address-cells = <0x1>;
+		#size-cells = <0x0>;
+		#thermal-sensor-cells = <0>;
+
+		compatible = "onsemi,ar0144";
+		pinctrl-names = "default";
+		pinctrl-0 = <
+			&pinctrl_cam1data
+			&pinctrl_cam1clk
+		>;
+		reg = <0x18>;
+		status = "disabled";
+
+		clock-names = "ext", "synch";
+		clocks = <
+			&clk_cam1
+			&clks IMX6QDL_CLK_CKO2
+		>;
+
+		assigned-clocks = <
+			&clks IMX6QDL_CLK_CKO2_SEL
+			&clks IMX6QDL_CLK_ESAI_SEL
+			&clks IMX6QDL_CLK_PLL4_AUDIO_DIV
+			&clks IMX6QDL_CLK_ESAI_EXTAL
+		>;
+
+		assigned-clock-parents = <
+			&clks IMX6QDL_CLK_ESAI_EXTAL
+			&clks IMX6QDL_CLK_PLL4_AUDIO_DIV
+		>;
+
+		assigned-clock-rates = <
+			0
+			0
+			216000000
+			72000000
+		>;
+
+		vdd-supply = <&reg_vcc_cam1>;
+		vddio-supply = <&reg_vcc_cam1>;
+		vaa-supply = <&reg_vcc_cam1>;
+		vaapix-supply = <&reg_vcc_cam1>;
+
+		port@0 {
+			reg = <0x0>;
+
+			vm016_1_ep0: endpoint {
+				remote-endpoint = <&ipu2_csi1_mux_from_parallel_sensor>;
+
+				onsemi,data-shift = <0>;
+				onsemi,slew-rate-dat = <3>;
+				onsemi,slew-rate-clk = <3>;
+
+				data-shift = <4>;
+				bus-width = <12>;
+				hsync-active = <1>;
+				vsync-active = <1>;
+				link-frequencies = /bits/ 64 < 72000000 >;
 			};
 		};
 	};

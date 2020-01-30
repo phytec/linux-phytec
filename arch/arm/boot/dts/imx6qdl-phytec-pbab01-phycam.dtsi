@@ -5,11 +5,30 @@
  */
 
 / {
+	clk_cam0: clk-cam0 {
+		#clock-cells = <0>;
+
+		compatible = "fixed-clock";
+		clock-frequency = <27000000>;
+
+		status = "disabled";
+	};
+
 	reg_vcc_cam0: regulator-cam0 {
 		compatible = "regulator-fixed";
 		regulator-name = "VCC_CAM0";
 		regulator-min-microvolt = <2800000>;
 		regulator-max-microvolt = <2800000>;
+	};
+
+	thermal-zones {
+		vm016_0_thermal: vm016-0-thermal {
+			polling-delay = <0>;
+			polling-delay-passive = <0>;
+
+			thermal-sensors = <&vm016_0>;
+			status = "disabled";
+		};
 	};
 };
 
@@ -173,6 +192,107 @@
 		};
 	};
 
+	/* VM-016 */
+	vm016_0: vm016@10 {
+		#address-cells = <0x1>;
+		#size-cells = <0x0>;
+		#thermal-sensor-cells = <0>;
+
+		compatible = "onsemi,ar0144";
+		pinctrl-names = "default";
+		pinctrl-0 = <
+			&pinctrl_cam0data
+			&pinctrl_cam0clk
+		>;
+		reg = <0x10>;
+		status = "disabled";
+
+		clock-names = "ext", "synch";
+		clocks = <
+			&clk_cam0
+			&clks IMX6QDL_CLK_CKO1
+		>;
+
+		assigned-clocks = <
+			&clks IMX6QDL_CLK_CKO1_SEL
+			&clks IMX6QDL_CLK_CKO
+			&clks IMX6QDL_CLK_PLL4_AUDIO_DIV
+		>;
+
+		assigned-clock-parents = <
+			&clks IMX6QDL_CLK_PLL4_AUDIO_DIV
+			&clks IMX6QDL_CLK_CKO1
+		>;
+
+		assigned-clock-rates = <
+			0
+			0
+			216000000
+		>;
+
+		vdd-supply = <&reg_vcc_cam0>;
+		vddio-supply = <&reg_vcc_cam0>;
+		vaa-supply = <&reg_vcc_cam0>;
+		vaapix-supply = <&reg_vcc_cam0>;
+
+		timings {
+			mipi-0 = <
+				/*          hs_prep      hs_zero    hs_trail     clk_trail */
+				1500000000 ((1 << 12) | ( 6 << 8) | ( 6 << 4) | (5 << 0))
+			>;
+
+			mipi-1 = <
+				/*          clk_prep     hs_exit    clk_zero */
+				1500000000 ((1 << 12) | ( 4 << 6) | (14 << 0))
+			>;
+
+			mipi-2 = <
+				/*          bgap        clk_pre   clk_post */
+				1500000000 ((2 << 12) | ( 1 << 6) | ( 9 << 0))
+			>;
+
+			mipi-3 = <
+				/*          tm3           lpx        wake_up */
+				1500000000 ((0 << 13) | ( 2 << 7) | ( 5 << 0))
+			>;
+
+			mipi-4 = <
+				/*          heavy_lp      tm4       init */
+				1500000000 ((0 << 14) | ( 0 << 7) | ( 4 << 0))
+			>;
+		};
+
+		port@0 {
+			reg = <0x0>;
+
+			vm016_0_ep0: endpoint {
+				remote-endpoint = <&ipu1_csi0_mux_from_parallel_sensor>;
+
+				onsemi,data-shift = <0>;
+				onsemi,slew-rate-dat = <2>;
+				onsemi,slew-rate-clk = <2>;
+
+				data-shift = <0>;
+				bus-width = <12>;
+				hsync-active = <1>;
+				vsync-active = <1>;
+				link-frequencies = /bits/ 64 < 72000000 >;
+			};
+		};
+
+		port@1 {
+			reg = <0x1>;
+
+			vm016_0_ep1: endpoint {
+				remote-endpoint = <&mipi_csi2_in>;
+				data-lanes = <1 2>;
+				clock-lanes = <0>;
+				clock-noncontinuous = <1>;
+			};
+		};
+	};
+
+
 	/* VM-050 */
 	vm050_0: vm050_0@4a {
 		#gpio-cells = <2>;
@@ -232,4 +352,18 @@
 
 &ipu1_csi0_mux_from_parallel_sensor {
 	remote-endpoint = <&mt9p031_ep0>;
+};
+
+&mipi_csi {
+	status = "okay";
+
+	port@0 {
+		reg = <0>;
+
+		mipi_csi2_in: endpoint {
+			remote-endpoint = <&vm016_0_ep1>;
+			clock-lanes = <0>;
+			data-lanes = <1 2>;
+		};
+	};
 };
