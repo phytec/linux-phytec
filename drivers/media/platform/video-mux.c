@@ -305,10 +305,89 @@ static int video_mux_init_cfg(struct v4l2_subdev *sd,
 	return 0;
 }
 
+static bool video_mux_fmt_is_compatible(unsigned int fmt_a,
+					unsigned int fmt_b)
+{
+	static struct {
+		unsigned int		code;
+		unsigned int		category;
+	} const			FMT_CATEGORIES[] = {
+		{ MEDIA_BUS_FMT_SGBRG8_1X8,   1 },
+		{ MEDIA_BUS_FMT_SGBRG10_1X10, 1 },
+		{ MEDIA_BUS_FMT_SGBRG12_1X12, 1 },
+
+		{ MEDIA_BUS_FMT_SGRBG8_1X8,   2 },
+		{ MEDIA_BUS_FMT_SGRBG10_1X10, 2 },
+		{ MEDIA_BUS_FMT_SGRBG12_1X12, 2 },
+
+		{ MEDIA_BUS_FMT_SRGGB8_1X8,   3 },
+		{ MEDIA_BUS_FMT_SRGGB10_1X10, 3 },
+		{ MEDIA_BUS_FMT_SRGGB12_1X12, 3 },
+
+		{ MEDIA_BUS_FMT_SBGGR8_1X8,   4 },
+		{ MEDIA_BUS_FMT_SBGGR10_1X10, 4 },
+		{ MEDIA_BUS_FMT_SBGGR12_1X12, 4 },
+
+		{ MEDIA_BUS_FMT_Y8_1X8,       5 },
+		{ MEDIA_BUS_FMT_Y10_1X10,     5 },
+		{ MEDIA_BUS_FMT_Y12_1X12,     5 },
+	};
+	unsigned int cat_a = 0;
+	unsigned int cat_b = 0;
+
+	size_t i;
+	if (fmt_a == fmt_b)
+		return true;
+
+	for (i = 0; i < ARRAY_SIZE(FMT_CATEGORIES); ++i) {
+		if (FMT_CATEGORIES[i].code == fmt_a)
+			cat_a = FMT_CATEGORIES[i].category;
+
+		if (FMT_CATEGORIES[i].code == fmt_b)
+			cat_b = FMT_CATEGORIES[i].category;
+
+		if (cat_a != 0 && cat_b != 0)
+			break;
+	}
+
+	if (cat_a != 0 && cat_a == cat_b)
+		return true;
+
+	return false;
+}
+
+static int video_mux_link_validate(struct v4l2_subdev *sd,
+				   struct media_link *link,
+				   struct v4l2_subdev_format *source_fmt,
+				   struct v4l2_subdev_format *sink_fmt)
+{
+
+	struct v4l2_subdev_format fmt = *source_fmt;
+	int ret;
+
+	/* run the default check but avoid failures in the fmt-code check be
+	 * enforcing the same fmt-code */
+	fmt.format.code = sink_fmt->format.code;
+
+	ret = v4l2_subdev_link_validate_default(sd, link, &fmt, sink_fmt);
+	if (ret < 0)
+		return ret;
+
+	if (!video_mux_fmt_is_compatible(sink_fmt->format.code,
+					 source_fmt->format.code)) {
+		dev_dbg(sd->dev, "format mismatch %04x ->%04x\n",
+			source_fmt->format.code, sink_fmt->format.code);
+		return -EPIPE;
+	}
+
+	return 0;
+}
+
 static const struct v4l2_subdev_pad_ops video_mux_pad_ops = {
 	.init_cfg = video_mux_init_cfg,
 	.get_fmt = video_mux_get_format,
 	.set_fmt = video_mux_set_format,
+	.link_validate = video_mux_link_validate,
 };
 
 static const struct v4l2_subdev_ops video_mux_subdev_ops = {
