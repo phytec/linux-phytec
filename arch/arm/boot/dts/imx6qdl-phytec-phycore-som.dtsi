@@ -114,7 +114,7 @@
 		regulators {
 			vdd_arm: buck1 {
 				regulator-name = "vdd_arm";
-				regulator-min-microvolt = <730000>;
+				regulator-min-microvolt = <925000>;
 				regulator-max-microvolt = <1500000>;
 				regulator-ramp-delay = <2500>;
 				regulator-initial-mode = <2>; /* SYNC */
@@ -129,7 +129,7 @@
 
 			vdd_soc: buck2 {
 				regulator-name = "vdd_soc";
-				regulator-min-microvolt = <730000>;
+				regulator-min-microvolt = <1150000>;
 				regulator-max-microvolt = <1500000>;
 				regulator-ramp-delay = <2500>;
 				regulator-initial-mode = <2>; /* SYNC */
