@@ -33,6 +33,14 @@ struct da9062_watchdog {
 	struct watchdog_device wdtdev;
 };
 
+static unsigned int da9062_wdt_read_timeout(struct da9062_watchdog *wdt)
+{
+	int val;
+
+	regmap_read(wdt->hw->regmap, DA9062AA_CONTROL_D, &val);
+	return wdt_timeout[val & DA9062AA_TWDSCALE_MASK];
+}
+
 static unsigned int da9062_wdt_timeout_to_sel(unsigned int secs)
 {
 	unsigned int i;
@@ -178,14 +186,6 @@ static int da9062_wdt_restart(struct watchdog_device *wdd, unsigned long action,
 	return ret;
 }
 
-static inline bool da9062_wdt_is_running(struct da9062_watchdog *wdt)
-{
-	int val;
-
-	regmap_read(wdt->hw->regmap, DA9062AA_CONTROL_D, &val);
-	return val & DA9062AA_TWDSCALE_MASK;
-}
-
 static const struct watchdog_info da9062_watchdog_info = {
 	.options = WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING,
 	.identity = "DA9062 WDT",
@@ -210,6 +210,7 @@ MODULE_DEVICE_TABLE(of, da9062_compatible_id_table);
 static int da9062_wdt_probe(struct platform_device *pdev)
 {
 	int ret;
+	int timeout;
 	struct da9062 *chip;
 	struct da9062_watchdog *wdt;
 
@@ -236,13 +237,12 @@ static int da9062_wdt_probe(struct platform_device *pdev)
 
 	watchdog_set_drvdata(&wdt->wdtdev, wdt);
 
-	if (da9062_wdt_is_running(wdt)) {
-		ret = da9062_wdt_ping(&wdt->wdtdev);
-		if (ret < 0)
-			return ret;
-
+	timeout = da9062_wdt_read_timeout(wdt);
+	if (timeout) {
+		wdt->wdtdev.timeout = timeout;
+		da9062_wdt_set_timeout(&wdt->wdtdev, wdt->wdtdev.timeout);
 		set_bit(WDOG_HW_RUNNING, &wdt->wdtdev.status);
-		dev_info(wdt->hw->dev, "watchdog is running");
+		dev_info(wdt->hw->dev, "watchdog is running (%u s)", timeout);
 	}
 
 	ret = devm_watchdog_register_device(&pdev->dev, &wdt->wdtdev);
