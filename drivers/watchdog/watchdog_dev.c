@@ -258,7 +258,7 @@ static int watchdog_start(struct watchdog_device *wdd)
 
 	started_at = ktime_get();
 	if (watchdog_hw_running(wdd) && wdd->ops->ping)
-		err = wdd->ops->ping(wdd);
+		err = __watchdog_ping(wdd);
 	else
 		err = wdd->ops->start(wdd);
 	if (err == 0) {
