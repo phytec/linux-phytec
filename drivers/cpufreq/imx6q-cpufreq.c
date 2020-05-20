@@ -326,8 +326,8 @@ static int imx6q_cpufreq_complete_bypass(unsigned long new_freq)
 	 * used we first have to set a different voltage before resetting the
 	 * voltage to 1.175 V. Otherwise the framework would discard the change.
 	 */
-	regulator_set_voltage_tol(soc_reg, 1150000, 0);
-	regulator_set_voltage_tol(pu_reg, 1150000, 0);
+	regulator_set_voltage_tol(soc_reg, 1200000, 0);
+	regulator_set_voltage_tol(pu_reg, 1200000, 0);
 
 	regulator_set_voltage_tol(soc_reg, soc_volt, 0);
 	regulator_set_voltage_tol(pu_reg, soc_volt, 0);
