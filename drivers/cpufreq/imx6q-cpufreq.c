@@ -371,27 +371,7 @@ static int imx6q_cpufreq_suspend(struct cpufreq_policy *policy)
 	if (!IS_ERR(dc_reg) && !ignore_dc_reg)
 		regulator_set_voltage_tol(dc_reg, DC_VOLTAGE_MAX, 0);
 
-	if (bypass) {
-		ret = imx6q_cpufreq_prepare_bypass(false);
-		if (ret) {
-			dev_err(cpu_dev, "failed to prepare disabling bypass\n");
-			return ret;
-		}
-
-		dev_info(cpu_dev, "Disabling LDO bypass\n");
-		ret = imx6q_cpufreq_set_bypass(false);
-
-		if (ret)
-			dev_warn(cpu_dev, "failed to disable LDO bypass\n");
-
-		ret = imx6q_cpufreq_complete_bypass(policy->suspend_freq * 1000);
-		if (ret) {
-			dev_err(cpu_dev, "failed to complete bypass\n");
-			return ret;
-		}
-	} else {
-		ret = cpufreq_generic_suspend(policy);
-	}
+	ret = cpufreq_generic_suspend(policy);
 
 	return ret;
 }
@@ -403,29 +383,7 @@ static int imx6q_cpufreq_resume(struct cpufreq_policy *policy)
 	if (!IS_ERR(dc_reg) && !ignore_dc_reg)
 		regulator_set_voltage_tol(dc_reg, DC_VOLTAGE_MIN, 0);
 
-	if (bypass) {
-		ret = imx6q_cpufreq_prepare_bypass(true);
-		if (ret) {
-			dev_err(cpu_dev, "failed to prepare bypass\n");
-			return ret;
-		}
-
-		dev_info(cpu_dev, "Enabling LDO bypass\n");
-		ret = imx6q_cpufreq_set_bypass(true);
-
-		if (ret)
-			dev_warn(cpu_dev, "failed to bypass internal LDOs\n");
-
-		ret = imx6q_cpufreq_complete_bypass(FREQ_800_MHZ);
-		if (ret) {
-			dev_err(cpu_dev, "failed to complete bypass\n");
-			return ret;
-		}
-	} else {
-		ret = 0;
-	}
-
-	return ret;
+	return 0;
 }
 
 static int imx6q_cpufreq_exit(struct cpufreq_policy *policy)
