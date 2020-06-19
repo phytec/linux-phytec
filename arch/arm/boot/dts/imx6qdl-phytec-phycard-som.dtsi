@@ -73,7 +73,7 @@
 	};
 
 	pmic@58 {
-		compatible = "dialog,da9063";
+		compatible = "dlg,da9063";
 		pinctrl-names = "default";
 		pinctrl-0 = <&pinctrl_pmic>;
 		reg = <0x58>;
