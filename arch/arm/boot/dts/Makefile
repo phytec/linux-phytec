@@ -490,6 +490,7 @@ dtb-$(CONFIG_SOC_IMX6UL) += \
 	imx6ul-opos6uldev.dtb \
 	imx6ul-phytec-segin-ff-rdk-nand.dtb \
 	imx6ul-phytec-segin-ff-rdk-nand-rs485.dtb \
+	imx6ul-phytec-segin-ff-rdk-emmc.dtb \
 	imx6ul-pico-hobbit.dtb \
 	imx6ul-tx6ul-0010.dtb \
 	imx6ul-tx6ul-0011.dtb \
