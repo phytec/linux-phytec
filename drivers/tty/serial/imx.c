@@ -1318,13 +1318,15 @@ static int imx_uart_startup(struct uart_port *port)
 	int dma_is_inited = 0;
 	u32 ucr1, ucr2, ucr4;
 
-	retval = clk_prepare_enable(sport->clk_per);
-	if (retval)
-		return retval;
-	retval = clk_prepare_enable(sport->clk_ipg);
-	if (retval) {
-		clk_disable_unprepare(sport->clk_per);
-		return retval;
+	if (!uart_console(port)) {
+		retval = clk_prepare_enable(sport->clk_per);
+		if (retval)
+			return retval;
+		retval = clk_prepare_enable(sport->clk_ipg);
+		if (retval) {
+			clk_disable_unprepare(sport->clk_per);
+			return retval;
+		}
 	}
 
 	imx_uart_setup_ufcr(sport, TXTL_DEFAULT, RXTL_DEFAULT);
@@ -1478,8 +1480,10 @@ static void imx_uart_shutdown(struct uart_port *port)
 	imx_uart_writel(sport, ucr1, UCR1);
 	spin_unlock_irqrestore(&sport->port.lock, flags);
 
-	clk_disable_unprepare(sport->clk_per);
-	clk_disable_unprepare(sport->clk_ipg);
+	if (!uart_console(port)) {
+		clk_disable_unprepare(sport->clk_per);
+		clk_disable_unprepare(sport->clk_ipg);
+	}
 }
 
 /* called with port.lock taken and irqs off */
@@ -1915,16 +1919,6 @@ imx_uart_console_write(struct console *co, const char *s, unsigned int count)
 	unsigned int ucr1;
 	unsigned long flags = 0;
 	int locked = 1;
-	int retval;
-
-	retval = clk_enable(sport->clk_per);
-	if (retval)
-		return;
-	retval = clk_enable(sport->clk_ipg);
-	if (retval) {
-		clk_disable(sport->clk_per);
-		return;
-	}
 
 	if (sport->port.sysrq)
 		locked = 0;
@@ -1960,9 +1954,6 @@ imx_uart_console_write(struct console *co, const char *s, unsigned int count)
 
 	if (locked)
 		spin_unlock_irqrestore(&sport->port.lock, flags);
-
-	clk_disable(sport->clk_ipg);
-	clk_disable(sport->clk_per);
 }
 
 /*
@@ -2049,10 +2040,14 @@ imx_uart_console_setup(struct console *co, char *options)
 	if (sport == NULL)
 		return -ENODEV;
 
-	/* For setting the registers, we only need to enable the ipg clock. */
-	retval = clk_prepare_enable(sport->clk_ipg);
+	retval = clk_prepare_enable(sport->clk_per);
 	if (retval)
 		goto error_console;
+	retval = clk_prepare_enable(sport->clk_ipg);
+	if (retval) {
+		clk_disable_unprepare(sport->clk_per);
+		goto error_console;
+	}
 
 	if (options)
 		uart_parse_options(options, &baud, &parity, &bits, &flow);
@@ -2062,16 +2057,6 @@ imx_uart_console_setup(struct console *co, char *options)
 	imx_uart_setup_ufcr(sport, TXTL_DEFAULT, RXTL_DEFAULT);
 
 	retval = uart_set_options(&sport->port, co, baud, parity, bits, flow);
-
-	clk_disable(sport->clk_ipg);
-	if (retval) {
-		clk_unprepare(sport->clk_ipg);
-		goto error_console;
-	}
-
-	retval = clk_prepare(sport->clk_per);
-	if (retval)
-		clk_unprepare(sport->clk_ipg);
 
 error_console:
 	return retval;
@@ -2475,9 +2460,11 @@ static int imx_uart_suspend(struct device *dev)
 	uart_suspend_port(&imx_uart_uart_driver, &sport->port);
 	disable_irq(sport->port.irq);
 
-	ret = clk_prepare_enable(sport->clk_ipg);
-	if (ret)
-		return ret;
+	if (!uart_console(&sport->port)) {
+		ret = clk_prepare_enable(sport->clk_ipg);
+		if (ret)
+			return ret;
+	}
 
 	/* enable wakeup from i.MX UART */
 	imx_uart_enable_wakeup(sport, true);
@@ -2495,7 +2482,8 @@ static int imx_uart_resume(struct device *dev)
 	uart_resume_port(&imx_uart_uart_driver, &sport->port);
 	enable_irq(sport->port.irq);
 
-	clk_disable_unprepare(sport->clk_ipg);
+	if (!uart_console(&sport->port))
+		clk_disable_unprepare(sport->clk_ipg);
 
 	return 0;
 }
