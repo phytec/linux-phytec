@@ -8,6 +8,8 @@
 #include "imx6dl.dtsi"
 #include "imx6qdl-phytec-phycore-som.dtsi"
 #include "imx6qdl-phytec-mira.dtsi"
+#include "imx6qdl-phytec-mira-peb-eval-01.dtsi"
+#include "imx6qdl-phytec-mira-peb-av-02.dtsi"
 
 / {
 	model = "PHYTEC phyBOARD-Mira DualLight/Solo full featured with NAND";
