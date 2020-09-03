@@ -10,8 +10,8 @@
 #include "imx6qdl-phytec-mira.dtsi"
 
 / {
-	model = "PHYTEC phyBOARD-Mira Quad Carrier-Board with eMMC";
-	compatible = "phytec,imx6q-pbac06-emmc", "phytec,imx6q-pbac06",
+	model = "PHYTEC phyBOARD-MIRA Quad full-featured with NAND and RS485";
+	compatible = "phytec,imx6q-pbac06-nand", "phytec,imx6q-pbac06",
 		     "phytec,imx6qdl-pcm058", "fsl,imx6q";
 
 	chosen {
@@ -24,6 +24,10 @@
 };
 
 &fec {
+	status = "okay";
+};
+
+&gpmi {
 	status = "okay";
 };
 
@@ -43,6 +47,10 @@
 	status = "okay";
 };
 
+&leddim {
+	status = "okay";
+};
+
 &m25p80 {
 	status = "okay";
 };
@@ -52,6 +60,9 @@
 };
 
 &uart3 {
+	rts-gpios = <&gpio3 23 GPIO_ACTIVE_HIGH>;
+	linux,rs485-enabled-at-boot-time;
+	rs485-rts-active-high;
 	status = "okay";
 };
 
@@ -67,6 +78,12 @@
 	status = "okay";
 };
 
-&usdhc4 {
-	status = "okay";
+&iomuxc {
+	pinctrl_uart3: uart3grp {
+		fsl,pins = <
+			MX6QDL_PAD_EIM_D23__GPIO3_IO23		0x1a0b1
+			MX6QDL_PAD_EIM_D24__UART3_TX_DATA	0x1b0b1
+			MX6QDL_PAD_EIM_D25__UART3_RX_DATA	0x1b0b1
+		>;
+	};
 };
