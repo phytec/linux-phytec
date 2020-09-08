@@ -298,9 +298,6 @@ static int nvmem_add_cells_from_of(struct nvmem_device *nvmem)
 	parent = dev->of_node;
 
 	for_each_child_of_node(parent, child) {
-		if (!strchr(child->name, '@'))
-			continue;
-
 		addr = of_get_property(child, "reg", &len);
 		if (!addr || (len < 2 * sizeof(u32))) {
 			dev_err(dev, "nvmem: invalid reg on %pOF\n", child);
