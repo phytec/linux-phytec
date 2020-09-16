@@ -1,0 +1,87 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * Copyright (C) 2020 PHYTEC Messtechnik GmbH
+ * Author: Yunus Bas <y.bas@phytec.de>
+ */
+
+#include <dt-bindings/gpio/gpio.h>
+#include <dt-bindings/interrupt-controller/irq.h>
+
+/ {
+	reg_bt_en: regulator-bt-en {
+		compatible = "regulator-fixed";
+		regulator-name = "bt_en";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+		gpio = <&gpio1 1 GPIO_ACTIVE_HIGH>;
+		status = "disabled";
+		enable-active-high;
+		regulator-always-on;
+	};
+
+	reg_wl_en: regulator-wl-en {
+		compatible = "regulator-fixed";
+		regulator-name = "wlan_en";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+		gpio = <&gpio5 9 GPIO_ACTIVE_HIGH>;
+		status = "disabled";
+		enable-active-high;
+		regulator-always-on;
+	};
+};
+
+/* BLUETOOTH */
+&uart2 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_uart2_bt &pinctrl_bt>;
+	uart-has-rtscts;
+	status = "disabled";
+};
+
+/* WLAN */
+&usdhc2 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_usdhc2_wl &pinctrl_wl>;
+	vmmc-supply = <&reg_wl_en>;
+	bus-width = <4>;
+	non-removable;
+	no-1-8-v;
+	status = "disabled";
+};
+
+&iomuxc {
+	pinctrl_uart2_bt: uart2grp-bt {
+	fsl,pins = <
+			MX6UL_PAD_UART2_TX_DATA__UART2_DCE_TX	0x17059
+			MX6UL_PAD_UART2_RX_DATA__UART2_DCE_RX	0x17059
+			MX6UL_PAD_UART2_CTS_B__UART2_DCE_CTS	0x17059
+			MX6UL_PAD_UART2_RTS_B__UART2_DCE_RTS	0x17059
+		>;
+	};
+
+	pinctrl_usdhc2_wl: usdhc2grp-wl {
+		fsl,pins = <
+			MX6UL_PAD_LCD_DATA18__USDHC2_CMD	0x10051
+			MX6UL_PAD_LCD_DATA19__USDHC2_CLK	0x10061
+			MX6UL_PAD_LCD_DATA20__USDHC2_DATA0	0x10051
+			MX6UL_PAD_LCD_DATA21__USDHC2_DATA1	0x10051
+			MX6UL_PAD_LCD_DATA22__USDHC2_DATA2	0x10051
+			MX6UL_PAD_LCD_DATA23__USDHC2_DATA3	0x10051
+		>;
+	};
+
+	pinctrl_bt: btgrp {
+		fsl,pins = <
+			/* BT ENABLE */
+			MX6UL_PAD_GPIO1_IO01__GPIO1_IO01	0x3031
+		>;
+	};
+
+	pinctrl_wl: wlgrp {
+		fsl,pins = <
+			/* WLAN ENABLE */
+			MX6UL_PAD_SNVS_TAMPER9__GPIO5_IO09	0x3031
+		>;
+	};
+};
