@@ -8,7 +8,10 @@
 #include "imx6ul.dtsi"
 #include "imx6ul-phytec-phycore-som.dtsi"
 #include "imx6ul-phytec-segin.dtsi"
+#include "imx6ul-phytec-segin-peb-av-02.dtsi"
 #include "imx6ul-phytec-segin-peb-eval-01.dtsi"
+#include "imx6ul-phytec-peb-wlbt-01.dtsi"
+#include "imx6ul-phytec-peb-wlbt-05.dtsi"
 
 / {
 	model = "PHYTEC phyBOARD-Segin i.MX6 UltraLight full-featured with NAND and RS485";
