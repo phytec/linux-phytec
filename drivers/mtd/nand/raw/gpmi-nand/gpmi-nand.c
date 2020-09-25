@@ -1194,7 +1194,13 @@ static int gpmi_get_clks(struct gpmi_nand_data *this)
 		 * The GPMI clock is enabled by default. The erratum 07117
 		 * notes that the clock must disabled before the rate is set.
 		 * Otherwise it is possible that the NAND flash is not working.
+		 * The HW already enabled the clocks. To sync the usage count,
+		 * enable the clocks here also first. So the disable will take
+		 * effect.
 		 */
+		for (i = 0; i < this->devdata->clks_count; i++)
+			clk_prepare_enable(r->clock[i]);
+
 		for (i = this->devdata->clks_count; i > 0; i--)
 			clk_disable_unprepare(r->clock[i - 1]);
 
