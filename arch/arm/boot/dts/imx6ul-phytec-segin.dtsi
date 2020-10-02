@@ -111,6 +111,13 @@
 	       <&sdma 8 8 0>;
 	dma-names = "rx", "tx";
 	status = "disabled";
+
+	spi_dev0: spi@0 {
+		compatible = "spidev";
+		spi-max-frequency = <57600000>;
+		reg = <0>;
+		status = "disabled";
+	};
 };
 
 &fec2 {
