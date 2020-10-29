@@ -214,6 +214,7 @@
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_usb_otg1_id>;
 	dr_mode = "otg";
+	disable-over-current;
 	status = "disabled";
 };
 
