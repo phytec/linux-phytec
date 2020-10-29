@@ -77,7 +77,8 @@ static void __init imx6ul_init_machine(void)
 static void __init imx6ul_init_irq(void)
 {
 	imx_init_revision_from_anatop();
-	imx_init_serial_from_ocotp("fsl,imx6ul-ocotp");
+	imx_init_serial_from_ocotp(cpu_is_imx6ull() ? "fsl,imx6ull-ocotp" :
+		"fsl,imx6ul-ocotp");
 	imx_src_init();
 	irqchip_init();
 	imx6_pm_ccm_init("fsl,imx6ul-ccm");
