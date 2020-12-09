@@ -2040,14 +2040,10 @@ imx_uart_console_setup(struct console *co, char *options)
 	if (sport == NULL)
 		return -ENODEV;
 
-	retval = clk_prepare_enable(sport->clk_per);
+	/* For setting the registers, we only need to enable the ipg clock. */
+	retval = clk_prepare_enable(sport->clk_ipg);
 	if (retval)
 		goto error_console;
-	retval = clk_prepare_enable(sport->clk_ipg);
-	if (retval) {
-		clk_disable_unprepare(sport->clk_per);
-		goto error_console;
-	}
 
 	if (options)
 		uart_parse_options(options, &baud, &parity, &bits, &flow);
@@ -2057,6 +2053,15 @@ imx_uart_console_setup(struct console *co, char *options)
 	imx_uart_setup_ufcr(sport, TXTL_DEFAULT, RXTL_DEFAULT);
 
 	retval = uart_set_options(&sport->port, co, baud, parity, bits, flow);
+
+	if (retval) {
+		clk_disable_unprepare(sport->clk_ipg);
+		goto error_console;
+	}
+
+	retval = clk_prepare_enable(sport->clk_per);
+	if (retval)
+		clk_disable_unprepare(sport->clk_ipg);
 
 error_console:
 	return retval;
