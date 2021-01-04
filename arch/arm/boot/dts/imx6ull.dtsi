@@ -47,6 +47,7 @@
 /delete-node/ &uart8;
 
 &cpu0 {
+	clock-frequency = <900000000>;
 	operating-points = <
 		/* kHz	uV */
 		900000	1275000
