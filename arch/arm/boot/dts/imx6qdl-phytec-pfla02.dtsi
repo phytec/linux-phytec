@@ -97,8 +97,8 @@
 	pinctrl-0 = <&pinctrl_ecspi3>;
 	fsl,spi-num-chipselects = <3>;
 	cs-gpios = <&gpio4 24 GPIO_ACTIVE_LOW
-		    &gpio4 25 GPIO_ACTIVE_HIGH
-		    &gpio4 26 GPIO_ACTIVE_HIGH>;
+		    &gpio4 25 GPIO_ACTIVE_LOW
+		    &gpio4 26 GPIO_ACTIVE_LOW>;
 	status = "okay";
 
 	som_flash: flash@0 {
