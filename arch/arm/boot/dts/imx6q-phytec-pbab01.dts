@@ -16,33 +16,13 @@
 		stdout-path = &uart4;
 	};
 
-	csi_deserializer1: csi_deserializer1 {
+	csi_deserializer1: csi-deserializer1 {
 		compatible = "ti,scan921226h";
 		pinctrl-names = "default";
 		pinctrl-0 = <&pinctrl_csi_des1>;
-		status = "okay";
 
 		enable-gpios = <&gpio3 10 GPIO_ACTIVE_HIGH>;
-		npwrdn-gpios = <&gpio2 28 GPIO_ACTIVE_HIGH>;
-
-		#address-cells = <1>;
-		#size-cells = <0>;
-
-		/* serial sink interface */
-		port@0 {
-			reg = <0>;
-
-			des1_in: endpoint {
-			};
-		};
-
-		/* parallel source interface */
-		port@1 {
-			reg = <1>;
-
-			des1_out: endpoint {
-			};
-		};
+		powerdown-gpios = <&gpio2 28 GPIO_ACTIVE_HIGH>;
 	};
 };
 
