@@ -1,0 +1,57 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * Copyright (C) 2021 PHYTEC Messtechnik GmbH
+ * Author: Stefan Riedmueller <s.riedmueller@phytec.de>
+ */
+
+/dts-v1/;
+/plugin/;
+
+#include <dt-bindings/clock/imx6qdl-clock.h>
+
+/ {
+	compatible = "phytec,imx6q-pbac12", "phytec,imx6dl-pbac12",
+		     "phytec,imx6q-pbac06", "phytec,imx6dl-pbac06",
+		     "phytec,imx6q-pbab01", "phytec,imx6dl-pbab01";
+};
+
+&clk_cam1 {
+	status = "okay";
+};
+
+&cam1_i2c {
+	vm016_1: vm016-1@18 {
+		compatible = "onsemi,ar0144";
+		reg = <0x18>;
+
+		clock-names = "ext", "synch";
+		clocks = <&clk_cam1>,
+			 <&clks IMX6QDL_CLK_CKO2>;
+
+		vdd-supply = <&reg_vcc_cam1>;
+		vddio-supply = <&reg_vcc_cam1>;
+		vaa-supply = <&reg_vcc_cam1>;
+		vaapix-supply = <&reg_vcc_cam1>;
+
+		port@0 {
+			reg = <0x0>;
+
+			vm016_1_ep0: endpoint {
+				remote-endpoint = <&cam1_ep>;
+
+				onsemi,slew-rate-dat = <2>;
+				onsemi,slew-rate-clk = <2>;
+
+				bus-type = <5>; /* Parallel */
+				bus-width = <12>;
+				hsync-active = <1>;
+				vsync-active = <1>;
+				link-frequencies = /bits/ 64 < 72000000 >;
+			};
+		};
+	};
+};
+
+&cam1_ep {
+        remote-endpoint = <&vm016_1_ep0>;
+};

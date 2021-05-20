@@ -1,0 +1,18 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * Copyright (C) 2021 PHYTEC Messtechnik GmbH
+ * Author: Stefan Riedmueller <s.riedmueller@phytec.de>
+ */
+
+/dts-v1/;
+/plugin/;
+
+/ {
+	compatible = "phytec,imx6q-pbac12", "phytec,imx6dl-pbac12",
+		     "phytec,imx6q-pbac06", "phytec,imx6dl-pbac06",
+		     "phytec,imx6q-pbab01", "phytec,imx6dl-pbab01";
+};
+
+&csi_deserializer0 {
+	ti,boot-on;
+};
