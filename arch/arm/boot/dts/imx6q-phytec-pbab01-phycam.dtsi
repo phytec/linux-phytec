@@ -1,0 +1,72 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * Copyright (C) 2020 PHYTEC Messtechnik GmbH
+ * Author: Stefan Riedmueller <s.riedmueller@phytec.de>
+ */
+
+#include "imx6qdl-phytec-pbab01-phycam.dtsi"
+
+/ {
+	clk_cam1: clk-cam1 {
+		#clock-cells = <0>;
+
+		compatible = "fixed-clock";
+		clock-frequency = <27000000>;
+		status = "disabled";
+	};
+
+	reg_vcc_cam1: regulator-cam1 {
+		compatible = "regulator-fixed";
+		regulator-name = "VCC_CAM1";
+		regulator-min-microvolt = <2800000>;
+		regulator-max-microvolt = <2800000>;
+	};
+};
+
+cam1_i2c: &i2c3 {};
+cam1_ep: &ipu2_csi1_mux_from_parallel_sensor {};
+
+&ipu2 {
+	pinctrl-names = "default";
+	pinctrl-0 = <
+		&pinctrl_cam1data
+		&pinctrl_cam1clk
+	>;
+
+	assigned-clocks =
+		<&clks IMX6QDL_CLK_CKO2_SEL>,
+		<&clks IMX6QDL_CLK_ESAI_SEL>,
+		<&clks IMX6QDL_CLK_PLL4_AUDIO_DIV>,
+		<&clks IMX6QDL_CLK_ESAI_EXTAL>;
+
+	assigned-clock-parents =
+		<&clks IMX6QDL_CLK_ESAI_EXTAL>,
+		<&clks IMX6QDL_CLK_PLL4_AUDIO_DIV>;
+
+	assigned-clock-rates = <0>, <0>, <216000000>, <54000000>;
+};
+
+&iomuxc {
+	pinctrl_cam1clk: cam1clkgrp {
+		fsl,pins = <
+			MX6QDL_PAD_NANDF_CS2__CCM_CLKO2		0xb9
+		>;
+	};
+
+	pinctrl_cam1data: cam1datagrp {
+		fsl,pins = <
+			/* Syntax error here?! */
+			MX6QDL_PAD_EIM_A17__IPU2_CSI1_DATA12	0x1b0b0
+			MX6QDL_PAD_EIM_A18__IPU2_CSI1_DATA13	0x1b0b0
+			MX6QDL_PAD_EIM_A19__IPU2_CSI1_DATA14	0x1b0b0
+			MX6QDL_PAD_EIM_A20__IPU2_CSI1_DATA15	0x1b0b0
+			MX6QDL_PAD_EIM_A21__IPU2_CSI1_DATA16	0x1b0b0
+			MX6QDL_PAD_EIM_A22__IPU2_CSI1_DATA17	0x1b0b0
+			MX6QDL_PAD_EIM_A23__IPU2_CSI1_DATA18	0x1b0b0
+			MX6QDL_PAD_EIM_A24__IPU2_CSI1_DATA19	0x1b0b0
+			MX6QDL_PAD_EIM_DA11__IPU2_CSI1_HSYNC	0x1b0b0
+			MX6QDL_PAD_EIM_A16__IPU2_CSI1_PIXCLK	0x4001b0b0
+			MX6QDL_PAD_EIM_DA12__IPU2_CSI1_VSYNC	0x1b0b0
+		>;
+	};
+};
