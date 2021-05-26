@@ -62,7 +62,9 @@ static int onsemi_core_of_bus_init_ep(struct onsemi_core *onsemi,
 				      struct device_node *np,
 				      struct onsemi_businfo *info)
 {
-	struct v4l2_fwnode_endpoint	*endpoint = NULL;
+	struct v4l2_fwnode_endpoint	endpoint = {
+						.bus_type = V4L2_MBUS_UNKNOWN
+					};
 	int				rc;
 	int32_t				tmp;
 
@@ -71,8 +73,7 @@ static int onsemi_core_of_bus_init_ep(struct onsemi_core *onsemi,
 		return -EINVAL;
 	}
 
-	endpoint = v4l2_fwnode_endpoint_alloc_parse(of_fwnode_handle(np));
-	rc = PTR_ERR_OR_ZERO(endpoint);
+	rc = v4l2_fwnode_endpoint_alloc_parse(of_fwnode_handle(np), &endpoint);
 	if (rc < 0) {
 		dev_warn(onsemi->dev, "failed to parse ep:%d\n", rc);
 		return rc;
@@ -95,27 +96,27 @@ static int onsemi_core_of_bus_init_ep(struct onsemi_core *onsemi,
 	else
 		info->slew_rate_clk = tmp;
 
-	info->bus_type = endpoint->bus_type;
+	info->bus_type = endpoint.bus_type;
 
-	if (endpoint->nr_of_link_frequencies > 0)
-		info->max_freq = endpoint->link_frequencies[0];
+	if (endpoint.nr_of_link_frequencies > 0)
+		info->max_freq = endpoint.link_frequencies[0];
 	else
 		info->max_freq = 0;
 
-	switch (endpoint->bus_type) {
+	switch (endpoint.bus_type) {
 	case V4L2_MBUS_PARALLEL:
-		info->bus_width = endpoint->bus.parallel.bus_width;
+		info->bus_width = endpoint.bus.parallel.bus_width;
 		rc = 0;
 		break;
 
 	case V4L2_MBUS_CSI2_DPHY:
-		info->bus_width = endpoint->bus.mipi_csi2.num_data_lanes;
+		info->bus_width = endpoint.bus.mipi_csi2.num_data_lanes;
 		rc = 0;
 		break;
 
 	default:
 		dev_warn(onsemi->dev, "unsupported v4l bus type %d\n",
-			 endpoint->bus_type);
+			 endpoint.bus_type);
 		rc = -EINVAL;
 		break;
 	}
@@ -127,7 +128,6 @@ static int onsemi_core_of_bus_init_ep(struct onsemi_core *onsemi,
 	rc = 0;
 
 out:
-	v4l2_fwnode_endpoint_free(endpoint);
 	return rc;
 }
 
