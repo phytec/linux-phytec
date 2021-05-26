@@ -1628,10 +1628,6 @@ static struct v4l2_ctrl_config const		vm050_ctrls[] = {
 		.type		= V4L2_CTRL_TYPE_BUTTON,
 	}, {
 		.ops		= &vm050_ctrl_ops,
-		.id		= V4L2_CID_VFLIP,
-		.type		= V4L2_CTRL_TYPE_BOOLEAN,
-	}, {
-		.ops		= &vm050_ctrl_ops,
 		.id		= V4L2_CID_X_AUTOSCALE_MODE,
 		.type		= V4L2_CTRL_TYPE_MENU,
 		.name		= "Autoscale mode",
