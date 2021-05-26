@@ -233,7 +233,7 @@ static int ar0144_stream_off(struct onsemi_core *onsemi)
 	int		rc = 0;
 
 	switch (onsemi->active_bus->bus_type) {
-	case V4L2_MBUS_CSI2:
+	case V4L2_MBUS_CSI2_DPHY:
 		onsemi_write(&rc, onsemi, 0x31c6, 0x80);
 
 		/* TODO: prevent going into standby mode  */
@@ -265,7 +265,7 @@ static int ar0144_stream_on(struct onsemi_core *onsemi)
 	}
 
 	switch (onsemi->active_bus->bus_type) {
-	case V4L2_MBUS_CSI2:
+	case V4L2_MBUS_CSI2_DPHY:
 		onsemi_write(&rc, onsemi, 0x31c6, 0x00);
 		onsemi_write(&rc, onsemi, 0x3354,
 			     bpp ==  8 ? 0x2a :
@@ -818,7 +818,8 @@ static int ar0144_prepare(struct onsemi_core *sensor)
 {
 	int		rc = 0;
 
-	if (sensor->active_bus && sensor->active_bus->bus_type == V4L2_MBUS_CSI2) {
+	if (sensor->active_bus &&
+	    sensor->active_bus->bus_type == V4L2_MBUS_CSI2_DPHY) {
 		onsemi_write(&rc, sensor, 0x31d8, (3 << 8) | (1 << 4));
 		onsemi_write(&rc, sensor, 0x31c6, 0x80);
 		onsemi_update_bits(&rc, sensor, 0x301a, BIT(2), BIT(2));
@@ -889,7 +890,7 @@ static int ar0144_pll_set(struct onsemi_core *onsemi,
 		goto out;
 
 	switch (onsemi->active_bus->bus_type) {
-	case V4L2_MBUS_CSI2:
+	case V4L2_MBUS_CSI2_DPHY:
 		rc = ar0144_find_mipi_timings(sensor, freq->vco, mipi_tm);
 		if (rc < 0)
 			break;
