@@ -703,6 +703,30 @@ static int mt9p031_restore_blc(struct mt9p031 *mt9p031)
 	return 0;
 }
 
+#ifdef CONFIG_VIDEO_ADV_DEBUG
+static int mt9p031_g_register(struct v4l2_subdev *sd,
+			      struct v4l2_dbg_register *reg)
+{
+	struct i2c_client *client = v4l2_get_subdevdata(sd);
+	int ret;
+
+	ret = mt9p031_read(client, reg->reg);
+	if (ret < 0)
+		return ret;
+
+	reg->val = ret;
+	return 0;
+}
+
+static int mt9p031_s_register(struct v4l2_subdev *sd,
+			      struct v4l2_dbg_register const *reg)
+{
+	struct i2c_client *client = v4l2_get_subdevdata(sd);
+
+	return mt9p031_write(client, reg->reg, reg->val);
+}
+#endif
+
 static int mt9p031_s_ctrl(struct v4l2_ctrl *ctrl)
 {
 	struct mt9p031 *mt9p031 =
@@ -1000,6 +1024,10 @@ static int mt9p031_close(struct v4l2_subdev *subdev, struct v4l2_subdev_fh *fh)
 
 static const struct v4l2_subdev_core_ops mt9p031_subdev_core_ops = {
 	.s_power        = mt9p031_set_power,
+#ifdef CONFIG_VIDEO_ADV_DEBUG
+	.s_register	= mt9p031_s_register,
+	.g_register	= mt9p031_g_register,
+#endif
 };
 
 static const struct v4l2_subdev_video_ops mt9p031_subdev_video_ops = {
