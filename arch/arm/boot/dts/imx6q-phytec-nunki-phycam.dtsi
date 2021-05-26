@@ -1,0 +1,83 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * Copyright (C) 2021 PHYTEC Messtechnik GmbH
+ * Author: Stefan Riedmueller <s.riedmueller@phytec.de>
+ */
+
+#include "imx6qdl-phytec-nunki-phycam.dtsi"
+
+/ {
+	clk_cam1: clk-cam1 {
+		#clock-cells = <0>;
+
+		compatible = "fixed-clock";
+		clock-frequency = <27000000>;
+		status = "disabled";
+	};
+
+	reg_vcc_cam1: regulator-cam1 {
+		compatible = "regulator-fixed";
+		regulator-name = "vcc_cam1";
+		regulator-min-microvolt = <2800000>;
+		regulator-max-microvolt = <2800000>;
+	};
+};
+
+cam1_i2c: &i2c1 {};
+cam1_ep: &ipu2_csi1_mux_from_parallel_sensor {};
+
+&ipu2 {
+		pinctrl-names = "default";
+		pinctrl-0 = <
+			&pinctrl_cam1data
+			&pinctrl_cam1clk
+			&pinctrl_cam1ctrl
+		>;
+
+		assigned-clocks =
+			<&clks IMX6QDL_CLK_CKO2_SEL>,
+			<&clks IMX6QDL_CLK_ESAI_SEL>,
+			<&clks IMX6QDL_CLK_PLL4_AUDIO_DIV>,
+			<&clks IMX6QDL_CLK_ESAI_EXTAL>;
+
+		assigned-clock-parents =
+			<&clks IMX6QDL_CLK_ESAI_EXTAL>,
+			<&clks IMX6QDL_CLK_PLL4_AUDIO_DIV>;
+
+		assigned-clock-rates = <0>, <0>, <216000000>, <54000000>;
+};
+
+&iomuxc {
+	pinctrl_cam1clk: cam1clkgrp {
+		fsl,pins = <
+			MX6QDL_PAD_GPIO_3__CCM_CLKO2		0xb9
+		>;
+	};
+
+	pinctrl_cam1data: cam1datagrp {
+		fsl,pins = <
+			MX6QDL_PAD_EIM_DA1__IPU2_CSI1_DATA08	0xb0b1
+			MX6QDL_PAD_EIM_DA0__IPU2_CSI1_DATA09	0xb0b1
+			MX6QDL_PAD_EIM_D22__IPU2_CSI1_DATA10	0xb0b1
+			MX6QDL_PAD_EIM_EB0__IPU2_CSI1_DATA11	0xb0b1
+			MX6QDL_PAD_EIM_A17__IPU2_CSI1_DATA12	0xb0b1
+			MX6QDL_PAD_EIM_A18__IPU2_CSI1_DATA13	0xb0b1
+			MX6QDL_PAD_EIM_A19__IPU2_CSI1_DATA14	0xb0b1
+			MX6QDL_PAD_EIM_A20__IPU2_CSI1_DATA15	0xb0b1
+			MX6QDL_PAD_EIM_A21__IPU2_CSI1_DATA16	0xb0b1
+			MX6QDL_PAD_EIM_A22__IPU2_CSI1_DATA17	0xb0b1
+			MX6QDL_PAD_EIM_A23__IPU2_CSI1_DATA18	0xb0b1
+			MX6QDL_PAD_EIM_A24__IPU2_CSI1_DATA19	0xb0b1
+			MX6QDL_PAD_EIM_DA11__IPU2_CSI1_HSYNC	0xb0b1
+			MX6QDL_PAD_EIM_A16__IPU2_CSI1_PIXCLK	0xb0b1
+			MX6QDL_PAD_EIM_DA12__IPU2_CSI1_VSYNC	0xb0b1
+		>;
+	};
+
+	pinctrl_cam1ctrl: cam1ctrlgrp {
+		fsl,pins = <
+			MX6QDL_PAD_EIM_A25__GPIO5_IO02          0x000130b0
+			MX6QDL_PAD_CSI0_DAT4__GPIO5_IO22        0x000130b0
+		>;
+	};
+};
