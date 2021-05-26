@@ -1120,6 +1120,27 @@ static int vm012_set_selection(struct v4l2_subdev *sd,
 	return rc;
 }
 
+static int vm012_video_get_mbus_config(struct v4l2_subdev *sd,
+				       unsigned int pad,
+				       struct v4l2_mbus_config *cfg)
+{
+	struct vm012	*vm012 = sd_to_vm012(sd);
+
+	cfg->flags  = (V4L2_MBUS_SLAVE |
+		       V4L2_MBUS_MASTER |
+		       V4L2_MBUS_HSYNC_ACTIVE_HIGH |
+		       V4L2_MBUS_VSYNC_ACTIVE_HIGH |
+		       V4L2_MBUS_DATA_ACTIVE_HIGH);
+
+	if (vm012->pixclk_inv)
+		cfg->flags |= V4L2_MBUS_PCLK_SAMPLE_RISING;
+	else
+		cfg->flags |= V4L2_MBUS_PCLK_SAMPLE_FALLING;
+
+	cfg->type   = V4L2_MBUS_PARALLEL;
+
+	return 0;
+}
 
 static struct v4l2_subdev_pad_ops const		vm012_pad_ops = {
 	.enum_mbus_code		= vm012_enum_mbus_code,
@@ -1127,6 +1148,7 @@ static struct v4l2_subdev_pad_ops const		vm012_pad_ops = {
 	.set_fmt		= vm012_set_fmt,
 	.get_selection		= vm012_get_selection,
 	.set_selection		= vm012_set_selection,
+	.get_mbus_config	= vm012_video_get_mbus_config,
 };
 
 /* {{{ core ops */
@@ -1190,27 +1212,6 @@ static struct v4l2_subdev_core_ops const	vm012_core_ops = {
 /* }}} core ops */
 
 /* {{{ video ops */
-static int vm012_video_g_mbus_config(struct v4l2_subdev *sd,
-				     struct v4l2_mbus_config *cfg)
-{
-	struct vm012	*vm012 = sd_to_vm012(sd);
-
-	cfg->flags  = (V4L2_MBUS_SLAVE |
-		       V4L2_MBUS_MASTER |
-		       V4L2_MBUS_HSYNC_ACTIVE_HIGH |
-		       V4L2_MBUS_VSYNC_ACTIVE_HIGH |
-		       V4L2_MBUS_DATA_ACTIVE_HIGH);
-
-	if (vm012->pixclk_inv)
-		cfg->flags |= V4L2_MBUS_PCLK_SAMPLE_RISING;
-	else
-		cfg->flags |= V4L2_MBUS_PCLK_SAMPLE_FALLING;
-
-	cfg->type   = V4L2_MBUS_PARALLEL;
-
-	return 0;
-}
-
 static int _vm012_video_s_stream_on(struct vm012 *vm012)
 {
 	struct regval const		rv[] = {
@@ -1277,7 +1278,6 @@ static int vm012_video_s_stream(struct v4l2_subdev *sd, int enable)
 }
 
 static struct v4l2_subdev_video_ops const	vm012_subdev_video_ops = {
-	.g_mbus_config		= vm012_video_g_mbus_config,
 	.s_stream		= vm012_video_s_stream,
 };
 /* }}} video ops */
