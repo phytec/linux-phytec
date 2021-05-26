@@ -108,7 +108,7 @@ static int onsemi_core_of_bus_init_ep(struct onsemi_core *onsemi,
 		rc = 0;
 		break;
 
-	case V4L2_MBUS_CSI2:
+	case V4L2_MBUS_CSI2_DPHY:
 		info->bus_width = endpoint->bus.mipi_csi2.num_data_lanes;
 		rc = 0;
 		break;
@@ -1425,7 +1425,7 @@ static void onsemi_params_write_frame(struct onsemi_core *onsemi, int *err)
 	onsemi_get_frame_size(onsemi, NULL, &h_size, &v_size);
 
 	if (onsemi->ops->hclk_mul_2 && bus_info) {
-		if (bus_info->bus_type == V4L2_MBUS_CSI2 &&
+		if (bus_info->bus_type == V4L2_MBUS_CSI2_DPHY &&
 		    bus_info->bus_width < 4)
 			h_size *= 2;
 	}
@@ -1544,7 +1544,7 @@ static int _onsemi_s_stream_on(struct onsemi_core *onsemi)
 		onsemi_params_write_parallel(onsemi, &rc);
 		break;
 
-	case V4L2_MBUS_CSI2:
+	case V4L2_MBUS_CSI2_DPHY:
 		onsemi_params_write_mipi(onsemi, &rc);
 		break;
 
@@ -3162,7 +3162,7 @@ static unsigned long _onsemi_estimate_vco(struct onsemi_core const *onsemi,
 		break;
 	}
 
-	case V4L2_MBUS_CSI2: {
+	case V4L2_MBUS_CSI2_DPHY: {
 		unsigned long	max_vco = limits->pix_clk.max * bpp;
 		unsigned int	bus_width = bus_info->bus_width;
 
@@ -3209,7 +3209,7 @@ static void _onsemi_calculate_div(struct onsemi_core const *onsemi,
 		cfg->op_pix_div = 0;
 		break;
 
-	case V4L2_MBUS_CSI2:
+	case V4L2_MBUS_CSI2_DPHY:
 		/* limit serial output clock */
 		max_f  = limits->f_serial.max;
 		if (bus_info->max_freq != 0)
@@ -3304,7 +3304,7 @@ int onsemi_calculate_pll(struct onsemi_core const *onsemi,
 	_onsemi_calculate_div(onsemi, bus_info, freq.vco, bpp, &cfg);
 
 	switch (bus_info->bus_type) {
-	case V4L2_MBUS_CSI2:
+	case V4L2_MBUS_CSI2_DPHY:
 		use_op_clk     = true;
 		/* TODO: where is this '/ 2' is coming from?  It has been
 		 * added because csi2_dphy_init() in the imx6 csi driver
