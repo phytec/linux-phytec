@@ -1285,8 +1285,9 @@ out:
 	return rc;
 }
 
-static int onsemi_g_mbus_config(struct v4l2_subdev *sd,
-				struct v4l2_mbus_config *cfg)
+static int onsemi_get_mbus_config(struct v4l2_subdev *sd,
+				  unsigned int pad,
+				  struct v4l2_mbus_config *cfg)
 {
 	cfg->flags  = (V4L2_MBUS_MASTER |
 		       V4L2_MBUS_HSYNC_ACTIVE_HIGH |
@@ -2657,7 +2658,6 @@ static struct v4l2_subdev_core_ops const	onsemi_subdev_core_ops = {
 };
 
 static struct v4l2_subdev_video_ops const	onsemi_subdev_video_ops = {
-	.g_mbus_config		= onsemi_g_mbus_config,
 	.s_stream		= onsemi_s_stream,
 	.g_frame_interval	= onsemi_g_frame_interval,
 	.s_frame_interval	= onsemi_s_frame_interval,
@@ -2670,6 +2670,7 @@ static struct v4l2_subdev_pad_ops const		onsemi_subdev_pad_ops = {
 	.set_selection		= onsemi_set_selection,
 	.get_selection		= onsemi_get_selection,
 	.link_validate		= onsemi_link_validate,
+	.get_mbus_config	= onsemi_get_mbus_config,
 };
 
 static struct v4l2_subdev_ops const		onsemi_subdev_ops = {
