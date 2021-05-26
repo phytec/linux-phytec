@@ -1131,6 +1131,27 @@ static int vm050_set_selection(struct v4l2_subdev *sd,
 	return rc;
 }
 
+static int vm050_video_get_mbus_config(struct v4l2_subdev *sd,
+				       unsigned int pad,
+				       struct v4l2_mbus_config *cfg)
+{
+	struct vm050	*vm050 = sd_to_vm050(sd);
+
+	cfg->flags  = (V4L2_MBUS_MASTER |
+		       V4L2_MBUS_HSYNC_ACTIVE_HIGH |
+		       V4L2_MBUS_VSYNC_ACTIVE_HIGH |
+		       V4L2_MBUS_DATA_ACTIVE_HIGH);
+
+	if (!(vm050->reg_ctrl.o[0] & VM050_FLD_OUTPUT_PCLK_POL) !=
+	    !!vm050->pixclk_inv)
+		cfg->flags |= V4L2_MBUS_PCLK_SAMPLE_FALLING;
+	else
+		cfg->flags |= V4L2_MBUS_PCLK_SAMPLE_RISING;
+
+	cfg->type   = V4L2_MBUS_PARALLEL;
+
+	return 0;
+}
 
 static struct v4l2_subdev_pad_ops const		vm050_pad_ops = {
 	.enum_mbus_code		= vm050_enum_mbus_code,
@@ -1138,6 +1159,7 @@ static struct v4l2_subdev_pad_ops const		vm050_pad_ops = {
 	.set_fmt		= vm050_set_fmt,
 	.get_selection		= vm050_get_selection,
 	.set_selection		= vm050_set_selection,
+	.get_mbus_config	= vm050_video_get_mbus_config,
 };
 
 /* {{{ core ops */
@@ -1201,27 +1223,6 @@ static struct v4l2_subdev_core_ops const	vm050_core_ops = {
 /* }}} core ops */
 
 /* {{{ video ops */
-static int vm050_video_g_mbus_config(struct v4l2_subdev *sd,
-				     struct v4l2_mbus_config *cfg)
-{
-	struct vm050	*vm050 = sd_to_vm050(sd);
-
-	cfg->flags  = (V4L2_MBUS_MASTER |
-		       V4L2_MBUS_HSYNC_ACTIVE_HIGH |
-		       V4L2_MBUS_VSYNC_ACTIVE_HIGH |
-		       V4L2_MBUS_DATA_ACTIVE_HIGH);
-
-	if (!(vm050->reg_ctrl.o[0] & VM050_FLD_OUTPUT_PCLK_POL) !=
-	    !!vm050->pixclk_inv)
-		cfg->flags |= V4L2_MBUS_PCLK_SAMPLE_FALLING;
-	else
-		cfg->flags |= V4L2_MBUS_PCLK_SAMPLE_RISING;
-
-	cfg->type   = V4L2_MBUS_PARALLEL;
-
-	return 0;
-}
-
 static int _vm050_video_s_stream_on(struct vm050 *vm050)
 {
 	/* although we do not modify bits in some registers, we have to write
@@ -1306,7 +1307,6 @@ static int vm050_video_s_stream(struct v4l2_subdev *sd, int enable)
 }
 
 static struct v4l2_subdev_video_ops const	vm050_subdev_video_ops = {
-	.g_mbus_config		= vm050_video_g_mbus_config,
 	.s_stream		= vm050_video_s_stream,
 };
 /* }}} video ops */
