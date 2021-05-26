@@ -382,7 +382,7 @@ onsemi_has_mipi(struct onsemi_core const *onsemi)
 
 	for (i = 0; i < ARRAY_SIZE(onsemi->bus_info); ++i) {
 		if (onsemi->bus_info[i].is_used &&
-		    onsemi->bus_info[i].bus_type == V4L2_MBUS_CSI2)
+		    onsemi->bus_info[i].bus_type == V4L2_MBUS_CSI2_DPHY)
 			return true;
 	}
 
