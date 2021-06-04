@@ -3602,7 +3602,7 @@ fec_probe(struct platform_device *pdev)
 	if (ret)
 		goto failed_clk_ahb;
 
-	fep->reg_phy = devm_regulator_get(&pdev->dev, "phy");
+	fep->reg_phy = devm_regulator_get_optional(&pdev->dev, "phy");
 	if (!IS_ERR(fep->reg_phy)) {
 		ret = regulator_enable(fep->reg_phy);
 		if (ret) {
