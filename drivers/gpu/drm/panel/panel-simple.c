@@ -1790,6 +1790,7 @@ static const struct panel_desc edt_etm0430g0dh6 = {
 		.width = 95,
 		.height = 54,
 	},
+	.connector_type = DRM_MODE_CONNECTOR_DPI,
 };
 
 static const struct drm_display_mode edt_etmv570g2dhu_mode = {
@@ -1879,6 +1880,7 @@ static const struct panel_desc edt_etm0700g0bdh6 = {
 	},
 	.bus_format = MEDIA_BUS_FMT_RGB666_1X18,
 	.bus_flags = DRM_BUS_FLAG_DE_HIGH | DRM_BUS_FLAG_PIXDATA_DRIVE_POSEDGE,
+	.connector_type = DRM_MODE_CONNECTOR_DPI,
 };
 
 static const struct display_timing evervision_vgg804821_timing = {
