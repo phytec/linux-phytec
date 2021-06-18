@@ -23,7 +23,7 @@
 		pinctrl-0 = <&pinctrl_csi_des0>;
 
 		enable-gpios = <&gpio5 20 GPIO_ACTIVE_HIGH>;
-		npwrdn-gpios = <&gpio1 24 GPIO_ACTIVE_HIGH>;
+		powerdown-gpios = <&gpio1 24 GPIO_ACTIVE_HIGH>;
 	};
 
 	user-leds {
