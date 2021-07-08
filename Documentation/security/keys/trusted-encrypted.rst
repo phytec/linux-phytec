@@ -78,6 +78,35 @@ TPM_STORED_DATA format.  The key length for new keys are always in bytes.
 Trusted Keys can be 32 - 128 bytes (256 - 1024 bits), the upper limit is to fit
 within the 2048 bit SRK (RSA) keylength, with all necessary structure/padding.
 
+Trusted Keys usage: TEE
+-----------------------
+
+Usage::
+
+    keyctl add trusted name "new keylen" ring
+    keyctl add trusted name "load hex_blob" ring
+    keyctl print keyid
+
+"keyctl print" returns an ASCII hex copy of the sealed key, which is in format
+specific to TEE device implementation.  The key length for new keys is always
+in bytes. Trusted Keys can be 32 - 128 bytes (256 - 1024 bits).
+
+Trusted Keys: import plain-text key for development
+---------------------------------------------------
+
+Usage::
+
+    keyctl add trusted name "import hex_key_material" ring
+
+For kernels built with ``CONFIG_TRUSTED_KEYS_DEVELOPMENT_IMPORT=y``, new
+trusted keys can be created from existing key material supplied by userspace,
+instead of using random numbers. Once defined, as with random trusted keys,
+userspace cannot extract the plain-text key material again and will only
+ever see encrypted blobs. This option should *not* be enabled for production
+kernels.
+
+Encrypted Keys usage
+--------------------
 Encrypted keys do not depend on a TPM, and are faster, as they use AES for
 encryption/decryption.  New keys are created from kernel generated random
 numbers, and are encrypted/decrypted using a specified 'master' key.  The
@@ -85,7 +114,6 @@ numbers, and are encrypted/decrypted using a specified 'master' key.  The
 disadvantage of encrypted keys is that if they are not rooted in a trusted key,
 they are only as secure as the user key encrypting them.  The master user key
 should therefore be loaded in as secure a way as possible, preferably early in
-boot.
 
 The decrypted portion of encrypted keys can contain either a simple symmetric
 key or a more complex structure. The format of the more complex structure is

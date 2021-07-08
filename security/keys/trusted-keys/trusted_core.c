@@ -46,12 +46,13 @@ static unsigned char migratable;
 
 enum {
 	Opt_err,
-	Opt_new, Opt_load, Opt_update,
+	Opt_new, Opt_load, Opt_import, Opt_update,
 };
 
 static const match_table_t key_tokens = {
 	{Opt_new, "new"},
 	{Opt_load, "load"},
+	{Opt_import, "import"},
 	{Opt_update, "update"},
 	{Opt_err, NULL}
 };
@@ -99,6 +100,21 @@ static int datablob_parse(char **datablob, struct trusted_key_payload *p)
 		if (ret < 0)
 			return -EINVAL;
 		ret = Opt_load;
+		break;
+	case Opt_import:
+		if (!IS_ENABLED(CONFIG_TRUSTED_KEYS_DEVELOPMENT_IMPORT))
+			return -EINVAL;
+		/* first argument is unsealed blob */
+		c = strsep(datablob, " \t");
+		if (!c)
+			return -EINVAL;
+		p->key_len = strlen(c) / 2;
+		if (p->key_len < MIN_KEY_SIZE || p->key_len > MAX_KEY_SIZE)
+			return -EINVAL;
+		ret = hex2bin(p->key, c, p->key_len);
+		if (ret < 0)
+			return -EINVAL;
+		ret = Opt_import;
 		break;
 	case Opt_update:
 		ret = Opt_update;
@@ -187,7 +203,8 @@ static int trusted_instantiate(struct key *key,
 			ret = -EIO;
 			goto out;
 		}
-
+		fallthrough;
+	case Opt_import:
 		ret = static_call(trusted_key_seal)(payload, datablob);
 		if (ret < 0)
 			pr_info("key_seal failed (%d)\n", ret);

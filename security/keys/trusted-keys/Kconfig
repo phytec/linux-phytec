@@ -23,3 +23,18 @@ config TRUSTED_KEYS_TEE
 if !TRUSTED_KEYS_TPM && !TRUSTED_KEYS_TEE
 comment "No trust source selected!"
 endif
+
+config TRUSTED_KEYS_DEVELOPMENT_IMPORT
+        bool "Allow creating TRUSTED KEYS from existing key material for development"
+        help
+          This option adds support for creating new trusted keys from
+          existing key material supplied by userspace, instead of using
+          random numbers. Once defined,  as with random trusted keys,
+          userspace cannot extract the plain-text key material again
+          and will only ever see encrypted blobs.
+
+          This option should *only* be enabled for debugging/development.
+          Also, consider using 'keyctl padd' instead of 'keyctl add' to
+          avoid exposing the plain-text key on the process command line.
+
+          If you are unsure as to whether this is required, answer N.
