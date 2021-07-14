@@ -1,7 +1,7 @@
-// SPDX-License-Identifier: GPL-2.0
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
 /*
- * Copyright (C) 2016 PHYTEC Messtechnik GmbH
- * Author: Christian Hemp <c.hemp@phytec.de>
+ * Copyright (C) 2017 PHYTEC Messtechnik GmbH
+ * Author: Stefan Riedmüller <s.riedmueller@phytec.de>
  */
 
 /dts-v1/;
@@ -12,8 +12,8 @@
 #include "imx6ul-phytec-segin-peb-eval-01.dtsi"
 
 / {
-	model = "PHYTEC phyBOARD-Segin i.MX6 UltraLite Full Featured with NAND";
-	compatible = "phytec,imx6ul-pbacd10-nand", "phytec,imx6ul-pbacd10",
+	model = "PHYTEC phyBOARD-Segin i.MX6 UltraLight full-featured with NAND and RS485";
+	compatible = "phytec,imx6ul-pbacd10i-nand", "phytec,imx6ul-pbacd10",
 		     "phytec,imx6ul-pcl063", "fsl,imx6ul";
 };
 
@@ -78,6 +78,9 @@
 };
 
 &uart5 {
+	rts-gpios = <&gpio1 9 GPIO_ACTIVE_HIGH>;
+	rs485-rts-active-high;
+	linux,rs485-enabled-at-boot-time;
 	status = "okay";
 };
 
@@ -91,4 +94,14 @@
 
 &usdhc1 {
 	status = "okay";
+};
+
+&iomuxc {
+	pinctrl_uart5: uart5grp {
+		fsl,pins = <
+			MX6UL_PAD_UART5_TX_DATA__UART5_DCE_TX	0x1b0b1
+			MX6UL_PAD_UART5_RX_DATA__UART5_DCE_RX	0x1b0b1
+			MX6UL_PAD_GPIO1_IO09__GPIO1_IO09	0x1a0b1
+		>;
+	};
 };

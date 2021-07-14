@@ -1,7 +1,7 @@
-// SPDX-License-Identifier: GPL-2.0
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
 /*
- * Copyright (C) 2016 PHYTEC Messtechnik GmbH
- * Author: Christian Hemp <c.hemp@phytec.de>
+ * Copyright (C) 2020 PHYTEC Messtechnik GmbH
+ * Author: Yunus Bas <y.bas@phytec.de>
  */
 
 /dts-v1/;
@@ -12,8 +12,8 @@
 #include "imx6ul-phytec-segin-peb-eval-01.dtsi"
 
 / {
-	model = "PHYTEC phyBOARD-Segin i.MX6 UltraLite Full Featured with NAND";
-	compatible = "phytec,imx6ul-pbacd10-nand", "phytec,imx6ul-pbacd10",
+	model = "PHYTEC phyBOARD-Segin i.MX6 UltraLite Full Featured with eMMC";
+	compatible = "phytec,imx6ul-pbacd10-emmc", "phytec,imx6ul-pbacd10",
 		     "phytec,imx6ul-pcl063", "fsl,imx6ul";
 };
 
@@ -42,10 +42,6 @@
 };
 
 &fec2 {
-	status = "okay";
-};
-
-&gpmi {
 	status = "okay";
 };
 
@@ -90,5 +86,9 @@
 };
 
 &usdhc1 {
+	status = "okay";
+};
+
+&usdhc2 {
 	status = "okay";
 };
