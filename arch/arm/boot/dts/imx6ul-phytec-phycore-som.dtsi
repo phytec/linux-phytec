@@ -201,3 +201,8 @@
 	};
 
 };
+
+&reg_3p0 {
+	regulator-min-microvolt = <3000000>;
+	regulator-always-on;
+};
