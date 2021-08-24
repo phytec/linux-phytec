@@ -1054,17 +1054,14 @@ static int mt9m111_power_on(struct device *dev)
 	int ret;
 
 	ret = v4l2_clk_enable(mt9m111->clk);
-	printk("DEBUG: %s: v4l2_clk_enable: %d\n", __func__, ret);
 	if (ret < 0)
 		return ret;
 
 	ret = regulator_enable(mt9m111->regulator);
-	printk("DEBUG: %s: regulator_enable: %d\n", __func__, ret);
 	if (ret < 0)
 		goto out_clk_disable;
 
 	ret = mt9m111_resume(mt9m111);
-	printk("DEBUG: %s: mt9m111_resume: %d\n", __func__, ret);
 	if (ret < 0)
 		goto out_regulator_disable;
 
