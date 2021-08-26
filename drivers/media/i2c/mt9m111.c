@@ -255,6 +255,7 @@ struct mt9m111 {
 	int lastpage;	/* PageMap cache value */
 	struct regulator *regulator;
 	bool is_streaming;
+	bool restore;
 	bool allow_10bit;
 	/* user point of view - 0: falling 1: rising edge */
 	unsigned int pclk_sample:1;
@@ -420,12 +421,6 @@ static int mt9m111_setup_geometry(struct mt9m111 *mt9m111, struct v4l2_rect *rec
 	struct mt9m111_datafmt const *fmt = mt9m111_find_datafmt(mt9m111, code);
 	int ret;
 
-	ret = pm_runtime_get_sync(&client->dev);
-	if (ret < 0) {
-		pm_runtime_put_noidle(&client->dev);
-		return ret;
-	}
-
 	ret = reg_write(COLUMN_START, rect->left);
 	if (!ret)
 		ret = reg_write(ROW_START, rect->top);
@@ -448,9 +443,6 @@ static int mt9m111_setup_geometry(struct mt9m111 *mt9m111, struct v4l2_rect *rec
 	dev_dbg(&client->dev, "%s(%x): %ux%u@%u:%u -> %ux%u = %d\n",
 		__func__, code, rect->width, rect->height, rect->left, rect->top,
 		width, height, ret);
-
-	pm_runtime_mark_last_busy(&client->dev);
-	pm_runtime_put_autosuspend(&client->dev);
 
 	return ret;
 }
@@ -509,7 +501,16 @@ static int mt9m111_set_selection(struct v4l2_subdev *sd,
 	width = min(mt9m111->width, rect.width);
 	height = min(mt9m111->height, rect.height);
 
+	ret = pm_runtime_get_sync(&client->dev);
+	if (ret < 0) {
+		pm_runtime_put_noidle(&client->dev);
+		return ret;
+	}
+
 	ret = mt9m111_setup_geometry(mt9m111, &rect, width, height, mt9m111->fmt->code);
+	pm_runtime_mark_last_busy(&client->dev);
+	pm_runtime_put_autosuspend(&client->dev);
+
 	if (!ret) {
 		mt9m111->rect = rect;
 		mt9m111->width = width;
@@ -715,6 +716,12 @@ static int mt9m111_set_fmt(struct v4l2_subdev *sd,
 		return 0;
 	}
 
+	ret = pm_runtime_get_sync(&client->dev);
+	if (ret < 0) {
+		pm_runtime_put_noidle(&client->dev);
+		return ret;
+	}
+
 	ret = mt9m111_setup_geometry(mt9m111, rect, mf->width, mf->height, mf->code);
 	if (!ret)
 		ret = mt9m111_set_pixfmt(mt9m111, mf->code);
@@ -723,6 +730,9 @@ static int mt9m111_set_fmt(struct v4l2_subdev *sd,
 		mt9m111->height	= mf->height;
 		mt9m111->fmt	= fmt;
 	}
+
+	pm_runtime_mark_last_busy(&client->dev);
+	pm_runtime_put_autosuspend(&client->dev);
 
 	return ret;
 }
@@ -975,11 +985,8 @@ static int mt9m111_s_ctrl(struct v4l2_ctrl *ctrl)
 	struct i2c_client *client = v4l2_get_subdevdata(&mt9m111->subdev);
 	int ret;
 
-	ret = pm_runtime_get_sync(&client->dev);
-	if (ret < 0) {
-		pm_runtime_put_noidle(&client->dev);
-		return ret;
-	}
+	if (!pm_runtime_get_if_in_use(&client->dev))
+		return 0;
 
 	ret = _mt9m111_s_ctrl(ctrl);
 
@@ -1027,7 +1034,7 @@ static int mt9m111_resume(struct mt9m111 *mt9m111)
 	if (!ret)
 		ret = mt9m111_reset(mt9m111);
 	if (!ret)
-		mt9m111_restore_state(mt9m111);
+		mt9m111->restore = true;
 
 	return ret;
 }
@@ -1199,6 +1206,23 @@ static int mt9m111_enum_mbus_code(struct v4l2_subdev *sd,
 static int mt9m111_s_stream(struct v4l2_subdev *sd, int enable)
 {
 	struct mt9m111 *mt9m111 = container_of(sd, struct mt9m111, subdev);
+	int ret;
+
+	if (enable) {
+		ret = pm_runtime_get_sync(sd->dev);
+		if (ret < 0) {
+			pm_runtime_put_noidle(sd->dev);
+			return ret;
+		}
+	} else {
+		pm_runtime_mark_last_busy(sd->dev);
+		pm_runtime_put_autosuspend(sd->dev);
+	}
+
+	if (enable && mt9m111->restore) {
+		mt9m111_restore_state(mt9m111);
+		mt9m111->restore = false;
+	};
 
 	mt9m111->is_streaming = !!enable;
 	return 0;
@@ -1493,6 +1517,7 @@ MODULE_DEVICE_TABLE(i2c, mt9m111_id);
 static struct i2c_driver mt9m111_i2c_driver = {
 	.driver = {
 		.name = "mt9m111",
+		.pm = &mt9m111_pm_ops,
 		.of_match_table = of_match_ptr(mt9m111_of_match),
 	},
 	.probe_new	= mt9m111_probe,
