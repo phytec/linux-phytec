@@ -689,3 +689,6 @@ config GENERIC_LIB_UCMPDI2
 config PLDMFW
 	bool
 	default n
+
+config ASN1_ENCODER
+       tristate
