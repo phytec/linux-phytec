@@ -10,6 +10,7 @@
 #include "imx6ul-phytec-segin.dtsi"
 #include "imx6ul-phytec-segin-peb-av-02.dtsi"
 #include "imx6ul-phytec-segin-peb-eval-01.dtsi"
+#include "imx6ul-phytec-segin-phycam.dtsi"
 
 / {
 	model = "PHYTEC phyBOARD-Segin i.MX6 UltraLite Full Featured with eMMC";
@@ -22,6 +23,10 @@
 };
 
 &can1 {
+	status = "okay";
+};
+
+&csi {
 	status = "okay";
 };
 
