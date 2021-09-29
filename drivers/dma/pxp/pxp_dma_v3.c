@@ -7555,6 +7555,9 @@ static struct platform_device_id imx_pxpdma_devtype[] = {
 		.name = "imx6ull-pxp-dma",
 		.driver_data = PXP_V3P,
 	}, {
+		.name = "imx6ul-pxp-dma",
+		.driver_data = PXP_V3P,
+	}, {
 		/* sentinel */
 	}
 };
@@ -7563,6 +7566,7 @@ MODULE_DEVICE_TABLE(platform, imx_pxpdma_devtype);
 static const struct of_device_id imx_pxpdma_dt_ids[] = {
 	{ .compatible = "fsl,imx7d-pxp-dma", .data = &imx_pxpdma_devtype[0], },
 	{ .compatible = "fsl,imx6ull-pxp-dma", .data = &imx_pxpdma_devtype[1], },
+	{ .compatible = "fsl,imx6ul-pxp-dma", .data = &imx_pxpdma_devtype[1], },
 	{ /* sentinel */ }
 };
 MODULE_DEVICE_TABLE(of, imx_pxpdma_dt_ids);
