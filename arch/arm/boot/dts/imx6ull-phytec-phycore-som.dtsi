@@ -33,3 +33,7 @@
 		>;
 	};
 };
+
+&pxp_imx {
+    compatible = "fsl,imx6ull-pxp-dma", "fsl,imx7d-pxp-dma";
+};

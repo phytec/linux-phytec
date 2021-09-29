@@ -207,3 +207,25 @@
 	regulator-min-microvolt = <3000000>;
 	regulator-always-on;
 };
+
+/* User can select one of two available drivers for PXP:
+ * - pxp -> mainline PXP driver,
+ * - pxp_imx (default) -> vendor PXP driver.
+ * Which PXP driver will be used can be selected with status property.
+ * IMPORTANT: Only one of the two drivers can be used at a time!
+ */
+&pxp {
+    status = "disable";
+};
+
+&aips2 {
+    pxp_imx: pxp-imx@21cc000 {
+        compatible = "fsl,imx6ul-pxp-dma", "fsl,imx7d-pxp-dma";
+        reg = <0x021cc000 0x4000>;
+        interrupts = <GIC_SPI 8 IRQ_TYPE_LEVEL_HIGH>,
+            <GIC_SPI 18 IRQ_TYPE_LEVEL_HIGH>;
+        clocks = <&clks IMX6UL_CLK_DUMMY>, <&clks IMX6UL_CLK_PXP>;
+        clock-names = "pxp_ipg", "pxp_axi";
+        status = "okay";
+    };
+};
