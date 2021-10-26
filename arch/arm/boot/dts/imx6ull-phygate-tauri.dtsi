@@ -300,7 +300,7 @@
 	pinctrl-0 = <&pinctrl_usb_otg1>;
 	vbus-supply = <&reg_usb_otg1_vbus>;
 	dr_mode = "host";
-	over-current-active-low;
+	disable-over-current;
 	status = "okay";
 };
 
