@@ -39,6 +39,18 @@
 		regulator-max-microvolt = <3300000>;
 	};
 
+	reg_s25fl064_hold: regulator-s25fl064-hold {
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_s25fl064_hold>;
+		compatible = "regulator-fixed";
+		regulator-name = "s25fl064_hold";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+		gpio = <&gpio3 17 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+		regulator-always-on;
+	};
+
 	reg_usb_hub_vbus: regulator-hub-otg1-vbus {
 		pinctrl-names = "default";
 		pinctrl-0 = <&pinctrl_usbhubpwr>;
@@ -492,6 +504,12 @@
 	pinctrl_pwm8: pwm8grp {
 		fsl,pins = <
 			MX6UL_PAD_JTAG_TRST_B__PWM8_OUT	0x0b0b0
+		>;
+	};
+
+	pinctrl_s25fl064_hold: s25fl064_holdgrp {
+		fsl,pins = <
+			MX6UL_PAD_LCD_DATA12__GPIO3_IO17	0x100b1
 		>;
 	};
 
