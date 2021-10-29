@@ -130,10 +130,10 @@
 		pinctrl-0 = <&pinctrl_tpm>;
 		compatible = "tcg,tpm_tis-spi";
 		reg = <1>;
-		spi-max-frequency = <38000000>;
+		spi-max-frequency = <20000000>;
 		interrupt-parent = <&gpio5>;
 		interrupts = <2 IRQ_TYPE_LEVEL_LOW>;
-		status = "disabled";
+		status = "okay";
 	};
 
 /* S25FL064P */
