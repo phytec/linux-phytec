@@ -82,9 +82,9 @@
 #define		MT9P031_PIXEL_CLOCK_INVERT		(1 << 15)
 #define		MT9P031_PIXEL_CLOCK_SHIFT(n)		((n) << 8)
 #define		MT9P031_PIXEL_CLOCK_DIVIDE(n)		((n) << 0)
-#define MT9P031_FRAME_RESTART				0x0b
-#define 	MT9P031_FRAME_RESTART_SET		(1 << 0)
-#define		MT9P031_FRAME_PAUSE_RESTART_SET		(1 << 1)
+#define MT9P031_RESTART					0x0b
+#define		MT9P031_FRAME_PAUSE_RESTART		(1 << 1)
+#define		MT9P031_FRAME_RESTART			(1 << 0)
 #define MT9P031_SHUTTER_DELAY				0x0c
 #define MT9P031_RST					0x0d
 #define		MT9P031_RST_ENABLE			1
@@ -494,16 +494,17 @@ static int mt9p031_s_stream(struct v4l2_subdev *subdev, int enable)
 
 	if (!enable) {
 		/* enable pause restart */
-		ret = mt9p031_write(client, MT9P031_FRAME_RESTART,
-					MT9P031_FRAME_PAUSE_RESTART_SET);
+		val = MT9P031_FRAME_PAUSE_RESTART;
+		ret = mt9p031_write(client, MT9P031_RESTART, val);
 		if (ret < 0)
 			return ret;
-		/* enable reset + pause restart */
-		ret = mt9p031_write(client, MT9P031_FRAME_RESTART,
-					MT9P031_FRAME_PAUSE_RESTART_SET |
-					MT9P031_FRAME_RESTART_SET);
+
+		/* enable restart + keep pause restart set */
+		val |= MT9P031_FRAME_RESTART;
+		ret = mt9p031_write(client, MT9P031_RESTART, val);
 		if (ret < 0)
 			return ret;
+
 		/* Stop sensor readout */
 		ret = mt9p031_set_output_control(mt9p031,
 						 MT9P031_OUTPUT_CONTROL_CEN, 0);
@@ -522,10 +523,14 @@ static int mt9p031_s_stream(struct v4l2_subdev *subdev, int enable)
 					 MT9P031_OUTPUT_CONTROL_CEN);
 	if (ret < 0)
 		return ret;
-	/* disbale reset + pause restart */
-	val = mt9p031_read(client, MT9P031_FRAME_RESTART);
-	val &= ~MT9P031_FRAME_PAUSE_RESTART_SET;
-	ret = mt9p031_write(client, MT9P031_FRAME_RESTART, val);
+
+	/*
+	 * - clear pause restart
+	 * - don't clear restart as clearing restart manually can cause
+	 *   undefined behavior
+	 */
+	val = MT9P031_FRAME_RESTART;
+	ret = mt9p031_write(client, MT9P031_RESTART, val);
 	if (ret < 0)
 		return ret;
 
