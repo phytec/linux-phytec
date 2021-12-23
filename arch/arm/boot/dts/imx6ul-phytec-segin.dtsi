@@ -146,7 +146,7 @@
 		interrupts = <3 IRQ_TYPE_LEVEL_LOW>;
 		interrupt-parent = <&gpio5>;
 		pinctrl-names = "default";
-		pinctrl-0 = <&pinctrl_stmpe>;
+		pinctrl-0 = <&pinctrl_touchctrl>;
 		status = "disabled";
 
 		touchscreen {
@@ -164,6 +164,20 @@
 			touchscreen-inverted-y = <1>;
 		};
 	};
+
+        tsc2004: touchscreen@49 {
+                compatible = "ti,tsc2004";
+                reg = <0x49>;
+                pinctrl-names = "default";
+                pinctrl-0 = <&pinctrl_touchctrl>;
+                interrupts-extended = <&gpio5 3 IRQ_TYPE_LEVEL_LOW>;
+                wakeup-source;
+
+                touchscreen-inverted-x;
+                touchscreen-inverted-y;
+
+                status = "disabled";
+        };
 
 	i2c_rtc: rtc@68 {
 		pinctrl-names = "default";
@@ -301,7 +315,7 @@
 		>;
 	};
 
-	pinctrl_stmpe: stmpegrp {
+	pinctrl_touchctrl: touchctrlgrp {
 		fsl,pins = <
 			MX6UL_PAD_SNVS_TAMPER3__GPIO5_IO03	0x17059
 		>;
