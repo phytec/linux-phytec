@@ -14,7 +14,7 @@
 &iomuxc {
 	/delete-node/ flexcan1engrp;
 	/delete-node/ rtcintgrp;
-	/delete-node/ stmpegrp;
+	/delete-node/ touchctrlgrp;
 };
 
 &iomuxc_snvs {
@@ -30,7 +30,7 @@
 		>;
 	};
 
-	pinctrl_stmpe: stmpegrp {
+	pinctrl_touchctrl: touchctrlgrp {
 		fsl,pins = <
 			MX6ULL_PAD_SNVS_TAMPER3__GPIO5_IO03	0x17059
 		>;
