@@ -334,7 +334,7 @@ static int __init init_trusted(void)
 			continue;
 
 		get_random = trusted_key_sources[i].ops->get_random;
-		if (trusted_kernel_rng)
+		if (trusted_kernel_rng || !get_random)
 			get_random = kernel_get_random;
 
 		static_call_update(trusted_key_init,
