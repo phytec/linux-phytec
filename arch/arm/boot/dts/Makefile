@@ -479,6 +479,7 @@ dtb-$(CONFIG_SOC_IMX6Q) += \
 	imx6dl-phytec-mira-lc-rdk-emmc.dtb \
 	imx6dl-phytec-mira-lc-rdk-nand.dtb \
 	imx6dl-phytec-pbab01.dtb \
+	imx6dl-phytec-pbab01-nonor.dtb \
 	imx6dl-pico-dwarf.dtb \
 	imx6dl-pico-hobbit.dtb \
 	imx6dl-pico-nymph.dtb \
