@@ -14,16 +14,21 @@
 #include <linux/pm_opp.h>
 #include <linux/platform_device.h>
 #include <linux/regulator/consumer.h>
+#include <linux/suspend.h>
 
 #define PU_SOC_VOLTAGE_NORMAL	1250000
 #define PU_SOC_VOLTAGE_HIGH	1275000
+#define DC_VOLTAGE_MIN	1300000
+#define DC_VOLTAGE_MAX	1400000
 #define FREQ_1P2_GHZ		1200000000
-#define FREQ_800_MHZ            792000000
-#define FREQ_400_MHZ            396000000
+#define FREQ_800_MHZ		792000000
+#define FREQ_528_MHZ		528000000
+#define FREQ_400_MHZ		396000000
 
 static struct regulator *arm_reg;
 static struct regulator *pu_reg;
 static struct regulator *soc_reg;
+static struct regulator *dc_reg;
 
 enum IMX6_CPUFREQ_CLKS {
 	ARM,
@@ -57,6 +62,8 @@ static bool bypass;
 
 static u32 *imx6_soc_volt;
 static u32 soc_opp_count;
+
+static bool ignore_dc_reg;
 
 static int imx6q_set_target(struct cpufreq_policy *policy, unsigned int index)
 {
@@ -446,6 +453,43 @@ static int imx6ul_opp_check_speed_grading(struct device *dev)
 	return ret;
 }
 
+static int imx6_cpufreq_pm_notify(struct notifier_block *nb,
+	unsigned long event, void *dummy)
+{
+	int ret;
+
+	switch (event) {
+	case PM_SUSPEND_PREPARE:
+		if (!IS_ERR(dc_reg) && !ignore_dc_reg) {
+			ret = regulator_set_voltage_tol(dc_reg, DC_VOLTAGE_MAX, 0);
+			if (ret) {
+				dev_err(cpu_dev,
+					"failed to scale dc_reg to max: %d\n", ret);
+				return ret;
+			}
+		}
+		break;
+	case PM_POST_SUSPEND:
+		if (!IS_ERR(dc_reg) && !ignore_dc_reg) {
+			ret = regulator_set_voltage_tol(dc_reg, DC_VOLTAGE_MIN, 0);
+			if (ret) {
+				dev_err(cpu_dev,
+					"failed to scale dc_reg to min: %d\n", ret);
+				return ret;
+			}
+		}
+		break;
+	default:
+		break;
+	}
+
+	return NOTIFY_OK;
+}
+
+static struct notifier_block imx6_cpufreq_pm_notifier = {
+	.notifier_call = imx6_cpufreq_pm_notify,
+};
+
 static int imx6q_cpufreq_probe(struct platform_device *pdev)
 {
 	struct device_node *np;
@@ -494,6 +538,8 @@ static int imx6q_cpufreq_probe(struct platform_device *pdev)
 		goto put_reg;
 	}
 
+	dc_reg = regulator_get_optional(cpu_dev, "dc");
+
 	ret = dev_pm_opp_of_add_table(cpu_dev);
 	if (ret < 0) {
 		dev_err(cpu_dev, "failed to init OPP table: %d\n", ret);
@@ -524,6 +570,21 @@ static int imx6q_cpufreq_probe(struct platform_device *pdev)
 	if (ret) {
 		dev_err(cpu_dev, "failed to init cpufreq table: %d\n", ret);
 		goto out_free_opp;
+	}
+
+	/*
+	 * On i.MX6UL/ULL EVK board, if the SOC is run in overide frequency,
+	 * the dc_regulator voltage should not be touched.
+	 */
+	if (freq_table[num - 1].frequency * 1000 > FREQ_528_MHZ)
+		ignore_dc_reg = true;
+	if (!IS_ERR(dc_reg) && !ignore_dc_reg) {
+		ret = regulator_set_voltage_tol(dc_reg, DC_VOLTAGE_MIN, 0);
+		if (ret) {
+			dev_err(cpu_dev,
+				"failed to scale dc_reg to min: %d\n", ret);
+			return ret;
+		}
 	}
 
 	/* Make imx6_soc_volt array's size same as arm opp number */
@@ -633,6 +694,8 @@ soc_opp_out:
 		dev_err(cpu_dev, "failed register driver: %d\n", ret);
 		goto free_freq_table;
 	}
+
+	register_pm_notifier(&imx6_cpufreq_pm_notifier);
 
 	of_node_put(np);
 	return 0;
