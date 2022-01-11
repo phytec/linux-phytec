@@ -1,0 +1,85 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * Copyright (C) 2021 PHYTEC Messtechnik GmbH
+ * Author: Stefan Riedmueller <s.riedmueller@phytec.de>
+ */
+
+/dts-v1/;
+/plugin/;
+
+#include <dt-bindings/clock/imx6qdl-clock.h>
+
+/ {
+	compatible = "phytec,imx6q-pbac12", "phytec,imx6dl-pbac12",
+		     "phytec,imx6q-pbac06", "phytec,imx6dl-pbac06",
+		     "phytec,imx6q-pbab01", "phytec,imx6dl-pbab01";
+};
+
+&clk_cam0 {
+	status = "okay";
+};
+
+&cam0_i2c {
+	vm016_mipi_0: vm016-mipi-0@10 {
+		compatible = "onsemi,ar0144";
+		reg = <0x10>;
+
+		clock-names = "ext", "synch";
+		clocks = <&clk_cam0>,
+			 <&clks IMX6QDL_CLK_CKO1>;
+
+		vdd-supply = <&reg_vcc_cam0>;
+		vddio-supply = <&reg_vcc_cam0>;
+		vaa-supply = <&reg_vcc_cam0>;
+		vaapix-supply = <&reg_vcc_cam0>;
+
+		timings {
+			mipi-0 = <
+				/*          hs_prep      hs_zero    hs_trail     clk_trail */
+				1500000000 ((1 << 12) | ( 6 << 8) | ( 6 << 4) | (5 << 0))
+			>;
+
+			mipi-1 = <
+				/*          clk_prep     hs_exit    clk_zero */
+				1500000000 ((1 << 12) | ( 4 << 6) | (14 << 0))
+			>;
+
+			mipi-2 = <
+				/*          bgap        clk_pre   clk_post */
+				1500000000 ((2 << 12) | ( 1 << 6) | ( 9 << 0))
+			>;
+
+			mipi-3 = <
+				/*          tm3           lpx        wake_up */
+				1500000000 ((0 << 13) | ( 2 << 7) | ( 5 << 0))
+			>;
+
+			mipi-4 = <
+				/*          heavy_lp      tm4       init */
+				1500000000 ((0 << 14) | ( 0 << 7) | ( 4 << 0))
+			>;
+		};
+
+		port@1 {
+			reg = <0x1>;
+
+			vm016_mipi_ep0: endpoint {
+				remote-endpoint = <&cam0_mipi_ep>;
+				data-lanes = <1 2>;
+				clock-lanes = <0>;
+				clock-noncontinuous = <1>;
+				bus-type = <4>; /* MIPI_CSI2_DPHY */
+			};
+		};
+	};
+};
+
+&cam0_mipi {
+	status = "okay";
+};
+
+&cam0_mipi_ep {
+        remote-endpoint = <&vm016_mipi_ep0>;
+	clock-lanes = <0>;
+	data-lanes = <1 2>;
+};
