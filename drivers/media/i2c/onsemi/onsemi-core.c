@@ -1799,7 +1799,7 @@ static int _onsemi_enum_mbus_code_mono(struct onsemi_core *onsemi,
 }
 
 static int onsemi_enum_mbus_code(struct v4l2_subdev *sd,
-				 struct v4l2_subdev_pad_config *cfg,
+				 struct v4l2_subdev_state *sd_state,
 				 struct v4l2_subdev_mbus_code_enum *code)
 {
 	struct onsemi_core		*onsemi = sd_to_onsemi(sd);
@@ -1808,7 +1808,7 @@ static int onsemi_enum_mbus_code(struct v4l2_subdev *sd,
 	int				rc;
 
 	if (onsemi->ops->enum_mbus_code)
-		return onsemi->ops->enum_mbus_code(onsemi, cfg, code);
+		return onsemi->ops->enum_mbus_code(onsemi, sd_state, code);
 
 	info = onsemi_get_businfo(onsemi, code->pad);
 	if (!info)
@@ -1929,7 +1929,7 @@ out:
 }
 
 static int onsemi_set_fmt(struct v4l2_subdev *sd,
-			  struct v4l2_subdev_pad_config *cfg,
+			  struct v4l2_subdev_state *sd_state,
 			  struct v4l2_subdev_format *format)
 {
 	struct onsemi_core	*onsemi = sd_to_onsemi(sd);
@@ -1994,7 +1994,7 @@ again:
 	format->format.height = h;
 
 	if (onsemi->ops->set_fmt) {
-		rc = onsemi->ops->set_fmt(onsemi, cfg, format, bpp);
+		rc = onsemi->ops->set_fmt(onsemi, sd_state, format, bpp);
 		if (rc < 0)
 			goto bad_parm;
 	}
@@ -2042,7 +2042,7 @@ bad_parm:
 }
 
 static int onsemi_get_fmt(struct v4l2_subdev *sd,
-			  struct v4l2_subdev_pad_config *cfg,
+			  struct v4l2_subdev_state *sd_state,
 			  struct v4l2_subdev_format *format)
 {
 	struct onsemi_core	*onsemi = sd_to_onsemi(sd);
@@ -2113,7 +2113,7 @@ static int onsemi_check_sel_bayer(struct onsemi_core const *onsemi,
 }
 
 static int onsemi_set_selection(struct v4l2_subdev *sd,
-				struct v4l2_subdev_pad_config *cfg,
+				struct v4l2_subdev_state *sd_state,
 				struct v4l2_subdev_selection *s)
 {
 	struct onsemi_core	*onsemi = sd_to_onsemi(sd);
@@ -2194,7 +2194,7 @@ out:
 }
 
 static int onsemi_get_selection(struct v4l2_subdev *sd,
-				struct v4l2_subdev_pad_config *cfg,
+				struct v4l2_subdev_state *sd_state,
 				struct v4l2_subdev_selection *s)
 {
 	struct onsemi_core	*onsemi = sd_to_onsemi(sd);
