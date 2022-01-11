@@ -3799,6 +3799,7 @@ fec_probe(struct platform_device *pdev)
 	char irq_name[8];
 	int irq_cnt;
 	struct fec_devinfo *dev_info;
+	int eth_id;
 
 	fec_enet_get_queue_num(pdev, &num_tx_qs, &num_rx_qs);
 
@@ -4000,6 +4001,10 @@ fec_probe(struct platform_device *pdev)
 	pinctrl_pm_select_sleep_state(&pdev->dev);
 
 	ndev->max_mtu = PKT_MAXBUF_SIZE - ETH_HLEN - ETH_FCS_LEN;
+	eth_id = of_alias_get_id(pdev->dev.of_node, "ethernet");
+
+	if (eth_id >= 0)
+		sprintf(ndev->name, "eth%d", eth_id);
 
 	ret = register_netdev(ndev);
 	if (ret)
