@@ -1,0 +1,24 @@
+config VIDEO_ONSEMI_SENSORS
+	bool "OnSemi camera sensors"
+	depends on I2C && VIDEO_V4L2
+	depends on VIDEO_V4L2_SUBDEV_API
+	select REGMAP
+
+if VIDEO_ONSEMI_SENSORS
+
+config VIDEO_ONSEMI_AR0144
+	tristate "AR0144"
+	select VIDEO_ONSEMI_CORE
+	select VIDEO_ONSEMI_REGMAP
+
+endif				# VIDOE_ONSEMI
+
+config VIDEO_ONSEMI_CORE
+	tristate
+
+config VIDEO_ONSEMI_REGMAP
+	tristate
+
+config VIDEO_ONSEMI_ENABLE_DEBUG
+	bool "enable debugging of onsemi v4l2 driver"
+	depends on DEBUG_KERNEL
