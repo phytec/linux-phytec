@@ -846,6 +846,7 @@ static int imx6_pcie_host_init(struct pcie_port *pp)
 	imx6_pcie_init_phy(imx6_pcie);
 	imx6_pcie_deassert_core_reset(imx6_pcie);
 	imx6_setup_phy_mpll(imx6_pcie);
+	imx6_pcie_start_link(pci);
 
 	return 0;
 }
@@ -855,7 +856,7 @@ static const struct dw_pcie_host_ops imx6_pcie_host_ops = {
 };
 
 static const struct dw_pcie_ops dw_pcie_ops = {
-	.start_link = imx6_pcie_start_link,
+	/* No special ops needed, but pcie-designware still expects this struct */
 };
 
 #ifdef CONFIG_PM_SLEEP
