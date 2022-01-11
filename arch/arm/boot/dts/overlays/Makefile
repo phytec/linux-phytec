@@ -22,6 +22,13 @@ dtb-y += imx6-vm016-mipi-0.dtbo
 dtb-y += imx6-vm050-0.dtbo
 dtb-y += imx6-vm050-1.dtbo
 
+dtb-y += imx6ul-vm009.dtbo
+dtb-y += imx6ul-vm010-bw.dtbo
+dtb-y += imx6ul-vm010-col.dtbo
+dtb-y += imx6ul-vm011-bw.dtbo
+dtb-y += imx6ul-vm011-col.dtbo
+dtb-y += imx6ul-vm016.dtbo
+
 DTC_FLAGS += -@
 
 quiet_cmd_dtbo = DTBO     $@
