@@ -1,17 +1,47 @@
-// SPDX-License-Identifier: GPL-2.0-or-later
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
 /*
- * Copyright 2013 Christian Hemp, Phytec Messtechnik GmbH
+ * Copyright (C) 2018 PHYTEC Messtechnik GmbH
+ * Author: Christian Hemp <c.hemp@phytec.de>
  */
 
 #include "imx6q.dtsi"
 #include "imx6qdl-phytec-pfla02.dtsi"
 
 / {
-	model = "Phytec phyFLEX-i.MX6 Quad";
+	model = "PHYTEC phyFLEX-i.MX 6Quad";
 	compatible = "phytec,imx6q-pfla02", "fsl,imx6q";
 
 	memory@10000000 {
 		device_type = "memory";
 		reg = <0x10000000 0x80000000>;
+	};
+};
+
+/* SPI1 on module */
+&ecspi5 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_ecspi5>;
+	fsl,spi-num-chipselects = <2>;
+	cs-gpios = <&gpio1 17 GPIO_ACTIVE_HIGH
+		    &gpio1 19 GPIO_ACTIVE_HIGH>;
+	status = "disabled";
+};
+
+&iomuxc {
+	pinctrl_csi_des1: csides1grp {
+		fsl,pins = <
+			MX6QDL_PAD_EIM_DA10__GPIO3_IO10		0x1b0b0
+			MX6QDL_PAD_EIM_EB0__GPIO2_IO28		0x1b050
+		>;
+	};
+
+	pinctrl_ecspi5: ecspi5grp {
+		fsl,pins = <
+			MX6QDL_PAD_SD1_CLK__ECSPI5_SCLK		0x100b1
+			MX6QDL_PAD_SD1_DAT0__ECSPI5_MISO	0x100b1
+			MX6QDL_PAD_SD1_CMD__ECSPI5_MOSI 	0x100b1
+			MX6QDL_PAD_SD1_DAT1__GPIO1_IO17		0x1b0b0
+			MX6QDL_PAD_SD1_DAT2__GPIO1_IO19		0x1b0b0
+		>;
 	};
 };
