@@ -167,7 +167,7 @@ struct onsemi_core_ops {
 
 	/* mandatory */
 	int		(*enum_mbus_code)(struct onsemi_core *onsemi,
-					  struct v4l2_subdev_pad_config *cfg,
+					  struct v4l2_subdev_state *sd_state,
 					  struct v4l2_subdev_mbus_code_enum *code);
 
 	int		(*stream_on)(struct onsemi_core *onsemi);
@@ -177,7 +177,7 @@ struct onsemi_core_ops {
 
 	/* optionally */
 	int		(*set_fmt)(struct onsemi_core *onsemi,
-				   struct v4l2_subdev_pad_config *cfg,
+				   struct v4l2_subdev_state *sd_state,
 				   struct v4l2_subdev_format *format,
 				   unsigned int bpp);
 
