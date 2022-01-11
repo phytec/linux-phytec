@@ -8,8 +8,9 @@
 #include "imx6ull.dtsi"
 #include "imx6ull-phytec-phycore-som.dtsi"
 #include "imx6ull-phytec-segin.dtsi"
-#include "imx6ull-phytec-segin-peb-eval-01.dtsi"
 #include "imx6ull-phytec-segin-peb-av-02.dtsi"
+#include "imx6ull-phytec-segin-peb-eval-01.dtsi"
+#include "imx6ul-phytec-segin-phycam.dtsi"
 #include "imx6ull-phytec-segin-peb-wlbt-05.dtsi"
 
 / {
@@ -26,7 +27,7 @@
 	status = "okay";
 };
 
-&tlv320 {
+&csi {
 	status = "okay";
 };
 
@@ -75,6 +76,10 @@
 };
 
 &sound {
+	status = "okay";
+};
+
+&tlv320 {
 	status = "okay";
 };
 
