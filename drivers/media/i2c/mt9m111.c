@@ -1162,7 +1162,7 @@ static int mt9m111_s_frame_interval(struct v4l2_subdev *sd,
 }
 
 static int mt9m111_enum_frame_size(struct v4l2_subdev *sd,
-				       struct v4l2_subdev_pad_config *cfg,
+				       struct v4l2_subdev_state *sd_state,
 				       struct v4l2_subdev_frame_size_enum *fse)
 {
 	struct mt9m111 *mt9m111 = container_of(sd, struct mt9m111, subdev);
