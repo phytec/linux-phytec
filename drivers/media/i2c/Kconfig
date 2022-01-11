@@ -1387,6 +1387,8 @@ config VIDEO_S5K5BAF
 	  camera sensor with an embedded SoC image signal processor.
 
 source "drivers/media/i2c/ccs/Kconfig"
+source "drivers/media/i2c/onsemi/Kconfig"
+
 source "drivers/media/i2c/et8ek8/Kconfig"
 
 config VIDEO_S5C73M3
