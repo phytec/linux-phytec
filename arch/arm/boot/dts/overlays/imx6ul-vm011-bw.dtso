@@ -1,0 +1,62 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * Copyright (C) 2021 PHYTEC Messtechnik GmbH
+ * Author: Stefan Riedmueller <s.riedmueller@phytec.de>
+ */
+
+/dts-v1/;
+/plugin/;
+
+#include <dt-bindings/clock/imx6ul-clock.h>
+
+/ {
+	compatible = "phytec,imx6ul-pbacd10", "phytec,imx6ull-pbacd10";
+};
+
+&cam0_i2c {
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	mt9p031-0@48 {
+		compatible = "aptina,mt9p031m";
+		reg = <0x48>;
+
+		vdd-supply = <&reg_vcc_cam0>;
+		vdd_io-supply = <&reg_vcc_cam0>;
+		vaa-supply = <&reg_vcc_cam0>;
+
+		clocks = <&clks IMX6UL_CLK_CSI>;
+		clock-names = "csi_mclk";
+
+		assigned-clocks =
+			<&clks IMX6UL_CLK_CSI_SEL>,
+			<&clks IMX6UL_CLK_CSI>;
+
+		assigned-clock-parents =
+			<&clks IMX6UL_CLK_PLL2_PFD2>;
+
+		assigned-clock-rates =
+			<0>, <50000000>;
+
+		port {
+			mt9p031_0_ep: endpoint {
+				remote-endpoint = <&csi_ep>;
+				input-clock-frequency = <50000000>;
+				pixel-clock-frequency = <50000000>;
+				bus-type = <5>; /* Parallel */
+				bus-width = <8>;
+				hsync-active = <1>;
+				vsync-active = <1>;
+				pclk-sample = <1>;
+			};
+		};
+	};
+};
+
+&csi {
+	port {
+		csi_ep: endpoint {
+			remote-endpoint = <&mt9p031_0_ep>;
+		};
+	};
+};
