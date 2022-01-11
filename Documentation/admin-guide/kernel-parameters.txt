@@ -5781,6 +5781,13 @@
 			first trust source as a backend which is initialized
 			successfully during iteration.
 
+	trusted.kernel_rng =	[KEYS]
+			Format: <bool>
+			When set to true (1), the kernel random number pool
+			is used to generate key material for trusted keys.
+			The default is to leave the RNG's choice to each
+			individual trust source.
+
 	tsc=		Disable clocksource stability checks for TSC.
 			Format: <string>
 			[x86] reliable: mark tsc clocksource as reliable, this
