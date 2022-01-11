@@ -474,7 +474,10 @@ dtb-$(CONFIG_SOC_IMX6Q) += \
 	imx6dl-mamoj.dtb \
 	imx6dl-nit6xlite.dtb \
 	imx6dl-nitrogen6x.dtb \
-	imx6dl-phytec-mira-rdk-nand.dtb \
+	imx6dl-phytec-mira-ff-rdk-emmc.dtb \
+	imx6dl-phytec-mira-ff-rdk-nand.dtb \
+	imx6dl-phytec-mira-lc-rdk-emmc.dtb \
+	imx6dl-phytec-mira-lc-rdk-nand.dtb \
 	imx6dl-phytec-pbab01.dtb \
 	imx6dl-pico-dwarf.dtb \
 	imx6dl-pico-hobbit.dtb \
@@ -578,8 +581,9 @@ dtb-$(CONFIG_SOC_IMX6Q) += \
 	imx6q-nitrogen6_max.dtb \
 	imx6q-nitrogen6_som2.dtb \
 	imx6q-novena.dtb \
-	imx6q-phytec-mira-rdk-emmc.dtb \
-	imx6q-phytec-mira-rdk-nand.dtb \
+	imx6q-phytec-mira-ff-rdk-emmc.dtb \
+	imx6q-phytec-mira-ff-rdk-nand-rs485.dtb \
+	imx6q-phytec-mira-ff-rdk-nand.dtb \
 	imx6q-phytec-pbab01.dtb \
 	imx6q-pico-dwarf.dtb \
 	imx6q-pico-hobbit.dtb \
@@ -620,7 +624,7 @@ dtb-$(CONFIG_SOC_IMX6Q) += \
 	imx6q-zii-rdu2.dtb \
 	imx6qp-nitrogen6_max.dtb \
 	imx6qp-nitrogen6_som2.dtb \
-	imx6qp-phytec-mira-rdk-nand.dtb \
+	imx6qp-phytec-mira-ff-rdk-nand.dtb \
 	imx6qp-prtwd3.dtb \
 	imx6qp-sabreauto.dtb \
 	imx6qp-sabresd.dtb \
