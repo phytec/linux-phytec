@@ -677,7 +677,7 @@ static void vm050_power_off(struct vm050 *vm050)
 }
 
 static int vm050_enum_mbus_code(struct v4l2_subdev *subdev,
-				struct v4l2_subdev_pad_config *cfg,
+				struct v4l2_subdev_state *sd_state,
 				struct v4l2_subdev_mbus_code_enum *code)
 {
 	if (code->index > ARRAY_SIZE(VM050_MBUS_CODES))
@@ -753,7 +753,7 @@ static int _vm050_get_fmt(struct vm050 *vm050,
 }
 
 static int vm050_get_fmt(struct v4l2_subdev *sd,
-			 struct v4l2_subdev_pad_config *cfg,
+			 struct v4l2_subdev_state *sd_state,
 			 struct v4l2_subdev_format *format)
 {
 	struct vm050			*vm050 = sd_to_vm050(sd);
@@ -761,7 +761,7 @@ static int vm050_get_fmt(struct v4l2_subdev *sd,
 
 	if (format->which == V4L2_SUBDEV_FORMAT_TRY) {
 		format->format =
-			*v4l2_subdev_get_try_format(sd, cfg, format->pad);
+			*v4l2_subdev_get_try_format(sd, sd_state, format->pad);
 		rc  = 0;
 	} else {
 		rc = _vm050_get_fmt(vm050, &format->format);
@@ -910,7 +910,7 @@ static int _vm050_set_format(struct vm050 *vm050, unsigned int code,
 }
 
 static int vm050_set_fmt(struct v4l2_subdev *sd,
-			 struct v4l2_subdev_pad_config *cfg,
+			 struct v4l2_subdev_state *sd_state,
 			 struct v4l2_subdev_format *format)
 {
 	struct vm050			*vm050 = sd_to_vm050(sd);
@@ -962,7 +962,7 @@ static int vm050_set_fmt(struct v4l2_subdev *sd,
 		format->format.code   = code;
 		format->format.field  = V4L2_FIELD_NONE;
 
-		*v4l2_subdev_get_try_format(sd, cfg, format->pad) =
+		*v4l2_subdev_get_try_format(sd, sd_state, format->pad) =
 			format->format;
 
 		rc = 0;
@@ -993,7 +993,7 @@ static int vm050_set_fmt(struct v4l2_subdev *sd,
 }
 
 static int vm050_get_selection(struct v4l2_subdev *sd,
-			       struct v4l2_subdev_pad_config *cfg,
+			       struct v4l2_subdev_state *sd_state,
 			       struct v4l2_subdev_selection *sel)
 {
 	struct vm050			*vm050 = sd_to_vm050(sd);
@@ -1027,7 +1027,7 @@ static int vm050_get_selection(struct v4l2_subdev *sd,
 
 		switch (sel->which) {
 		case V4L2_SUBDEV_FORMAT_TRY:
-			rect = v4l2_subdev_get_try_crop(&vm050->subdev, cfg,
+			rect = v4l2_subdev_get_try_crop(&vm050->subdev, sd_state,
 							sel->pad);
 			break;
 
@@ -1065,7 +1065,7 @@ static int vm050_get_selection(struct v4l2_subdev *sd,
 }
 
 static int vm050_set_selection(struct v4l2_subdev *sd,
-			       struct v4l2_subdev_pad_config *cfg,
+			       struct v4l2_subdev_state *sd_state,
 			       struct v4l2_subdev_selection *sel)
 {
 	struct vm050			*vm050 = sd_to_vm050(sd);
@@ -1108,7 +1108,7 @@ static int vm050_set_selection(struct v4l2_subdev *sd,
 			.height	= height
 		};
 
-		rect = v4l2_subdev_get_try_crop(&vm050->subdev, cfg, sel->pad);
+		rect = v4l2_subdev_get_try_crop(&vm050->subdev, sd_state, sel->pad);
 		rc = 0;
 	} else if (sel->r.left != left || sel->r.width != width ||
 		   sel->r.top != top || sel->r.height != height) {
