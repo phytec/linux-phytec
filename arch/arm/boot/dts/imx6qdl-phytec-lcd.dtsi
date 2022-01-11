@@ -1,0 +1,66 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * Copyright (C) 2018 PHYTEC Messtechnik GmbH
+ * Author: Christian Hemp <c.hemp@phytec.de>
+ */
+
+/ {
+	backlight: backlight {
+		compatible = "pwm-backlight";
+		brightness-levels = <0 4 8 16 32 64 128 255>;
+		default-brightness-level = <7>;
+		power-supply = <&lcd_3v3>;
+		pwms = <&pwm1 0 5000000 0>;
+		status = "okay";
+	};
+
+	lcd_3v3: regulator-lcd-3v3 {
+		compatible = "regulator-fixed";
+		regulator-name = "lcd_3v3";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+		regulator-always-on;
+	};
+
+	panel-lcd {
+		compatible = "edt,etm0700g0edh6";
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_disp0_pwr>;
+		power-supply = <&lcd_3v3>;
+		enable-gpios = <&gpio1 8 GPIO_ACTIVE_LOW>;
+		backlight = <&backlight>;
+		status = "disabled";
+
+		port {
+			lcd018_panel_lcd_in: endpoint {
+				remote-endpoint = <&lvds0_out>;
+			};
+		};
+	};
+};
+
+&ldb {
+	status = "okay";
+
+	lvds-channel@0 {
+		fsl,data-mapping = "spwg";
+		fsl,data-width = <18>;
+		status = "disabled";
+
+		port@4 {
+			reg = <4>;
+
+			lvds0_out: endpoint {
+				remote-endpoint = <&lcd018_panel_lcd_in>;
+			};
+		};
+	};
+};
+
+&iomuxc {
+	pinctrl_disp0_pwr: disp0pwrgrp {
+		fsl,pins = <
+			MX6QDL_PAD_GPIO_8__GPIO1_IO08		0x1b0b0
+		>;
+	};
+};

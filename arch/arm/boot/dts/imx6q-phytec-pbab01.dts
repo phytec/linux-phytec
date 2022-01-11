@@ -1,6 +1,7 @@
-// SPDX-License-Identifier: GPL-2.0-or-later
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
 /*
- * Copyright 2013 Christian Hemp, Phytec Messtechnik GmbH
+ * Copyright (C) 2018 PHYTEC Messtechnik GmbH
+ * Author: Christian Hemp <c.hemp@phytec.de>
  */
 
 /dts-v1/;
@@ -8,14 +9,43 @@
 #include "imx6qdl-phytec-pbab01.dtsi"
 
 / {
-	model = "Phytec phyFLEX-i.MX6 Quad Carrier-Board";
+	model = "PHYTEC phyFLEX-i.MX 6Quad Carrier-Board";
 	compatible = "phytec,imx6q-pbab01", "phytec,imx6q-pfla02", "fsl,imx6q";
 
 	chosen {
 		stdout-path = &uart4;
 	};
+
+	csi_deserializer1: csi-deserializer1 {
+		compatible = "ti,scan921226h";
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_csi_des1>;
+
+		enable-gpios = <&gpio3 10 GPIO_ACTIVE_HIGH>;
+		powerdown-gpios = <&gpio2 28 GPIO_ACTIVE_HIGH>;
+	};
+};
+
+&ecspi5 {
+	status = "okay";
+
+	spi@0 {
+		compatible = "spidev";
+		spi-max-frequency = <57600000>;
+		reg = <0>;
+	};
+
+	spi@1 {
+		compatible = "spidev";
+		spi-max-frequency = <57600000>;
+		reg = <1>;
+	};
+};
+
+&i2c3 {
+	status = "okay";
 };
 
 &sata {
-	status = "okay";
+        status = "okay";
 };
