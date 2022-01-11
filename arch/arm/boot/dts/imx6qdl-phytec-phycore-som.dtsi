@@ -11,6 +11,8 @@
 	aliases {
 		rtc1 = &da9062_rtc;
 		rtc2 = &snvs_rtc;
+		watchdog0 = &da9062_wdog;
+		watchdog1 = &wdog1;
 	};
 
 	/*
@@ -27,12 +29,15 @@
 		pinctrl-names = "default";
 		pinctrl-0 = <&pinctrl_gpioleds_som>;
 
-		som-led-green {
-			label = "phycore:green";
+		phycore-green {
 			gpios = <&gpio1 4 GPIO_ACTIVE_HIGH>;
 			linux,default-trigger = "heartbeat";
 		};
 	};
+};
+
+&cpu0 {
+	fsl,ldo-bypass;
 };
 
 &ecspi1 {
@@ -56,6 +61,7 @@
 	phy-mode = "rgmii";
 	phy-supply = <&vdd_eth_io>;
 	phy-reset-gpios = <&gpio1 14 GPIO_ACTIVE_LOW>;
+	phy-reset-duration = <10>; /* in msecs */
 	status = "disabled";
 
 	mdio {
@@ -78,8 +84,11 @@
 };
 
 &i2c3 {
-	pinctrl-names = "default";
+	pinctrl-names = "default", "gpio";
 	pinctrl-0 = <&pinctrl_i2c3>;
+	pinctrl-1 = <&pinctrl_i2c3_gpio>;
+	scl-gpios = <&gpio1 5 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
+	sda-gpios = <&gpio1 6 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
 	clock-frequency = <400000>;
 	status = "okay";
 
@@ -108,26 +117,50 @@
 			compatible = "dlg,da9062-onkey";
 		};
 
-		watchdog {
+		da9062_wdog: watchdog {
 			compatible = "dlg,da9062-watchdog";
 			dlg,use-sw-pm;
+		};
+
+		thermal {
+			compatible = "dlg,da9062-thermal";
+			status = "disabled";
+		};
+
+		gpio {
+			compatible = "dlg,da9062-gpio";
+			status = "disabled";
 		};
 
 		regulators {
 			vdd_arm: buck1 {
 				regulator-name = "vdd_arm";
 				regulator-min-microvolt = <925000>;
-				regulator-max-microvolt = <1380000>;
+				regulator-max-microvolt = <1500000>;
+				regulator-ramp-delay = <2500>;
 				regulator-initial-mode = <DA9063_BUCK_MODE_SYNC>;
 				regulator-always-on;
+				regulator-state-standby {
+					regulator-on-in-suspend;
+				};
+				regulator-state-mem {
+					regulator-on-in-suspend;
+				};
 			};
 
 			vdd_soc: buck2 {
 				regulator-name = "vdd_soc";
 				regulator-min-microvolt = <1150000>;
-				regulator-max-microvolt = <1380000>;
+				regulator-max-microvolt = <1500000>;
+				regulator-ramp-delay = <2500>;
 				regulator-initial-mode = <DA9063_BUCK_MODE_SYNC>;
 				regulator-always-on;
+				regulator-state-standby {
+					regulator-on-in-suspend;
+				};
+				regulator-state-mem {
+					regulator-on-in-suspend;
+				};
 			};
 
 			vdd_ddr3_1p5: buck3 {
@@ -136,6 +169,12 @@
 				regulator-max-microvolt = <1500000>;
 				regulator-initial-mode = <DA9063_BUCK_MODE_SYNC>;
 				regulator-always-on;
+				regulator-state-standby {
+					regulator-on-in-suspend;
+				};
+				regulator-state-mem {
+					regulator-on-in-suspend;
+				};
 			};
 
 			vdd_eth_1p2: buck4 {
@@ -144,6 +183,12 @@
 				regulator-max-microvolt = <1200000>;
 				regulator-initial-mode = <DA9063_BUCK_MODE_SYNC>;
 				regulator-always-on;
+				regulator-state-standby {
+					regulator-on-in-suspend;
+				};
+				regulator-state-mem {
+					regulator-on-in-suspend;
+				};
 			};
 
 			vdd_snvs: ldo1 {
@@ -151,6 +196,12 @@
 				regulator-min-microvolt = <3000000>;
 				regulator-max-microvolt = <3000000>;
 				regulator-always-on;
+				regulator-state-standby {
+					regulator-on-in-suspend;
+				};
+				regulator-state-mem {
+					regulator-on-in-suspend;
+				};
 			};
 
 			vdd_high: ldo2 {
@@ -158,32 +209,53 @@
 				regulator-min-microvolt = <3000000>;
 				regulator-max-microvolt = <3000000>;
 				regulator-always-on;
+				regulator-state-standby {
+					regulator-on-in-suspend;
+				};
+				regulator-state-mem {
+					regulator-on-in-suspend;
+				};
 			};
 
 			vdd_eth_io: ldo3 {
 				regulator-name = "vdd_eth_io";
 				regulator-min-microvolt = <2500000>;
 				regulator-max-microvolt = <2500000>;
+				regulator-state-standby {
+					regulator-on-in-suspend;
+				};
+				regulator-state-mem {
+					regulator-on-in-suspend;
+				};
 			};
 
 			vdd_emmc_1p8: ldo4 {
 				regulator-name = "vdd_emmc";
 				regulator-min-microvolt = <1800000>;
 				regulator-max-microvolt = <1800000>;
+				regulator-state-standby {
+					regulator-on-in-suspend;
+				};
+				regulator-state-mem {
+					regulator-on-in-suspend;
+				};
 			};
 		};
 	};
 };
 
 &reg_arm {
+	regulator-allow-bypass;
 	vin-supply = <&vdd_arm>;
 };
 
 &reg_pu {
+	regulator-allow-bypass;
 	vin-supply = <&vdd_soc>;
 };
 
 &reg_soc {
+	regulator-allow-bypass;
 	vin-supply = <&vdd_soc>;
 };
 
@@ -196,6 +268,14 @@
 	pinctrl-0 = <&pinctrl_usdhc4>;
 	bus-width = <8>;
 	non-removable;
+	status = "disabled";
+};
+
+&wdog1 {
+	/*
+	 * Rely on PMIC reboot handler. Internal i.MX6 watchdog, that is also
+	 * used for reboot, does not reset all external PMIC voltages on reset.
+	 */
 	status = "disabled";
 };
 
@@ -256,6 +336,13 @@
 		fsl,pins = <
 			MX6QDL_PAD_GPIO_6__I2C3_SDA		0x4001b8b1
 			MX6QDL_PAD_GPIO_5__I2C3_SCL		0x4001b8b1
+		>;
+	};
+
+	pinctrl_i2c3_gpio: i2c3gpiogrp {
+		fsl,pins = <
+			MX6QDL_PAD_GPIO_6__GPIO1_IO06	0x4001b8b1
+			MX6QDL_PAD_GPIO_5__GPIO1_IO05	0x4001b8b1
 		>;
 	};
 
