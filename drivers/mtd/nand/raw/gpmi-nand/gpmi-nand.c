@@ -612,30 +612,6 @@ static int gpmi_get_clks(struct gpmi_nand_data *this)
 		r->clock[i] = clk;
 	}
 
-	if (GPMI_IS_MX6Q(this)) {
-		/*
-		 * The GPMI clock is enabled by default. The erratum 07117
-		 * notes that the clock must disabled before the rate is set.
-		 * Otherwise it is possible that the NAND flash is not working.
-		 * The HW allready enabled the clocks. To sync the usage count,
-		 * enable the clocks here also first. So the disable will take
-		 * effect.
-		 */
-		for (i = 0; i < this->devdata->clks_count; i++)
-			clk_prepare_enable(r->clock[i]);
-
-		for (i = this->devdata->clks_count; i > 0; i--)
-			clk_disable_unprepare(r->clock[i - 1]);
-
-		/*
-		 * Set the default value for the gpmi clock.
-		 *
-		 * If you want to use the ONFI nand which is in the
-		 * Synchronous Mode, you should change the clock as you need.
-		 */
-		clk_set_rate(r->clock[0], 22000000);
-	}
-
 	return 0;
 
 err_clock:
