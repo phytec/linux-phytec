@@ -719,13 +719,24 @@ static int gpmi_nfc_apply_timings(struct gpmi_nand_data *this)
 	unsigned int dll_wait_time_us;
 	int ret;
 
-	ret = __gpmi_enable_clk(this, false);
-	if (ret)
+	/* Clock dividers do NOT guarantee a clean clock signal on its output
+	 * during the change of the divide factor on i.MX6Q/UL/SX. On i.MX7/8,
+	 * all clock dividers provide these guarantee.
+	 */
+	if (GPMI_IS_MX6Q(this) || GPMI_IS_MX6SX(this))
+		clk_disable_unprepare(r->clock[0]);
+
+	ret = clk_set_rate(r->clock[0], hw->clk_rate);
+	if (ret) {
+		dev_err(this->dev, "cannot set clock rate to %lu Hz: %d\n", hw->clk_rate, ret);
 		return ret;
-	clk_set_rate(r->clock[0], hw->clk_rate);
-	ret = __gpmi_enable_clk(this, true);
-	if (ret)
-		return ret;
+	}
+
+	if (GPMI_IS_MX6Q(this) || GPMI_IS_MX6SX(this)) {
+		ret = clk_prepare_enable(r->clock[0]);
+		if (ret)
+			return ret;
+	}
 
 	writel(hw->timing0, gpmi_regs + HW_GPMI_TIMING0);
 	writel(hw->timing1, gpmi_regs + HW_GPMI_TIMING1);
@@ -1039,30 +1050,6 @@ static int gpmi_get_clks(struct gpmi_nand_data *this)
 		}
 
 		r->clock[i] = clk;
-	}
-
-	if (GPMI_IS_MX6Q(this)) {
-		/*
-		 * The GPMI clock is enabled by default. The erratum 07117
-		 * notes that the clock must disabled before the rate is set.
-		 * Otherwise it is possible that the NAND flash is not working.
-		 * The HW allready enabled the clocks. To sync the usage count,
-		 * enable the clocks here also first. So the disable will take
-		 * effect.
-		 */
-		for (i = 0; i < this->devdata->clks_count; i++)
-			clk_prepare_enable(r->clock[i]);
-
-		for (i = this->devdata->clks_count; i > 0; i--)
-			clk_disable_unprepare(r->clock[i - 1]);
-
-		/*
-		 * Set the default value for the gpmi clock.
-		 *
-		 * If you want to use the ONFI nand which is in the
-		 * Synchronous Mode, you should change the clock as you need.
-		 */
-		clk_set_rate(r->clock[0], 22000000);
 	}
 
 	return 0;
@@ -2304,7 +2291,7 @@ static int gpmi_nfc_exec_op(struct nand_chip *chip,
 		this->hw.must_apply_timings = false;
 		ret = gpmi_nfc_apply_timings(this);
 		if (ret)
-			goto unmap;
+			return ret;
 	}
 
 	dev_dbg(this->dev, "%s: %d instructions\n", __func__, op->ninstrs);
