@@ -567,7 +567,6 @@ int tsc200x_probe(struct device *dev, int irq, const struct input_id *tsc_id,
 		goto err_remove_sysfs;
 	}
 
-	irq_set_irq_wake(irq, 1);
 	return 0;
 
 err_remove_sysfs:
@@ -596,8 +595,12 @@ static int __maybe_unused tsc200x_suspend(struct device *dev)
 
 	mutex_lock(&ts->mutex);
 
-	if (!ts->suspended && ts->opened)
-		__tsc200x_disable(ts);
+	if (!ts->suspended && ts->opened) {
+		if (!device_may_wakeup(dev))
+			__tsc200x_disable(ts);
+		else
+			enable_irq_wake(ts->irq);
+	}
 
 	ts->suspended = true;
 
@@ -612,8 +615,12 @@ static int __maybe_unused tsc200x_resume(struct device *dev)
 
 	mutex_lock(&ts->mutex);
 
-	if (ts->suspended && ts->opened)
-		__tsc200x_enable(ts);
+	if (ts->suspended && ts->opened) {
+		if (!device_may_wakeup(dev))
+			__tsc200x_enable(ts);
+		else
+			disable_irq_wake(ts->irq);
+	}
 
 	ts->suspended = false;
 
