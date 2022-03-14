@@ -58,10 +58,11 @@
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_enet>;
 	phy-handle = <&ethphy>;
-	phy-mode = "rgmii";
+	phy-mode = "rgmii-id";
 	phy-supply = <&vdd_eth_io>;
 	phy-reset-gpios = <&gpio1 14 GPIO_ACTIVE_LOW>;
 	phy-reset-duration = <10>; /* in msecs */
+	phy-reset-post-delay = <5>;
 	status = "disabled";
 
 	mdio {
@@ -70,6 +71,8 @@
 
 		ethphy: ethernet-phy@3 {
 			reg = <3>;
+			adi,tx-internal-delay-ps = <1600>;
+			adi,rx-internal-delay-ps = <2000>;
 			txc-skew-ps = <1680>;
 			rxc-skew-ps = <1860>;
 		};
