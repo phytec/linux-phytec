@@ -70,6 +70,7 @@
 		interrupt-parent = <&gpio5>;
 		pinctrl-names = "default";
 		pinctrl-0 = <&pinctrl_stmpe>;
+		wakeup-source;
 		status = "disabled";
 
 		stmpe_touchscreen {
