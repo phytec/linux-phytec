@@ -62,6 +62,31 @@
 		wakeup-source;
 		status = "disabled";
 	};
+
+	stmpe: touchscreen@44 {
+		compatible = "st,stmpe811";
+		reg = <0x44>;
+		interrupts = <3 IRQ_TYPE_LEVEL_LOW>;
+		interrupt-parent = <&gpio5>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_stmpe>;
+		status = "disabled";
+
+		stmpe_touchscreen {
+			compatible = "st,stmpe-ts";
+			st,sample-time = <4>;
+			st,mod-12b = <1>;
+			st,ref-sel = <0>;
+			st,adc-freq = <1>;
+			st,ave-ctrl = <1>;
+			st,touch-det-delay = <2>;
+			st,settling = <2>;
+			st,fraction-z = <7>;
+			st,i-drive = <1>;
+			touchscreen-inverted-x = <1>;
+			touchscreen-inverted-y = <1>;
+		};
+	};
 };
 
 &iomuxc {
@@ -101,6 +126,12 @@
 			MX6UL_PAD_LCD_ENABLE__LCDIF_ENABLE  0x59
 			MX6UL_PAD_LCD_HSYNC__LCDIF_HSYNC    0x59
 			MX6UL_PAD_LCD_VSYNC__LCDIF_VSYNC    0x59
+		>;
+	};
+
+	pinctrl_stmpe: stmpegrp {
+		fsl,pins = <
+			MX6UL_PAD_SNVS_TAMPER3__GPIO5_IO03	0x17059
 		>;
 	};
 };
