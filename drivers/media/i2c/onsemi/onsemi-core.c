@@ -124,6 +124,9 @@ static int onsemi_core_of_bus_init_ep(struct onsemi_core *onsemi,
 	if (rc < 0)
 		goto out;
 
+	if (!onsemi->active_bus)
+		onsemi->active_bus = info;
+
 	info->is_used  = true;
 	rc = 0;
 
