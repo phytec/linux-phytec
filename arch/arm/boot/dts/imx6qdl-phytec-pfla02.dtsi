@@ -359,6 +359,7 @@
 
 		da9063_wdog: wdt {
 			compatible = "dlg,da9063-watchdog";
+			dlg,use-sw-pm;
 		};
 
 		onkey {
