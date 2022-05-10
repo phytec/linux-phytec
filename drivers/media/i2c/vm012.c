@@ -1474,7 +1474,6 @@ static int vm012_probe(struct i2c_client *client,
 	sd->dev    = dev;
 	sd->flags |= V4L2_SUBDEV_FL_HAS_DEVNODE;
 	sd->internal_ops = &vm012_internal_ops;
-	snprintf(sd->name, sizeof sd->name, "vm012@%02x", client->addr);
 
 	/* setup the v4l2 ctrl handler */
 	v4l2_ctrl_handler_init(&vm012->ctrls, ARRAY_SIZE(vm012_ctrls));
