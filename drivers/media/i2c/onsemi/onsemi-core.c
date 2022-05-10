@@ -1292,12 +1292,24 @@ static int onsemi_get_mbus_config(struct v4l2_subdev *sd,
 				  unsigned int pad,
 				  struct v4l2_mbus_config *cfg)
 {
-	cfg->flags  = (V4L2_MBUS_MASTER |
-		       V4L2_MBUS_HSYNC_ACTIVE_HIGH |
-		       V4L2_MBUS_VSYNC_ACTIVE_HIGH |
-		       V4L2_MBUS_DATA_ACTIVE_HIGH);
+	struct onsemi_core *onsemi = sd_to_onsemi(sd);
+	struct onsemi_businfo const *bus_info = onsemi->active_bus;
 
-	/* TODO */
+	if (bus_info->bus_type == V4L2_MBUS_PARALLEL) {
+		cfg->flags  = (V4L2_MBUS_MASTER |
+			       V4L2_MBUS_HSYNC_ACTIVE_HIGH |
+			       V4L2_MBUS_VSYNC_ACTIVE_HIGH |
+			       V4L2_MBUS_DATA_ACTIVE_HIGH);
+	}
+
+	if (bus_info->bus_type == V4L2_MBUS_CSI2_DPHY) {
+		if (bus_info->bus_width == 1)
+			cfg->flags |= V4L2_MBUS_CSI2_1_LANE;
+		else
+			cfg->flags |= V4L2_MBUS_CSI2_2_LANE;
+	}
+
+	cfg->type = bus_info->bus_type;
 
 	return 0;
 }
