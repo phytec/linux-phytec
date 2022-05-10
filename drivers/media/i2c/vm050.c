@@ -2210,7 +2210,6 @@ static int vm050_probe(struct i2c_client *client,
 	sd->dev    = dev;
 	sd->flags |= V4L2_SUBDEV_FL_HAS_DEVNODE;
 	sd->internal_ops = &vm050_internal_ops;
-	snprintf(sd->name, sizeof sd->name, "vm050@%02x", client->addr);
 
 	/* create the gpio chip */
 	vm050->gc = (struct gpio_chip) {
