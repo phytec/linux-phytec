@@ -29,6 +29,8 @@ dtb-y += imx6ul-vm011-bw.dtbo
 dtb-y += imx6ul-vm011-col.dtbo
 dtb-y += imx6ul-vm016.dtbo
 
+dtb-y += imx6-phy-adin1300.dtbo
+
 DTC_FLAGS += -@
 
 quiet_cmd_dtbo = DTBO     $@
