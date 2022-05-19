@@ -61,6 +61,15 @@
 #define ADIN1300_PHY_STATUS1			0x001a
 #define   ADIN1300_PAIR_01_SWAP			BIT(11)
 
+#define ADIN1300_LED_CTRL_1			0x001b
+#define   ADIN1300_LED_A_EXT_CFG_EN		BIT(10)
+
+#define ADIN1300_LED_CTRL_2			0x001c
+#define   ADIN1300_LED_A_CFG(n)			(n)
+#define   ADIN1300_LED_A_CFG_MASK		GENMASK(3, 0)
+
+#define ADIN1300_LED_MODE_BLINK_ON_ACT		0x19
+
 /* EEE register addresses, accessible via Clause 22 access using
  * ADIN1300_MII_EXT_REG_PTR & ADIN1300_MII_EXT_REG_DATA.
  * The bit-fields are the same as specified by IEEE for EEE.
@@ -135,6 +144,9 @@
 #define ADIN1300_RMII_16_BITS			0x0003
 #define ADIN1300_RMII_20_BITS			0x0004
 #define ADIN1300_RMII_24_BITS			0x0005
+
+#define ADIN1300_GE_LNK_STAT_INV_EN		0xff3c
+#define   ADIN1300_GE_LNK_STAT_INV_EN_BIT	BIT(0)
 
 /**
  * struct adin_cfg_reg_map - map a config value to aregister value
@@ -331,6 +343,28 @@ static int adin_config_rmii_mode(struct phy_device *phydev)
 			     ADIN1300_GE_RMII_CFG_REG, reg);
 }
 
+static int adin_config_led_mode(struct phy_device *phydev)
+{
+	int ret;
+	u16 mode = ADIN1300_LED_MODE_BLINK_ON_ACT;
+
+	ret = phy_modify(phydev, ADIN1300_LED_CTRL_2, ADIN1300_LED_A_CFG_MASK,
+			 ADIN1300_LED_A_CFG(mode) & ADIN1300_LED_A_CFG_MASK);
+	if (ret < 0)
+		return ret;
+
+	if (mode & BIT(4)) {
+		ret = phy_set_bits(phydev, ADIN1300_LED_CTRL_1,
+				   ADIN1300_LED_A_EXT_CFG_EN);
+		if (ret < 0)
+			return ret;
+	}
+
+	return phy_set_bits_mmd(phydev, MDIO_MMD_VEND1,
+				ADIN1300_GE_LNK_STAT_INV_EN,
+				ADIN1300_GE_LNK_STAT_INV_EN_BIT);
+}
+
 static int adin_get_downshift(struct phy_device *phydev, u8 *data)
 {
 	int val, cnt, enable;
@@ -460,6 +494,10 @@ static int adin_config_init(struct phy_device *phydev)
 		return rc;
 
 	rc = adin_config_rmii_mode(phydev);
+	if (rc < 0)
+		return rc;
+
+	rc = adin_config_led_mode(phydev);
 	if (rc < 0)
 		return rc;
 
