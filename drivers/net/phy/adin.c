@@ -99,6 +99,11 @@
 #define ADIN1300_GE_SOFT_RESET_REG		0xff0c
 #define   ADIN1300_GE_SOFT_RESET		BIT(0)
 
+#define ADIN1300_GE_CLK_CFG			0xff1f
+#define   ADIN1300_GE_CLK_RCVR_125_EN		BIT(5)
+#define   ADIN1300_GE_CLK_FREE_125_EN		BIT(4)
+#define   ADIN1300_GE_REF_CLK_EN		BIT(3)
+
 #define ADIN1300_GE_RGMII_CFG_REG		0xff23
 #define   ADIN1300_GE_RGMII_RX_MSK		GENMASK(8, 6)
 #define   ADIN1300_GE_RGMII_RX_SEL(x)		\
@@ -245,12 +250,23 @@ static u32 adin_get_reg_value(struct phy_device *phydev,
 static int adin_config_rgmii_mode(struct phy_device *phydev)
 {
 	u32 val;
-	int reg;
+	int reg, ret;
 
 	if (!phy_interface_is_rgmii(phydev))
 		return phy_clear_bits_mmd(phydev, MDIO_MMD_VEND1,
 					  ADIN1300_GE_RGMII_CFG_REG,
 					  ADIN1300_GE_RGMII_EN);
+
+	reg = phy_read_mmd(phydev, MDIO_MMD_VEND1, ADIN1300_GE_CLK_CFG);
+	if (reg < 0)
+		return reg;
+
+	reg &= ~ADIN1300_GE_REF_CLK_EN;
+	reg |= ADIN1300_GE_CLK_RCVR_125_EN;
+
+	ret = phy_write_mmd(phydev, MDIO_MMD_VEND1, ADIN1300_GE_CLK_CFG, reg);
+	if (ret < 0)
+		return ret;
 
 	reg = phy_read_mmd(phydev, MDIO_MMD_VEND1, ADIN1300_GE_RGMII_CFG_REG);
 	if (reg < 0)
