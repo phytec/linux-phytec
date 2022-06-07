@@ -10,7 +10,7 @@
 #include <linux/export.h>
 #include <linux/bitops.h>
 #include <linux/string.h>
-#include <crypto/sha.h>
+#include <crypto/sha1.h>
 #include <asm/unaligned.h>
 
 /*
