@@ -69,6 +69,7 @@
 		shutdown-gpios = <&gpio1 1 GPIO_ACTIVE_HIGH>;
 		device-wakeup-gpios = <&gpio1 10 GPIO_ACTIVE_HIGH>;
 		host-wakeup-gpios = <&gpio1 3 GPIO_ACTIVE_HIGH>;
+		max-speed = <4000000>;
 	};
 };
 
