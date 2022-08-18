@@ -665,6 +665,7 @@ static int adin_config_mdix(struct phy_device *phydev)
 static int adin_config_aneg(struct phy_device *phydev)
 {
 	int ret;
+	int val;
 
 	ret = phy_clear_bits(phydev, ADIN1300_PHY_CTRL1, ADIN1300_DIAG_CLK_EN);
 	if (ret < 0)
@@ -675,6 +676,19 @@ static int adin_config_aneg(struct phy_device *phydev)
 		return ret;
 
 	ret = adin_config_mdix(phydev);
+	if (ret)
+		return ret;
+
+	/*
+	 * Disable advertisement of 100BASE-TX and 1000BASE-T EEE capabilities
+	 * by clearing EEE_100_ADV and EEE_1000_ADV bits in EEE_ADV reg.
+	 */
+	val = adin_read_mmd(phydev, MDIO_MMD_AN, MDIO_AN_EEE_ADV);
+	if (val < 0)
+		return val;
+
+	val &= ~(BIT(1) | BIT(2));
+	ret = adin_write_mmd(phydev, MDIO_MMD_AN, MDIO_AN_EEE_ADV, (u16)val);
 	if (ret)
 		return ret;
 
