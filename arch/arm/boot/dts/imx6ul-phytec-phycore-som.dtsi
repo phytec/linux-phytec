@@ -133,6 +133,10 @@
 	status = "disabled";
 };
 
+&wdog1 {
+	fsl,suspend-in-wait;
+};
+
 &iomuxc {
 	pinctrl_dvfs: dvfsgrp {
 		fsl,pins = <
