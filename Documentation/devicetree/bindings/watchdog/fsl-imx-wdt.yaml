@@ -55,6 +55,11 @@ properties:
       If present, the watchdog device is configured to assert its
       external reset (WDOG_B) instead of issuing a software reset.
 
+  fsl,suspend-in-wait:
+    $ref: /schemas/types.yaml#/definitions/flag
+    description: |
+      If present, the watchdog device is suspended in WAIT mode.
+
 required:
   - compatible
   - interrupts
