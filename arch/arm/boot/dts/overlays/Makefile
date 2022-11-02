@@ -31,6 +31,11 @@ dtb-y += imx6ul-vm016.dtbo
 
 dtb-y += imx6-phy-adin1300.dtbo
 
+dtb-y += am335x-i2c-temp.dtbo
+dtb-y += am335x-no-eeprom.dtbo
+dtb-y += am335x-no-rtc.dtbo
+dtb-y += am335x-no-spi-nor.dtbo
+
 DTC_FLAGS += -@
 
 quiet_cmd_dtbo = DTBO     $@
