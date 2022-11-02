@@ -1,0 +1,45 @@
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2022 PHYTEC Messtechnik GmbH
+ * Author: Domninik Haller <d.haller@phytec.de>
+ */
+
+/dts-v1/;
+
+#include "am335x-phycore-som.dtsi"
+#include "am335x-pcm-953.dtsi"
+
+/* SoM */
+&mmc2 {
+	status = "okay";
+};
+
+&i2c_eeprom {
+	status = "okay";
+};
+
+&i2c_rtc {
+	status = "okay";
+};
+
+&serial_flash {
+	status = "okay";
+
+};
+/* Override the user_leds node to match the PCM-062 SoM setup */
+&user_leds {
+	user-led0 {
+		gpios = <&gpio2 4 GPIO_ACTIVE_HIGH>;
+	};
+
+	user-led1 {
+		gpios = <&gpio2 5 GPIO_ACTIVE_LOW>;
+	};
+};
+
+&user_leds_pins {
+	pinctrl-single,pins = <
+		AM33XX_IOPAD(0x898, PIN_OUTPUT_PULLDOWN | MUX_MODE7)    /* gpmc_wen.gpio2_4 */
+		AM33XX_IOPAD(0x89c, PIN_OUTPUT_PULLDOWN | MUX_MODE7)    /* gpmc_ben0_cle.gpio2_5 */
+	>;
+};
