@@ -877,6 +877,7 @@ dtb-$(CONFIG_SOC_AM33XX) += \
 	am335x-pdu001.dtb \
 	am335x-pepper.dtb \
 	am335x-phycore-rdk.dtb \
+	am335x-phycore-emmc-rdk.dtb \
 	am335x-pocketbeagle.dtb \
 	am335x-regor-rdk.dtb \
 	am335x-sancloud-bbe.dtb \
