@@ -29,6 +29,7 @@ Optional properties:
       the legacy mode is assumed. This configuration supports RGB565,
       RGB888 and XRGB8888 formats. However, depending on wiring, the red
       and blue colors are swapped in either 16 or 24-bit color modes.
+ - invert-pxl-clk: Inverts pixel clock if present.
 
 Optional nodes:
 
