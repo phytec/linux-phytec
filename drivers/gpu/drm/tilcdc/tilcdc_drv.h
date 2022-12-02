@@ -65,6 +65,8 @@ struct tilcdc_drm_private {
 	const uint32_t *pixelformats;
 	uint32_t num_pixelformats;
 
+	bool invert_pxl_clk_lcd_controller;
+
 #ifdef CONFIG_CPU_FREQ
 	struct notifier_block freq_transition;
 #endif
