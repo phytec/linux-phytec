@@ -31,10 +31,15 @@ dtb-y += imx6ul-vm016.dtbo
 
 dtb-y += imx6-phy-adin1300.dtbo
 
+dtb-y += am33xx-gpu.dtbo
 dtb-y += am335x-i2c-temp.dtbo
 dtb-y += am335x-no-eeprom.dtbo
 dtb-y += am335x-no-rtc.dtbo
 dtb-y += am335x-no-spi-nor.dtbo
+dtb-y += am335x-pcm953-lcd.dtbo
+dtb-y += am335x-spi-nor.dtbo
+dtb-y += am335x-wega-peb-av-01.dtbo
+dtb-y += am335x-wega-peb-av-02.dtbo
 
 DTC_FLAGS += -@
 
