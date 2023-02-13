@@ -342,3 +342,7 @@
 		#size-cells = <1>;
 	};
 };
+
+&gpu_interconnect {
+	status = "disabled";
+};
