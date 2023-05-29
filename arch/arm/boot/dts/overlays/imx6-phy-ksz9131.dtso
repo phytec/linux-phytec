@@ -1,0 +1,39 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * Copyright (C) 2022 PHYTEC Messtechnik GmbH
+ * Author: Andrej Picej <andrej.picej@norik.com>
+ */
+/dts-v1/;
+/plugin/;
+
+&fec {
+	pinctrl-0 = <&pinctrl_enet_ksz9131>;
+	phy-handle = <&ethphy_ksz9131>;
+	phy-mode = "rgmii-rxid";
+	phy-reset-post-delay = <5>;
+
+	mdio {
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		ethernet-phy@3 {
+			status = "disabled";
+		};
+
+		ethphy_ksz9131: ethernet-phy-ksz9131@3 {
+			reg = <3>;
+			txen-skew-psec = <(-600)>;
+			txc-skew-psec = <2400>;
+			txd0-skew-psec = <(-600)>;
+			txd1-skew-psec = <(-600)>;
+			txd2-skew-psec = <(-600)>;
+			txd3-skew-psec = <(-600)>;
+			rxdv-skew-psec = <800>;
+			rxd0-skew-psec = <800>;
+			rxd1-skew-psec = <800>;
+			rxd2-skew-psec = <800>;
+			rxd3-skew-psec = <800>;
+			status = "okay";
+		};
+	};
+};
