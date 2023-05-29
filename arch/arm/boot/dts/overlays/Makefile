@@ -30,6 +30,7 @@ dtb-y += imx6ul-vm011-col.dtbo
 dtb-y += imx6ul-vm016.dtbo
 
 dtb-y += imx6-phy-adin1300.dtbo
+dtb-y += imx6-phy-ksz9131.dtbo
 
 dtb-y += am33xx-gpu.dtbo
 dtb-y += am335x-i2c-temp.dtbo
