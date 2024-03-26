@@ -4822,6 +4822,51 @@ int regulator_allow_bypass(struct regulator *regulator, bool enable)
 EXPORT_SYMBOL_GPL(regulator_allow_bypass);
 
 /**
+ * regulator_set_bypass - set the regulator into bypass mode
+ *
+ * @regulator: Regulator to configure
+ * @enable: enable or disable bypass mode
+ *
+ * Set the regulator into bypass mode if the machine constraints allow this
+ * and even if not all consumers allow it. A valid supply needs to be present
+ * to be able to set bypass mode.
+ * Bypass mode means that the regulator is simply passing the input directly
+ * to the output with no regulation.
+ */
+int regulator_set_bypass(struct regulator *regulator, bool enable)
+{
+	struct regulator_dev *rdev = regulator->rdev;
+	const char *supply_name;
+	int ret = 0;
+
+	if (!rdev->desc->ops->set_bypass)
+		return -EINVAL;
+
+	if (!regulator_ops_is_valid(rdev, REGULATOR_CHANGE_BYPASS))
+		return -EPERM;
+
+	if (IS_ERR(rdev->supply))
+		return PTR_ERR(rdev->supply);
+
+	supply_name = rdev->supply->rdev->desc->name;
+	if (strcmp(supply_name, "regulator-dummy") == 0)
+		return -EINVAL;
+
+	regulator_lock(rdev);
+
+	if ((enable && !regulator->bypass) ||
+	    (!enable && regulator->bypass))
+		ret = rdev->desc->ops->set_bypass(rdev, enable);
+
+	if (!ret)
+		regulator->bypass = enable;
+
+	regulator_unlock(rdev);
+
+	return ret;
+}
+
+/**
  * regulator_register_notifier - register regulator event notifier
  * @regulator: regulator source
  * @nb: notifier block
