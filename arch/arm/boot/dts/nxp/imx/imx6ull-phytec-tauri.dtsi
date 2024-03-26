@@ -118,6 +118,12 @@
 		   <&gpio3 11 GPIO_ACTIVE_LOW>;
 	status = "okay";
 
+	spi_dev0: spi@0 {
+		compatible = "linux,spidev";
+		spi-max-frequency = <57600000>;
+		reg = <0>;
+	};
+
 	tpm_tis: tpm@1 {
 		pinctrl-names = "default";
 		pinctrl-0 = <&pinctrl_tpm>;
@@ -147,6 +153,12 @@
 	       <&sdma 8 8 0>;
 	dma-names = "rx", "tx";
 	status = "okay";
+
+	spi_dev1: spi@0 {
+		compatible = "linux,spidev";
+		spi-max-frequency = <57600000>;
+		reg = <0>;
+	};
 };
 
 &ethphy1 {
