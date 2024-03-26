@@ -337,6 +337,7 @@ dtb-$(CONFIG_SOC_IMX6UL) += \
 	imx6ull-opos6uldev.dtb \
 	imx6ull-phytec-segin-ff-rdk-nand.dtb \
 	imx6ull-phytec-segin-ff-rdk-emmc.dtb \
+	imx6ul-phytec-segin-ff-rdk-nand-rs485.dtb \
 	imx6ull-phytec-segin-lc-rdk-nand.dtb \
 	imx6ull-phytec-tauri-emmc.dtb \
 	imx6ull-phytec-tauri-nand.dtb \

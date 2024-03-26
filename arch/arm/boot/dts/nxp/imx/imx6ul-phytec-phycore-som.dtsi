@@ -35,6 +35,32 @@
 			linux,default-trigger = "heartbeat";
 		};
 	};
+
+	reg_gpio_dvfs: regulator-gpio {
+		compatible = "regulator-gpio";
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_dvfs>;
+		regulator-min-microvolt = <1300000>;
+		regulator-max-microvolt = <1400000>;
+		regulator-ramp-delay = <500>;
+		regulator-name = "gpio_dvfs";
+		regulator-type = "voltage";
+		gpios = <&gpio4 14 GPIO_ACTIVE_HIGH>;
+		gpios-states = <0>;
+		states = <1300000 0x1 1400000 0x0>;
+		enable-at-boot;
+	};
+};
+
+&cpu0 {
+	dc-supply = <&reg_gpio_dvfs>;
+	fsl,soc-operating-points = <
+		/* KHz	uV */
+		696000	1275000
+		528000	1250000
+		396000	1250000
+		198000	1250000
+	>;
 };
 
 &fec1 {
@@ -107,6 +133,12 @@
 };
 
 &iomuxc {
+	pinctrl_dvfs: dvfsgrp {
+		fsl,pins = <
+			MX6UL_PAD_NAND_CE1_B__GPIO4_IO14	0x79
+		>;
+	};
+
 	pinctrl_enet1: enet1grp {
 		fsl,pins = <
 			MX6UL_PAD_GPIO1_IO07__ENET1_MDC		0x10010
@@ -183,4 +215,26 @@
 		>;
 	};
 
+};
+
+/* User can select one of two available drivers for PXP:
+ * - pxp -> mainline PXP driver,
+ * - pxp_imx (default) -> vendor PXP driver.
+ * Which PXP driver will be used can be selected with status property.
+ * IMPORTANT: Only one of the two drivers can be used at a time!
+ */
+&pxp {
+    status = "disable";
+};
+
+&aips2 {
+    pxp_imx: pxp-imx@21cc000 {
+        compatible = "fsl,imx6ul-pxp-dma", "fsl,imx7d-pxp-dma";
+        reg = <0x021cc000 0x4000>;
+        interrupts = <GIC_SPI 8 IRQ_TYPE_LEVEL_HIGH>,
+            <GIC_SPI 18 IRQ_TYPE_LEVEL_HIGH>;
+        clocks = <&clks IMX6UL_CLK_DUMMY>, <&clks IMX6UL_CLK_PXP>;
+        clock-names = "pxp_ipg", "pxp_axi";
+        status = "okay";
+    };
 };

@@ -32,6 +32,7 @@
 		shutdown-gpios = <&gpio7 0 GPIO_ACTIVE_HIGH>;
 		device-wakeup-gpios = <&gpio7 1 GPIO_ACTIVE_HIGH>;
 		host-wakeup-gpios = <&gpio5 26 GPIO_ACTIVE_HIGH>;
+		max-speed = <500000>;
 		status = "disabled";
 	};
 };
