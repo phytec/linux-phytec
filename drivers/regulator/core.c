@@ -3809,7 +3809,7 @@ int regulator_set_voltage_rdev(struct regulator_dev *rdev, int min_uV,
 	if (rdev->supply &&
 	    regulator_ops_is_valid(rdev->supply->rdev,
 				   REGULATOR_CHANGE_VOLTAGE) &&
-	    (rdev->desc->min_dropout_uV || !(rdev->desc->ops->get_voltage ||
+	    (rdev->desc->min_dropout_uV >= 0 || !(rdev->desc->ops->get_voltage ||
 					   rdev->desc->ops->get_voltage_sel))) {
 		int current_supply_uV;
 		int selector;
