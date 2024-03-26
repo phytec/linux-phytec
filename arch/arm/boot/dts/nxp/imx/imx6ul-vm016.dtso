@@ -1,0 +1,64 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * Copyright (C) 2021 PHYTEC Messtechnik GmbH
+ * Author: Stefan Riedmueller <s.riedmueller@phytec.de>
+ */
+
+/dts-v1/;
+/plugin/;
+
+#include <dt-bindings/clock/imx6ul-clock.h>
+
+/ {
+	compatible = "phytec,imx6ul-pbacd10", "phytec,imx6ull-pbacd10";
+};
+
+&clk_cam0 {
+	status = "okay";
+};
+
+&cam0_i2c {
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	vm016_0: vm016-0@10 {
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		compatible = "onsemi,ar0144";
+		reg = <0x10>;
+
+		clock-names = "ext";
+		clocks = <&clk_cam0>;
+
+		vdd-supply = <&reg_vcc_cam0>;
+		vddio-supply = <&reg_vcc_cam0>;
+		vaa-supply = <&reg_vcc_cam0>;
+		vaapix-supply = <&reg_vcc_cam0>;
+
+		port@0 {
+			reg = <0x0>;
+
+			vm016_0_ep0: endpoint {
+				remote-endpoint = <&csi_ep>;
+
+				onsemi,slew-rate-dat = <2>;
+				onsemi,slew-rate-clk = <2>;
+
+				bus-type = <5>; /* Parallel */
+				bus-width = <12>;
+				hsync-active = <1>;
+				vsync-active = <1>;
+				link-frequencies = /bits/ 64 < 72000000 >;
+			};
+		};
+	};
+};
+
+&csi {
+	port {
+		csi_ep: endpoint {
+			remote-endpoint = <&vm016_0_ep0>;
+		};
+	};
+};

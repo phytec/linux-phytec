@@ -291,6 +291,14 @@ dtb-$(CONFIG_SOC_IMX6SX) += \
 	imx6sx-udoo-neo-basic.dtb \
 	imx6sx-udoo-neo-extended.dtb \
 	imx6sx-udoo-neo-full.dtb
+
+imx6ul-vm009-dtbs := imx6ull-phytec-segin-ff-rdk-nand.dtb imx6ul-vm009.dtbo
+imx6ul-vm010-bw-dtbs := imx6ull-phytec-segin-ff-rdk-nand.dtb imx6ul-vm010-bw.dtbo
+imx6ul-vm010-col-dtbs := imx6ull-phytec-segin-ff-rdk-nand.dtb imx6ul-vm010-col.dtbo
+imx6ul-vm011-bw-dtbs := imx6ull-phytec-segin-ff-rdk-nand.dtb imx6ul-vm011-bw.dtbo
+imx6ul-vm011-col-dtbs := imx6ull-phytec-segin-ff-rdk-nand.dtb imx6ul-vm011-col.dtbo
+imx6ul-vm016-dtbs := imx6ull-phytec-segin-ff-rdk-nand.dtb imx6ul-vm016.dtbo
+
 dtb-$(CONFIG_SOC_IMX6UL) += \
 	imx6ul-14x14-evk.dtb \
 	imx6ul-ccimx6ulsbcexpress.dtb \
@@ -341,6 +349,12 @@ dtb-$(CONFIG_SOC_IMX6UL) += \
 	imx6ull-phytec-segin-lc-rdk-nand.dtb \
 	imx6ull-phytec-tauri-emmc.dtb \
 	imx6ull-phytec-tauri-nand.dtb \
+	imx6ul-vm009.dtb \
+	imx6ul-vm010-bw.dtb \
+	imx6ul-vm010-col.dtb \
+	imx6ul-vm011-bw.dtb \
+	imx6ul-vm011-col.dtb \
+	imx6ul-vm016.dtb \
 	imx6ull-tarragon-master.dtb \
 	imx6ull-tarragon-micro.dtb \
 	imx6ull-tarragon-slave.dtb \
