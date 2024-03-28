@@ -191,21 +191,23 @@ static struct mt9m111_context context_b = {
 struct mt9m111_datafmt {
 	u32	code;
 	enum v4l2_colorspace		colorspace;
+	bool allow_scaling;
+	bool is_bayer;
 };
 
 static const struct mt9m111_datafmt mt9m111_colour_fmts[] = {
-	{MEDIA_BUS_FMT_YUYV8_2X8, V4L2_COLORSPACE_SRGB},
-	{MEDIA_BUS_FMT_YVYU8_2X8, V4L2_COLORSPACE_SRGB},
-	{MEDIA_BUS_FMT_UYVY8_2X8, V4L2_COLORSPACE_SRGB},
-	{MEDIA_BUS_FMT_VYUY8_2X8, V4L2_COLORSPACE_SRGB},
-	{MEDIA_BUS_FMT_RGB555_2X8_PADHI_LE, V4L2_COLORSPACE_SRGB},
-	{MEDIA_BUS_FMT_RGB555_2X8_PADHI_BE, V4L2_COLORSPACE_SRGB},
-	{MEDIA_BUS_FMT_RGB565_2X8_LE, V4L2_COLORSPACE_SRGB},
-	{MEDIA_BUS_FMT_RGB565_2X8_BE, V4L2_COLORSPACE_SRGB},
-	{MEDIA_BUS_FMT_BGR565_2X8_LE, V4L2_COLORSPACE_SRGB},
-	{MEDIA_BUS_FMT_BGR565_2X8_BE, V4L2_COLORSPACE_SRGB},
-	{MEDIA_BUS_FMT_SBGGR8_1X8, V4L2_COLORSPACE_SRGB},
-	{MEDIA_BUS_FMT_SBGGR10_2X8_PADHI_LE, V4L2_COLORSPACE_SRGB},
+	{MEDIA_BUS_FMT_YUYV8_2X8, V4L2_COLORSPACE_SRGB, true, false},
+	{MEDIA_BUS_FMT_YVYU8_2X8, V4L2_COLORSPACE_SRGB, true, false},
+	{MEDIA_BUS_FMT_UYVY8_2X8, V4L2_COLORSPACE_SRGB, true, false},
+	{MEDIA_BUS_FMT_VYUY8_2X8, V4L2_COLORSPACE_SRGB, true, false},
+	{MEDIA_BUS_FMT_RGB555_2X8_PADHI_LE, V4L2_COLORSPACE_SRGB, true, false},
+	{MEDIA_BUS_FMT_RGB555_2X8_PADHI_BE, V4L2_COLORSPACE_SRGB, true, false},
+	{MEDIA_BUS_FMT_RGB565_2X8_LE, V4L2_COLORSPACE_SRGB, true, false},
+	{MEDIA_BUS_FMT_RGB565_2X8_BE, V4L2_COLORSPACE_SRGB, true, false},
+	{MEDIA_BUS_FMT_BGR565_2X8_LE, V4L2_COLORSPACE_SRGB, true, false},
+	{MEDIA_BUS_FMT_BGR565_2X8_BE, V4L2_COLORSPACE_SRGB, true, false},
+	{MEDIA_BUS_FMT_SBGGR8_1X8, V4L2_COLORSPACE_SRGB, false, true},
+	{MEDIA_BUS_FMT_SBGGR10_2X8_PADHI_LE, V4L2_COLORSPACE_SRGB, false, true},
 };
 
 enum mt9m111_mode_id {
@@ -398,6 +400,7 @@ static int mt9m111_setup_geometry(struct mt9m111 *mt9m111, struct v4l2_rect *rec
 			int width, int height, u32 code)
 {
 	struct i2c_client *client = v4l2_get_subdevdata(&mt9m111->subdev);
+	struct mt9m111_datafmt const *fmt = mt9m111_find_datafmt(mt9m111, code);
 	int ret;
 
 	ret = reg_write(COLUMN_START, rect->left);
@@ -409,7 +412,7 @@ static int mt9m111_setup_geometry(struct mt9m111 *mt9m111, struct v4l2_rect *rec
 	if (!ret)
 		ret = reg_write(WINDOW_HEIGHT, rect->height);
 
-	if (code != MEDIA_BUS_FMT_SBGGR10_2X8_PADHI_LE) {
+	if (fmt->allow_scaling) {
 		/* IFP in use, down-scaling possible */
 		if (!ret)
 			ret = mt9m111_setup_rect_ctx(mt9m111, &context_b,
@@ -461,8 +464,7 @@ static int mt9m111_set_selection(struct v4l2_subdev *sd,
 	    sel->target != V4L2_SEL_TGT_CROP)
 		return -EINVAL;
 
-	if (mt9m111->fmt->code == MEDIA_BUS_FMT_SBGGR8_1X8 ||
-	    mt9m111->fmt->code == MEDIA_BUS_FMT_SBGGR10_2X8_PADHI_LE) {
+	if (mt9m111->fmt->is_bayer) {
 		/* Bayer format - even size lengths */
 		align = 1;
 		/* Let the user play with the starting pixel */
@@ -631,7 +633,6 @@ static int mt9m111_set_fmt(struct v4l2_subdev *sd,
 	struct mt9m111 *mt9m111 = container_of(sd, struct mt9m111, subdev);
 	const struct mt9m111_datafmt *fmt;
 	struct v4l2_rect *rect = &mt9m111->rect;
-	bool bayer;
 	int ret;
 
 	if (mt9m111->is_streaming)
@@ -642,28 +643,25 @@ static int mt9m111_set_fmt(struct v4l2_subdev *sd,
 
 	fmt = mt9m111_find_datafmt(mt9m111, mf->code);
 
-	bayer = fmt->code == MEDIA_BUS_FMT_SBGGR8_1X8 ||
-		fmt->code == MEDIA_BUS_FMT_SBGGR10_2X8_PADHI_LE;
-
 	/*
 	 * With Bayer format enforce even side lengths, but let the user play
 	 * with the starting pixel
 	 */
-	if (bayer) {
+	if (fmt->is_bayer) {
 		rect->width = ALIGN(rect->width, 2);
 		rect->height = ALIGN(rect->height, 2);
 	}
 
-	if (fmt->code == MEDIA_BUS_FMT_SBGGR10_2X8_PADHI_LE) {
-		/* IFP bypass mode, no scaling */
-		mf->width = rect->width;
-		mf->height = rect->height;
-	} else {
+	if (fmt->allow_scaling) {
 		/* No upscaling */
 		if (mf->width > rect->width)
 			mf->width = rect->width;
 		if (mf->height > rect->height)
 			mf->height = rect->height;
+	} else {
+		/* IFP bypass mode, no scaling */
+		mf->width = rect->width;
+		mf->height = rect->height;
 	}
 
 	dev_dbg(&client->dev, "%s(): %ux%u, code=%x\n", __func__,
