@@ -561,6 +561,12 @@ config TPS6594_PFSM
 
 	  This driver can also be built as a module.  If so, the module
 	  will be called tps6594-pfsm.
+config SCAN921226H
+	tristate "TI SCAN921226H LVDS Deserializer"
+	depends on GPIOLIB
+	help
+	  Enables support for the Texas Instruments SCAN921226H LVDS
+	  deserialzer, which is controlled by two GPIOs (Enable and Powerdown)
 
 source "drivers/misc/c2port/Kconfig"
 source "drivers/misc/eeprom/Kconfig"
