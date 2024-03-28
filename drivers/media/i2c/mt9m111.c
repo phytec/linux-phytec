@@ -13,6 +13,7 @@
 #include <linux/regulator/consumer.h>
 #include <linux/v4l2-mediabus.h>
 #include <linux/module.h>
+#include <linux/pm_runtime.h>
 #include <linux/property.h>
 
 #include <media/v4l2-async.h>
@@ -249,12 +250,11 @@ struct mt9m111 {
 	unsigned int height;	/* sizes */
 	struct v4l2_fract frame_interval;
 	const struct mt9m111_mode_info *current_mode;
-	struct mutex power_lock; /* lock to protect power_count */
-	int power_count;
 	const struct mt9m111_datafmt *fmt;
 	int lastpage;	/* PageMap cache value */
 	struct regulator *regulator;
 	bool is_streaming;
+	bool restore;
 	bool allow_10bit;
 	/* user point of view - 0: falling 1: rising edge */
 	unsigned int pclk_sample:1;
@@ -500,7 +500,16 @@ static int mt9m111_set_selection(struct v4l2_subdev *sd,
 	width = min(mt9m111->width, rect.width);
 	height = min(mt9m111->height, rect.height);
 
+	ret = pm_runtime_get_sync(&client->dev);
+	if (ret < 0) {
+		pm_runtime_put_noidle(&client->dev);
+		return ret;
+	}
+
 	ret = mt9m111_setup_geometry(mt9m111, &rect, width, height, mt9m111->fmt->code);
+	pm_runtime_mark_last_busy(&client->dev);
+	pm_runtime_put_autosuspend(&client->dev);
+
 	if (!ret) {
 		mt9m111->rect = rect;
 		mt9m111->width = width;
@@ -706,6 +715,12 @@ static int mt9m111_set_fmt(struct v4l2_subdev *sd,
 		return 0;
 	}
 
+	ret = pm_runtime_get_sync(&client->dev);
+	if (ret < 0) {
+		pm_runtime_put_noidle(&client->dev);
+		return ret;
+	}
+
 	ret = mt9m111_setup_geometry(mt9m111, rect, mf->width, mf->height, mf->code);
 	if (!ret)
 		ret = mt9m111_set_pixfmt(mt9m111, mf->code);
@@ -714,6 +729,9 @@ static int mt9m111_set_fmt(struct v4l2_subdev *sd,
 		mt9m111->height	= mf->height;
 		mt9m111->fmt	= fmt;
 	}
+
+	pm_runtime_mark_last_busy(&client->dev);
+	pm_runtime_put_autosuspend(&client->dev);
 
 	return ret;
 }
@@ -778,14 +796,23 @@ static int mt9m111_g_register(struct v4l2_subdev *sd,
 			      struct v4l2_dbg_register *reg)
 {
 	struct i2c_client *client = v4l2_get_subdevdata(sd);
-	int val;
+	int val, ret;
 
 	if (reg->reg > 0x2ff)
 		return -EINVAL;
 
+	ret = pm_runtime_get_sync(&client->dev);
+	if (ret < 0) {
+		pm_runtime_put_noidle(&client->dev);
+		return ret;
+	}
+
 	val = mt9m111_reg_read(client, reg->reg);
 	reg->size = 2;
 	reg->val = (u64)val;
+
+	pm_runtime_mark_last_busy(&client->dev);
+	pm_runtime_put_autosuspend(&client->dev);
 
 	if (reg->val > 0xffff)
 		return -EIO;
@@ -797,11 +824,23 @@ static int mt9m111_s_register(struct v4l2_subdev *sd,
 			      const struct v4l2_dbg_register *reg)
 {
 	struct i2c_client *client = v4l2_get_subdevdata(sd);
+	int ret;
 
 	if (reg->reg > 0x2ff)
 		return -EINVAL;
 
-	if (mt9m111_reg_write(client, reg->reg, reg->val) < 0)
+	ret = pm_runtime_get_sync(&client->dev);
+	if (ret < 0) {
+		pm_runtime_put_noidle(&client->dev);
+		return ret;
+	}
+
+	ret = mt9m111_reg_write(client, reg->reg, reg->val);
+
+	pm_runtime_mark_last_busy(&client->dev);
+	pm_runtime_put_autosuspend(&client->dev);
+
+	if (ret < 0)
 		return -EIO;
 
 	return 0;
@@ -911,7 +950,7 @@ static int mt9m111_set_colorfx(struct mt9m111 *mt9m111, int val)
 	return -EINVAL;
 }
 
-static int mt9m111_s_ctrl(struct v4l2_ctrl *ctrl)
+static int _mt9m111_s_ctrl(struct v4l2_ctrl *ctrl)
 {
 	struct mt9m111 *mt9m111 = container_of(ctrl->handler,
 					       struct mt9m111, hdl);
@@ -936,6 +975,24 @@ static int mt9m111_s_ctrl(struct v4l2_ctrl *ctrl)
 	}
 
 	return -EINVAL;
+}
+
+static int mt9m111_s_ctrl(struct v4l2_ctrl *ctrl)
+{
+	struct mt9m111 *mt9m111 = container_of(ctrl->handler,
+					       struct mt9m111, hdl);
+	struct i2c_client *client = v4l2_get_subdevdata(&mt9m111->subdev);
+	int ret;
+
+	if (!pm_runtime_get_if_in_use(&client->dev))
+		return 0;
+
+	ret = _mt9m111_s_ctrl(ctrl);
+
+	pm_runtime_mark_last_busy(&client->dev);
+	pm_runtime_put_autosuspend(&client->dev);
+
+	return ret;
 }
 
 static int mt9m111_suspend(struct mt9m111 *mt9m111)
@@ -976,7 +1033,7 @@ static int mt9m111_resume(struct mt9m111 *mt9m111)
 	if (!ret)
 		ret = mt9m111_reset(mt9m111);
 	if (!ret)
-		mt9m111_restore_state(mt9m111);
+		mt9m111->restore = true;
 
 	return ret;
 }
@@ -996,20 +1053,24 @@ static int mt9m111_init(struct mt9m111 *mt9m111)
 	return ret;
 }
 
-static int mt9m111_power_on(struct mt9m111 *mt9m111)
+static int mt9m111_power_on(struct device *dev)
 {
-	struct i2c_client *client = v4l2_get_subdevdata(&mt9m111->subdev);
+	struct i2c_client *client = to_i2c_client(dev);
+	struct mt9m111 *mt9m111 = to_mt9m111(client);
 	int ret;
 
 	ret = clk_prepare_enable(mt9m111->clk);
+	dev_dbg(dev, "%s: v4l2_clk_enable: %d\n", __func__, ret);
 	if (ret < 0)
 		return ret;
 
 	ret = regulator_enable(mt9m111->regulator);
+	dev_dbg(dev, "%s: regulator_enable: %d\n", __func__, ret);
 	if (ret < 0)
 		goto out_clk_disable;
 
 	ret = mt9m111_resume(mt9m111);
+	dev_dbg(dev, "%s: mt9m111_resume: %d\n", __func__, ret);
 	if (ret < 0)
 		goto out_regulator_disable;
 
@@ -1026,39 +1087,16 @@ out_clk_disable:
 	return ret;
 }
 
-static void mt9m111_power_off(struct mt9m111 *mt9m111)
+static int mt9m111_power_off(struct device *dev)
 {
+	struct i2c_client *client = to_i2c_client(dev);
+	struct mt9m111 *mt9m111 = to_mt9m111(client);
+
 	mt9m111_suspend(mt9m111);
 	regulator_disable(mt9m111->regulator);
 	clk_disable_unprepare(mt9m111->clk);
-}
 
-static int mt9m111_s_power(struct v4l2_subdev *sd, int on)
-{
-	struct mt9m111 *mt9m111 = container_of(sd, struct mt9m111, subdev);
-	int ret = 0;
-
-	mutex_lock(&mt9m111->power_lock);
-
-	/*
-	 * If the power count is modified from 0 to != 0 or from != 0 to 0,
-	 * update the power state.
-	 */
-	if (mt9m111->power_count == !on) {
-		if (on)
-			ret = mt9m111_power_on(mt9m111);
-		else
-			mt9m111_power_off(mt9m111);
-	}
-
-	if (!ret) {
-		/* Update the power count. */
-		mt9m111->power_count += on ? 1 : -1;
-		WARN_ON(mt9m111->power_count < 0);
-	}
-
-	mutex_unlock(&mt9m111->power_lock);
-	return ret;
+	return 0;
 }
 
 static const struct v4l2_ctrl_ops mt9m111_ctrl_ops = {
@@ -1066,7 +1104,6 @@ static const struct v4l2_ctrl_ops mt9m111_ctrl_ops = {
 };
 
 static const struct v4l2_subdev_core_ops mt9m111_subdev_core_ops = {
-	.s_power	= mt9m111_s_power,
 	.log_status = v4l2_ctrl_subdev_log_status,
 	.subscribe_event = v4l2_ctrl_subdev_subscribe_event,
 	.unsubscribe_event = v4l2_event_subdev_unsubscribe,
@@ -1171,6 +1208,23 @@ static int mt9m111_enum_mbus_code(struct v4l2_subdev *sd,
 static int mt9m111_s_stream(struct v4l2_subdev *sd, int enable)
 {
 	struct mt9m111 *mt9m111 = container_of(sd, struct mt9m111, subdev);
+	int ret;
+
+	if (enable) {
+		ret = pm_runtime_get_sync(sd->dev);
+		if (ret < 0) {
+			pm_runtime_put_noidle(sd->dev);
+			return ret;
+		}
+	} else {
+		pm_runtime_mark_last_busy(sd->dev);
+		pm_runtime_put_autosuspend(sd->dev);
+	}
+
+	if (enable && mt9m111->restore) {
+		mt9m111_restore_state(mt9m111);
+		mt9m111->restore = false;
+	};
 
 	mt9m111->is_streaming = !!enable;
 	return 0;
@@ -1248,10 +1302,6 @@ static int mt9m111_video_probe(struct i2c_client *client)
 	s32 data;
 	int ret;
 
-	ret = mt9m111_s_power(&mt9m111->subdev, 1);
-	if (ret < 0)
-		return ret;
-
 	data = reg_read(CHIP_VERSION);
 
 	switch (data) {
@@ -1277,7 +1327,6 @@ static int mt9m111_video_probe(struct i2c_client *client)
 	ret = v4l2_ctrl_handler_setup(&mt9m111->hdl);
 
 done:
-	mt9m111_s_power(&mt9m111->subdev, 0);
 	return ret;
 }
 
@@ -1399,19 +1448,33 @@ static int mt9m111_probe(struct i2c_client *client)
 	mt9m111->height		= mt9m111->rect.height;
 	mt9m111->fmt		= &mt9m111_colour_fmts[0];
 	mt9m111->lastpage	= -1;
-	mutex_init(&mt9m111->power_lock);
+
+	ret = mt9m111_power_on(&client->dev);
+	if (ret)
+		goto out_entityclean;
+
+	pm_runtime_set_active(&client->dev);
+	pm_runtime_get_noresume(&client->dev);
+	pm_runtime_enable(&client->dev);
 
 	ret = mt9m111_video_probe(client);
 	if (ret < 0)
-		goto out_entityclean;
+		goto out_power_off;
 
 	mt9m111->subdev.dev = &client->dev;
 	ret = v4l2_async_register_subdev(&mt9m111->subdev);
 	if (ret < 0)
-		goto out_entityclean;
+		goto out_power_off;
+
+	pm_runtime_set_autosuspend_delay(&client->dev, 1000);
+	pm_runtime_use_autosuspend(&client->dev);
+	pm_runtime_put_autosuspend(&client->dev);
 
 	return 0;
 
+out_power_off:
+	pm_runtime_put_noidle(&client->dev);
+	pm_runtime_disable(&client->dev);
 out_entityclean:
 #ifdef CONFIG_MEDIA_CONTROLLER
 	media_entity_cleanup(&mt9m111->subdev.entity);
@@ -1428,8 +1491,16 @@ static void mt9m111_remove(struct i2c_client *client)
 
 	v4l2_async_unregister_subdev(&mt9m111->subdev);
 	media_entity_cleanup(&mt9m111->subdev.entity);
+
+	pm_runtime_disable(&client->dev);
+	pm_runtime_set_suspended(&client->dev);
 	v4l2_ctrl_handler_free(&mt9m111->hdl);
 }
+
+static const struct dev_pm_ops mt9m111_pm_ops = {
+	SET_RUNTIME_PM_OPS(mt9m111_power_off, mt9m111_power_on, NULL)
+};
+
 static const struct of_device_id mt9m111_of_match[] = {
 	{ .compatible = "micron,mt9m111", },
 	{},
@@ -1445,6 +1516,7 @@ MODULE_DEVICE_TABLE(i2c, mt9m111_id);
 static struct i2c_driver mt9m111_i2c_driver = {
 	.driver = {
 		.name = "mt9m111",
+		.pm = &mt9m111_pm_ops,
 		.of_match_table = mt9m111_of_match,
 	},
 	.probe		= mt9m111_probe,
