@@ -1,0 +1,54 @@
+# SPDX-License-Identifier: (GPL-2.0 OR MIT)
+# Copyright 2021 PHYTEC Messtechnik GmbH
+%YAML 1.2
+---
+$id: "http://devicetree.org/schemas/misc/ti,scan921226h.yaml#"
+$schema: "http://devicetree.org/meta-schemas/core.yaml#"
+
+title: TI SCAN921226H LVDS Deserializer
+
+maintainers:
+  - Stefan Riedmueller <s.riedmueller@phytec.de>
+
+description: |
+  The TI SCAN921226H IC is a LVDS Deserializer.
+
+properties:
+  compatible:
+    const: ti,scan921226h
+
+  enable-gpios:
+    maxItems: 1
+    description:
+      GPIO pin connected to the REN pin of the SCAN921226H
+
+  powerdown-gpios:
+    maxItems: 1
+    description:
+      GPIO pin connected to the NPWRDN pin of the SCAN921226H
+
+  ti,boot-on:
+    type: boolean
+    description:
+      Set if the deserializer shall be enabled during probe.
+
+
+required:
+  - compatible
+  - enable-gpios
+  - powerdown-gpios
+
+additionalProperties: false
+
+examples:
+  - |
+    csi_deserializer0: csi-deserializer0 {
+         compatible = "ti,scan921226h";
+         pinctrl-names = "default";
+         pinctrl-0 = <&pinctrl_csi_des0>;
+
+         enable-gpios = <&gpio5 20 GPIO_ACTIVE_HIGH>;
+         powerdown-gpios = <&gpio3 9 GPIO_ACTIVE_HIGH>;
+
+         ti,boot-on;
+    };
