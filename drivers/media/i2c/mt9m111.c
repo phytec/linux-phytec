@@ -111,6 +111,7 @@
 #define MT9M111_OUTFMT_FLIP_BAYER_COL	(1 << 9)
 #define MT9M111_OUTFMT_FLIP_BAYER_ROW	(1 << 8)
 #define MT9M111_OUTFMT_PROCESSED_BAYER	(1 << 14)
+#define MT9M111_OUTFMT_SOC_AS_SENSOR	(1 << 12)
 #define MT9M111_OUTFMT_BYPASS_IFP	(1 << 10)
 #define MT9M111_OUTFMT_INV_PIX_CLOCK	(1 << 9)
 #define MT9M111_OUTFMT_RGB		(1 << 8)
@@ -210,6 +211,13 @@ static const struct mt9m111_datafmt mt9m111_colour_fmts[] = {
 	{MEDIA_BUS_FMT_SBGGR10_2X8_PADHI_LE, V4L2_COLORSPACE_SRGB, false, true},
 };
 
+static const struct mt9m111_datafmt mt9m111_10bit_fmts[] = {
+	{MEDIA_BUS_FMT_SBGGR10_1X10, V4L2_COLORSPACE_SRGB, false, true},
+	{MEDIA_BUS_FMT_SGBRG10_1X10, V4L2_COLORSPACE_SRGB, false, true},
+	{MEDIA_BUS_FMT_SGRBG10_1X10, V4L2_COLORSPACE_SRGB, false, true},
+	{MEDIA_BUS_FMT_SRGGB10_1X10, V4L2_COLORSPACE_SRGB, false, true},
+};
+
 enum mt9m111_mode_id {
 	MT9M111_MODE_SXGA_8FPS,
 	MT9M111_MODE_SXGA_15FPS,
@@ -244,6 +252,7 @@ struct mt9m111 {
 	int lastpage;	/* PageMap cache value */
 	struct regulator *regulator;
 	bool is_streaming;
+	bool allow_10bit;
 	/* user point of view - 0: falling 1: rising edge */
 	unsigned int pclk_sample:1;
 #ifdef CONFIG_MEDIA_CONTROLLER
@@ -290,6 +299,11 @@ static const struct mt9m111_datafmt *mt9m111_find_datafmt(struct mt9m111 *mt9m11
 	for (i = 0; i < ARRAY_SIZE(mt9m111_colour_fmts); i++)
 		if (mt9m111_colour_fmts[i].code == code)
 			return mt9m111_colour_fmts + i;
+
+	if (mt9m111->allow_10bit)
+		for (i = 0; i < ARRAY_SIZE(mt9m111_10bit_fmts); i++)
+			if (mt9m111_10bit_fmts[i].code == code)
+				return mt9m111_10bit_fmts + i;
 
 	return mt9m111->fmt;
 }
@@ -556,6 +570,7 @@ static int mt9m111_set_pixfmt(struct mt9m111 *mt9m111,
 	struct i2c_client *client = v4l2_get_subdevdata(&mt9m111->subdev);
 	u16 data_outfmt2, mask_outfmt2 = MT9M111_OUTFMT_PROCESSED_BAYER |
 		MT9M111_OUTFMT_BYPASS_IFP | MT9M111_OUTFMT_RGB |
+		MT9M111_OUTFMT_SOC_AS_SENSOR |
 		MT9M111_OUTFMT_RGB565 | MT9M111_OUTFMT_RGB555 |
 		MT9M111_OUTFMT_RGB444x | MT9M111_OUTFMT_RGBx444 |
 		MT9M111_OUTFMT_SWAP_YCbCr_C_Y_RGB_EVEN |
@@ -566,6 +581,12 @@ static int mt9m111_set_pixfmt(struct mt9m111 *mt9m111,
 	case MEDIA_BUS_FMT_SBGGR8_1X8:
 		data_outfmt2 = MT9M111_OUTFMT_PROCESSED_BAYER |
 			MT9M111_OUTFMT_RGB;
+		break;
+	case MEDIA_BUS_FMT_SBGGR10_1X10:
+	case MEDIA_BUS_FMT_SGBRG10_1X10:
+	case MEDIA_BUS_FMT_SGRBG10_1X10:
+	case MEDIA_BUS_FMT_SRGGB10_1X10:
+		data_outfmt2 = MT9M111_OUTFMT_SOC_AS_SENSOR;
 		break;
 	case MEDIA_BUS_FMT_SBGGR10_2X8_PADHI_LE:
 		data_outfmt2 = MT9M111_OUTFMT_BYPASS_IFP | MT9M111_OUTFMT_RGB;
@@ -1100,10 +1121,24 @@ static int mt9m111_enum_mbus_code(struct v4l2_subdev *sd,
 		struct v4l2_subdev_state *sd_state,
 		struct v4l2_subdev_mbus_code_enum *code)
 {
-	if (code->pad || code->index >= ARRAY_SIZE(mt9m111_colour_fmts))
+	struct mt9m111 *mt9m111 = container_of(sd, struct mt9m111, subdev);
+	int index;
+	int total_size = ARRAY_SIZE(mt9m111_colour_fmts) +
+			 ARRAY_SIZE(mt9m111_10bit_fmts);
+
+	if (code->pad || code->index >= total_size)
 		return -EINVAL;
 
-	code->code = mt9m111_colour_fmts[code->index].code;
+	if (code->index < ARRAY_SIZE(mt9m111_colour_fmts)) {
+		code->code = mt9m111_colour_fmts[code->index].code;
+		return 0;
+	}
+
+	if (!mt9m111->allow_10bit)
+		return -EINVAL;
+
+	index = code->index - ARRAY_SIZE(mt9m111_colour_fmts);
+	code->code = mt9m111_10bit_fmts[index].code;
 	return 0;
 }
 
@@ -1278,6 +1313,9 @@ static int mt9m111_probe(struct i2c_client *client)
 
 	/* Default HIGHPOWER context */
 	mt9m111->ctx = &context_b;
+
+	mt9m111->allow_10bit = of_property_read_bool(client->dev.of_node,
+						     "phytec,allow-10bit");
 
 	v4l2_i2c_subdev_init(&mt9m111->subdev, client, &mt9m111_subdev_ops);
 	mt9m111->subdev.flags |= V4L2_SUBDEV_FL_HAS_DEVNODE |
