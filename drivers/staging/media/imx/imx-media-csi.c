@@ -101,7 +101,6 @@ struct csi_priv {
 	struct v4l2_mbus_config mbus_cfg;
 
 	spinlock_t irqlock; /* protect eof_irq handler */
-	struct timer_list eof_timeout_timer;
 	int eof_irq;
 	int nfb4eof_irq;
 
@@ -322,10 +321,6 @@ static irqreturn_t csi_idmac_eof_interrupt(int irq, void *dev_id)
 	/* toggle IPU double-buffer index */
 	priv->ipu_buf_num ^= 1;
 
-	/* bump the EOF timeout timer */
-	mod_timer(&priv->eof_timeout_timer,
-		  jiffies + msecs_to_jiffies(IMX_MEDIA_EOF_TIMEOUT));
-
 unlock:
 	spin_unlock(&priv->irqlock);
 	return IRQ_HANDLED;
@@ -348,21 +343,6 @@ static irqreturn_t csi_idmac_nfb4eof_interrupt(int irq, void *dev_id)
 	spin_unlock(&priv->irqlock);
 
 	return IRQ_HANDLED;
-}
-
-/*
- * EOF timeout timer function. This is an unrecoverable condition
- * without a stream restart.
- */
-static void csi_idmac_eof_timeout(struct timer_list *t)
-{
-	struct csi_priv *priv = from_timer(priv, t, eof_timeout_timer);
-	struct imx_media_video_dev *vdev = priv->vdev;
-
-	v4l2_err(&priv->sd, "EOF timeout\n");
-
-	/* signal a fatal error to capture device */
-	imx_media_capture_device_error(vdev);
 }
 
 static void csi_idmac_setup_vb2_buf(struct csi_priv *priv, dma_addr_t *phys)
@@ -649,10 +629,6 @@ static int csi_idmac_start(struct csi_priv *priv)
 		goto out_free_nfb4eof_irq;
 	}
 
-	/* start the EOF timeout timer */
-	mod_timer(&priv->eof_timeout_timer,
-		  jiffies + msecs_to_jiffies(IMX_MEDIA_EOF_TIMEOUT));
-
 	return 0;
 
 out_free_nfb4eof_irq:
@@ -693,9 +669,6 @@ static void csi_idmac_stop(struct csi_priv *priv)
 	csi_idmac_unsetup(priv, VB2_BUF_STATE_ERROR);
 
 	imx_media_free_dma_buf(priv->dev, &priv->underrun_buf);
-
-	/* cancel the EOF timeout timer */
-	del_timer_sync(&priv->eof_timeout_timer);
 
 	csi_idmac_put_ipu_resources(priv);
 }
@@ -1979,7 +1952,6 @@ static int imx_csi_probe(struct platform_device *pdev)
 
 	priv->active_output_pad = CSI_SRC_PAD_IDMAC;
 
-	timer_setup(&priv->eof_timeout_timer, csi_idmac_eof_timeout, 0);
 	spin_lock_init(&priv->irqlock);
 
 	v4l2_subdev_init(&priv->sd, &csi_subdev_ops);
