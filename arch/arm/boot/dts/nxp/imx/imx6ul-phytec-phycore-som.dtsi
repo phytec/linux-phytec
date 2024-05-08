@@ -54,6 +54,12 @@
 
 &cpu0 {
 	dc-supply = <&reg_gpio_dvfs>;
+	operating-points =
+		/* kHz	uV */
+		<696000	1275000>,
+		<528000	1175000>,
+		<396000	1025000>,
+		<198000	975000>;
 	fsl,soc-operating-points = <
 		/* KHz	uV */
 		696000	1275000
