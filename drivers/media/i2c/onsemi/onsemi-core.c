@@ -240,7 +240,7 @@ out:
 	return rc;
 }
 
-static bool in_range(char const *id, struct onsemi_range const *r, unsigned long v)
+static bool onsemi_in_range(char const *id, struct onsemi_range const *r, unsigned long v)
 {
 	if (!r)
 		return true;
@@ -1296,17 +1296,10 @@ static int onsemi_get_mbus_config(struct v4l2_subdev *sd,
 	struct onsemi_businfo const *bus_info = onsemi->active_bus;
 
 	if (bus_info->bus_type == V4L2_MBUS_PARALLEL) {
-		cfg->flags  = (V4L2_MBUS_MASTER |
+		cfg->bus.parallel.flags  = (V4L2_MBUS_MASTER |
 			       V4L2_MBUS_HSYNC_ACTIVE_HIGH |
 			       V4L2_MBUS_VSYNC_ACTIVE_HIGH |
 			       V4L2_MBUS_DATA_ACTIVE_HIGH);
-	}
-
-	if (bus_info->bus_type == V4L2_MBUS_CSI2_DPHY) {
-		if (bus_info->bus_width == 1)
-			cfg->flags |= V4L2_MBUS_CSI2_1_LANE;
-		else
-			cfg->flags |= V4L2_MBUS_CSI2_2_LANE;
 	}
 
 	cfg->type = bus_info->bus_type;
@@ -3091,7 +3084,7 @@ static int onsemi_calculate_vco(unsigned int *pll_div,
 	unsigned int		div;
 	unsigned int		mul;
 
-	if (!in_range("VCO", &limits->pll_vco, vco_hz)) {
+	if (!onsemi_in_range("VCO", &limits->pll_vco, vco_hz)) {
 		pr_warn("%s: requested VCO %lu out of range [%lu..%lu]\n",
 			__func__, vco_hz,
 			limits->pll_vco.min, limits->pll_vco.max);
@@ -3145,7 +3138,7 @@ static int onsemi_calculate_vco(unsigned int *pll_div,
 		 ext_hz, best.div, best.mul,
 		 (unsigned long long)best.freq, vco_hz);
 
-	if (!in_range("VCO", &limits->pll_vco, best.freq)) {
+	if (!onsemi_in_range("VCO", &limits->pll_vco, best.freq)) {
 		pr_warn("%s: failed to find PLL settings for (%lu -> %lu)\n",
 			__func__, ext_hz, vco_hz);
 		return -EINVAL;
@@ -3343,15 +3336,15 @@ int onsemi_calculate_pll(struct onsemi_core const *onsemi,
 
 	dbg_trace_v4l("bpp=%u, width=%u\n", bpp, bus_info->bus_width);
 
-	if (!in_range("pre_div", &limits->pre_pll_div, cfg.pre_pll_div) ||
-	    !in_range("pre_mul", &limits->pre_pll_mul, cfg.pre_pll_mul) ||
-	    !in_range("vt_sys", &limits->pll_vt_sys_clk_div, cfg.vt_sys_div) ||
-	    !in_range("vt_pix", &limits->pll_vt_pix_clk_div, cfg.vt_pix_div))
+	if (!onsemi_in_range("pre_div", &limits->pre_pll_div, cfg.pre_pll_div) ||
+	    !onsemi_in_range("pre_mul", &limits->pre_pll_mul, cfg.pre_pll_mul) ||
+	    !onsemi_in_range("vt_sys", &limits->pll_vt_sys_clk_div, cfg.vt_sys_div) ||
+	    !onsemi_in_range("vt_pix", &limits->pll_vt_pix_clk_div, cfg.vt_pix_div))
 		return -EINVAL;
 
 	if (use_op_clk &&
-	    (!in_range("op_sys", &limits->pll_op_sys_clk_div, cfg.op_sys_div) ||
-	     !in_range("op_pix", &limits->pll_op_pix_clk_div, cfg.op_pix_div)))
+	    (!onsemi_in_range("op_sys", &limits->pll_op_sys_clk_div, cfg.op_sys_div) ||
+	     !onsemi_in_range("op_pix", &limits->pll_op_pix_clk_div, cfg.op_pix_div)))
 		return -EINVAL;
 
 	if (use_op_clk &&
@@ -3382,13 +3375,13 @@ int onsemi_calculate_pll(struct onsemi_core const *onsemi,
 		freq.op_sys, freq.op_pix, freq.clk_op,
 		(unsigned long long)freq.link_freq);
 
-	if (!in_range("ext_clk",  &limits->ext_clk, freq.ext) ||
-	    !in_range("vco",      &limits->pll_vco, freq.vco) ||
-	    !in_range("pix_clk",  &limits->pix_clk, freq.clk_pixel))
+	if (!onsemi_in_range("ext_clk",  &limits->ext_clk, freq.ext) ||
+	    !onsemi_in_range("vco",      &limits->pll_vco, freq.vco) ||
+	    !onsemi_in_range("pix_clk",  &limits->pix_clk, freq.clk_pixel))
 		return -EINVAL;
 
 	if (use_op_clk &&
-	    !in_range("op_clk",   use_op_clk ? &limits->op_clk : NULL,  freq.clk_op))
+	    !onsemi_in_range("op_clk",   use_op_clk ? &limits->op_clk : NULL,  freq.clk_op))
 		return -EINVAL;
 
 	/* copy results here before sensor specific pll_validate() so that
