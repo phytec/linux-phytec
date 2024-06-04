@@ -560,11 +560,11 @@ config VIDEO_OV9734
 
 config VIDEO_PHYTEC_VM012
 	tristate "Phytec VM012 (VITA1300) sensor support"
-	depends on VIDEO_V4L2 && I2C && VIDEO_V4L2_SUBDEV_API
+	depends on VIDEO_DEV && I2C && VIDEO_V4L2_SUBDEV_API
 
 config VIDEO_PHYTEC_VM050
 	tristate "Phytec VM050 sensor support"
-	depends on VIDEO_V4L2 && I2C && VIDEO_V4L2_SUBDEV_API
+	depends on VIDEO_DEV && I2C && VIDEO_V4L2_SUBDEV_API
 
 config VIDEO_RDACM20
 	tristate "IMI RDACM20 camera support"
