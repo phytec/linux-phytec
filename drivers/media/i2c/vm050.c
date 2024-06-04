@@ -2137,8 +2137,7 @@ static int vm050_gpio_get(struct gpio_chip *chip, unsigned int offset)
 }
 /* }}} gpio chip functionality */
 
-static int vm050_probe(struct i2c_client *client,
-		       const struct i2c_device_id *did)
+static int vm050_probe(struct i2c_client *client)
 {
 	struct device		*dev = &client->dev;
 	struct device_node const *np = dev->of_node;
@@ -2270,7 +2269,7 @@ err_v4l2_gpiochip_add:
 	return rc;
 }
 
-static int vm050_remove(struct i2c_client *client)
+static void vm050_remove(struct i2c_client *client)
 {
 	struct v4l2_subdev	*subdev = i2c_get_clientdata(client);
 	struct vm050		*vm050	= sd_to_vm050(subdev);
@@ -2280,7 +2279,6 @@ static int vm050_remove(struct i2c_client *client)
 	v4l2_ctrl_handler_free(&vm050->ctrls);
 	gpiochip_remove(&vm050->gc);
 
-	return 0;
 }
 
 static const struct i2c_device_id vm050_id[] = {
