@@ -980,9 +980,9 @@ onsemi_core_get_thermal(struct onsemi_core *onsemi)
 #endif
 }
 
-static int onsemi_core_get_temp(void *onsemi_, int *res)
+static int onsemi_core_get_temp(struct thermal_zone_device *tz, int *res)
 {
-	struct onsemi_core			*onsemi = onsemi_;
+	struct onsemi_core			*onsemi = tz->devdata;
 	struct onsemi_core_thermal const	*thermal = onsemi_core_get_thermal(onsemi);
 	int			rc;
 	uint16_t		ctrl_reg;
@@ -1022,7 +1022,7 @@ static int onsemi_core_get_temp(void *onsemi_, int *res)
 	return 0;
 }
 
-static struct thermal_zone_of_device_ops const	ONSEMI_CORE_THERMAL_OPS = {
+static struct thermal_zone_device_ops const	ONSEMI_CORE_THERMAL_OPS = {
 	.get_temp	= onsemi_core_get_temp,
 };
 
@@ -1056,8 +1056,8 @@ static int onsemi_core_thermal_init(struct onsemi_core *onsemi)
 		return -EINVAL;
 	}
 
-	tdev = devm_thermal_zone_of_sensor_register(onsemi->dev, 0, onsemi,
-						    &ONSEMI_CORE_THERMAL_OPS);
+	tdev = devm_thermal_of_zone_register(onsemi->dev, 0, onsemi,
+					     &ONSEMI_CORE_THERMAL_OPS);
 	rc = PTR_ERR_OR_ZERO(tdev);
 	if (rc == -ENODEV) {
 		dev_dbg(onsemi->dev, "no thermal zone setup; skipping registration\n");
