@@ -1137,16 +1137,16 @@ static int vm050_video_get_mbus_config(struct v4l2_subdev *sd,
 {
 	struct vm050	*vm050 = sd_to_vm050(sd);
 
-	cfg->flags  = (V4L2_MBUS_MASTER |
-		       V4L2_MBUS_HSYNC_ACTIVE_HIGH |
-		       V4L2_MBUS_VSYNC_ACTIVE_HIGH |
-		       V4L2_MBUS_DATA_ACTIVE_HIGH);
+	cfg->bus.parallel.flags  = (V4L2_MBUS_MASTER |
+				    V4L2_MBUS_HSYNC_ACTIVE_HIGH |
+				    V4L2_MBUS_VSYNC_ACTIVE_HIGH |
+				    V4L2_MBUS_DATA_ACTIVE_HIGH);
 
 	if (!(vm050->reg_ctrl.o[0] & VM050_FLD_OUTPUT_PCLK_POL) !=
 	    !!vm050->pixclk_inv)
-		cfg->flags |= V4L2_MBUS_PCLK_SAMPLE_FALLING;
+		cfg->bus.parallel.flags |= V4L2_MBUS_PCLK_SAMPLE_FALLING;
 	else
-		cfg->flags |= V4L2_MBUS_PCLK_SAMPLE_RISING;
+		cfg->bus.parallel.flags |= V4L2_MBUS_PCLK_SAMPLE_RISING;
 
 	cfg->type   = V4L2_MBUS_PARALLEL;
 
