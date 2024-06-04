@@ -1413,8 +1413,9 @@ static struct v4l2_ctrl_config const		vm012_ctrls[] = {
 	}
 };
 
-static int vm012_probe(struct i2c_client *client,
-		       const struct i2c_device_id *did)
+static const struct i2c_device_id vm012_id[];
+
+static int vm012_probe(struct i2c_client *client)
 {
 	struct device		*dev = &client->dev;
 	struct device_node const *np = dev->of_node;
@@ -1432,7 +1433,10 @@ static int vm012_probe(struct i2c_client *client,
 	vm012->rbus.active_page = ~0u;
 	mutex_init(&vm012->rbus.lock);
 
-	vm012->info = (void const *)did->driver_data;
+	if (client->dev.of_node)
+		vm012->info = (struct vm012_of_data *)device_get_match_data(&client->dev);
+	else
+		vm012->info = i2c_match_id(vm012_id, client)->driver_data;
 
 	vm012->clk = devm_clk_get(&client->dev, NULL);
 	rc = PTR_ERR_OR_ZERO(vm012->clk);
@@ -1531,7 +1535,7 @@ err:
 	return rc;
 }
 
-static int vm012_remove(struct i2c_client *client)
+static void vm012_remove(struct i2c_client *client)
 {
 	struct v4l2_subdev	*subdev = i2c_get_clientdata(client);
 	struct vm012		*vm012	= sd_to_vm012(subdev);
@@ -1539,8 +1543,6 @@ static int vm012_remove(struct i2c_client *client)
 	v4l2_async_unregister_subdev(&vm012->subdev);
 	media_entity_cleanup(&vm012->subdev.entity);
 	v4l2_ctrl_handler_free(&vm012->ctrls);
-
-	return 0;
 }
 
 static const struct i2c_device_id vm012_id[] = {
