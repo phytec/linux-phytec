@@ -100,16 +100,23 @@ static int ar0144_find_mipi_timings(struct ar0144_sensor const *sensor,
 	return rc;
 }
 
-static int ar0144_probe(struct i2c_client *i2c, struct i2c_device_id const *did)
+static const struct i2c_device_id ar0144_id_table[];
+
+static int ar0144_probe(struct i2c_client *i2c)
 {
 	struct ar0144_sensor		*sensor;
-	struct onsemi_dev_cfg const	*cfg = (void const *)did->driver_data;
+	struct onsemi_dev_cfg const	*cfg;
 	int				rc;
 	bool				is_powered = false;
 
 	sensor = devm_kzalloc(&i2c->dev, sizeof *sensor, GFP_KERNEL);
 	if (!sensor)
 		return -ENOMEM;
+
+	if (i2c->dev.of_node)
+		cfg = (struct onsemi_dev_cfg *)device_get_match_data(&i2c->dev);
+	else
+		cfg = i2c_match_id(ar0144_id_table, i2c)->driver_data;
 
 	sensor->core.v4l_parm = &sensor->v4l_parm.core;
 	sensor->core.pll_cfg  = &sensor->pll_cfg;
@@ -152,7 +159,7 @@ out:
 	return rc;
 }
 
-static int ar0144_remove(struct i2c_client *i2c)
+static void ar0144_remove(struct i2c_client *i2c)
 {
 	struct v4l2_subdev	*sd = i2c_get_clientdata(i2c);
 	struct onsemi_core	*onsemi = sd_to_onsemi(sd);
@@ -160,8 +167,6 @@ static int ar0144_remove(struct i2c_client *i2c)
 
 	onsemi_core_release(onsemi);
 	onsemi_power_put(&sensor->core);
-
-	return 0;
 }
 
 static int ar0144_fill_limits(struct onsemi_core *onsemi,
