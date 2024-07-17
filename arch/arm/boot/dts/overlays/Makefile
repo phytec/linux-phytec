@@ -33,6 +33,7 @@ dtb-y += imx6-phy-adin1300.dtbo
 dtb-y += imx6-phy-ksz9131.dtbo
 
 dtb-y += am33xx-gpu.dtbo
+dtb-y += am335x-invert-pxl-clk.dtbo
 dtb-y += am335x-i2c-temp.dtbo
 dtb-y += am335x-no-eeprom.dtbo
 dtb-y += am335x-no-rtc.dtbo
