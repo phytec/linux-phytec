@@ -1,0 +1,17 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * Copyright (C) 2022 PHYTEC Messtechnik GmbH
+ * Author: Dominik Haller <d.haller@phytec.de>
+ */
+/dts-v1/;
+/plugin/;
+
+&gpu_interconnect {
+	gpu@0 {
+		compatible = "ti,am3352-sgx530", "img,sgx530";
+		reg = <0x0 0x10000>;
+		interrupts = <37>;
+		clocks = <&gfx_fck_div_ck>;
+		clock-names = "fclk";
+	};
+};
