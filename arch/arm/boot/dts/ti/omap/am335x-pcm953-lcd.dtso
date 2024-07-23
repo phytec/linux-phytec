@@ -60,6 +60,7 @@
 	status = "okay";
 
 	ecap0: pwm@100 {
+		#pwm-cells = <3>;
 		pinctrl-names = "default";
 		pinctrl-0 = <&ecap0_pins>;
 		status = "okay";
@@ -67,6 +68,9 @@
 };
 
 &i2c0 {
+	#address-cells = <1>;
+	#size-cells = <0>;
+
 	i2c_ts: touchscreen@38 {
 		compatible = "edt,edt-ft5406";
 		reg = <0x38>;
