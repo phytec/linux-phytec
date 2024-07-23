@@ -113,6 +113,11 @@ dtb-$(CONFIG_SOC_AM33XX) += \
 	am335x-no-eeprom.dtbo \
 	am335x-no-rtc.dtbo \
 	am335x-no-spi-nor.dtbo \
+	am33xx-gpu.dtbo \
+	am335x-pcm953-lcd.dtbo \
+	am335x-spi-nor.dtbo \
+	am335x-wega-peb-av-01.dtbo \
+	am335x-wega-peb-av-02.dtbo \
 	am335x-pocketbeagle.dtb \
 	am335x-regor-rdk.dtb \
 	am335x-sancloud-bbe.dtb \
