@@ -39,7 +39,7 @@
 
 &user_leds_pins {
 	pinctrl-single,pins = <
-		AM33XX_IOPAD(0x898, PIN_OUTPUT_PULLDOWN | MUX_MODE7)    /* gpmc_wen.gpio2_4 */
-		AM33XX_IOPAD(0x89c, PIN_OUTPUT_PULLDOWN | MUX_MODE7)    /* gpmc_ben0_cle.gpio2_5 */
+		AM33XX_PADCONF(AM335X_PIN_GPMC_WEN, PIN_OUTPUT_PULLDOWN, MUX_MODE7)    /* gpmc_wen.gpio2_4 */
+		AM33XX_PADCONF(AM335X_PIN_GPMC_BEN0_CLE, PIN_OUTPUT_PULLDOWN, MUX_MODE7)    /* gpmc_ben0_cle.gpio2_5 */
 	>;
 };
