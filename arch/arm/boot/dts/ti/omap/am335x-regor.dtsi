@@ -23,7 +23,7 @@
 		pinctrl-names = "default";
 		pinctrl-0 = <&user_leds_pins>;
 
-		run_stop-led {
+		run-stop-led {
 			gpios = <&gpio2 22 GPIO_ACTIVE_HIGH>;
 			linux,default-trigger = "gpio";
 			default-state = "off";
