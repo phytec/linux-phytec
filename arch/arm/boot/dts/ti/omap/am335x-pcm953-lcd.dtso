@@ -84,7 +84,6 @@
 
 &lcdc {
 	blue-and-red-wiring = "crossed";
-	invert-pxl-clk;
 	status = "okay";
 
 	port {
