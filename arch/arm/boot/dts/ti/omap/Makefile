@@ -109,6 +109,7 @@ dtb-$(CONFIG_SOC_AM33XX) += \
 	am335x-pepper.dtb \
 	am335x-phycore-rdk.dtb \
 	am335x-phycore-emmc-rdk.dtb \
+	am335x-invert-pxl-clk.dtbo \
 	am335x-i2c-temp.dtbo \
 	am335x-no-eeprom.dtbo \
 	am335x-no-rtc.dtbo \
