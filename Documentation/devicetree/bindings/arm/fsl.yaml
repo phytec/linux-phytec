@@ -375,6 +375,11 @@ properties:
           - const: phytec,imx6qdl-pcm058  # PHYTEC phyCORE-i.MX6
           - const: fsl,imx6q
 
+      - description: i.MX6Q PHYTEC phyCARD-i.MX6
+        items:
+          - const: phytec,imx6q-pcaaxl3  # PHYTEC phyCARD-i.MX6
+          - const: fsl,imx6q
+
       - description: i.MX6Q PHYTEC phyFLEX-i.MX6
         items:
           - const: phytec,imx6q-pbab01    # PHYTEC phyFLEX carrier board
