@@ -1,16 +1,16 @@
 // SPDX-License-Identifier: (GPL-2.0+ OR MIT)
 /*
- * Copyright (C) 2018 PHYTEC Messtechnik GmbH
- * Author: Christian Hemp <c.hemp@phytec.de>
+ * Copyright (C) 2018 PHYTEC Messtechnik GmbH,
+ * Author: Stefan Christ <s.christ@phytec.de>
  */
 
 /dts-v1/;
-#include "imx6dl-phytec-pfla02.dtsi"
+#include "imx6dl-phytec-pfla02-nonor.dtsi"
 #include "imx6qdl-phytec-pbab01.dtsi"
 #include "imx6qdl-phytec-pbab01-phycam.dtsi"
 
 / {
-	model = "PHYTEC phyFLEX-i.MX 6DualLite/Solo Carrier-Board";
+	model = "PHYTEC phyFLEX-i.MX 6Solo/DualLite Carrier-Board";
 	compatible = "phytec,imx6dl-pbab01", "phytec,imx6dl-pfla02",
 		     "fsl,imx6dl";
 };
