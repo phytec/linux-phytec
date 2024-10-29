@@ -24,6 +24,7 @@
 			reg = <3>;
 			adi,tx-internal-delay-ps = <1600>;
 			adi,rx-internal-delay-ps = <2000>;
+			adi,phy-output-clock = "125mhz-free-running";
 			status = "okay";
 		};
 	};
