@@ -4,6 +4,7 @@
  * Author: Christian Hemp <c.hemp@phytec.de>
  */
 
+#include <dt-bindings/leds/leds-pca9532.h>
 
 / {
 	aliases {
@@ -19,24 +20,51 @@
 		status = "okay";
 	};
 
+	csi_deserializer0: csi-deserializer0 {
+		compatible = "ti,scan921226h";
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_csi_des0>;
+
+		enable-gpios = <&gpio5 20 GPIO_ACTIVE_HIGH>;
+		powerdown-gpios = <&gpio3 9 GPIO_ACTIVE_HIGH>;
+	};
+
+	dim_gpio_leds: dimleds {
+		compatible = "gpio-leds";
+		status = "disabled";
+
+		mira-red {
+			gpios = <&leddim 0 GPIO_ACTIVE_LOW>;
+			linux,default-trigger = "none";
+		};
+
+		mira-green {
+			gpios = <&leddim 1 GPIO_ACTIVE_LOW>;
+			linux,default-trigger = "none";
+		};
+
+		mira-blue {
+			gpios = <&leddim 2 GPIO_ACTIVE_LOW>;
+			linux,default-trigger = "mmc0";
+			default-state = "on";
+		};
+	};
+
 	gpio_leds: leds {
 		compatible = "gpio-leds";
 		pinctrl-names = "default";
 		pinctrl-0 = <&pinctrl_gpioleds>;
 		status = "disabled";
 
-		led-red {
-			label = "phyboard-mira:red";
+		mira-red {
 			gpios = <&gpio5 22 GPIO_ACTIVE_HIGH>;
 		};
 
-		led-green {
-			label = "phyboard-mira:green";
+		mira-green {
 			gpios = <&gpio5 23 GPIO_ACTIVE_HIGH>;
 		};
 
-		led-blue {
-			label = "phyboard-mira:blue";
+		mira-blue {
 			gpios = <&gpio5 24 GPIO_ACTIVE_HIGH>;
 			linux,default-trigger = "mmc0";
 		};
@@ -150,8 +178,31 @@
 	pinctrl-1 = <&pinctrl_i2c1_gpio>;
 	scl-gpios = <&gpio3 21 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
 	sda-gpios = <&gpio3 28 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
-	clock-frequency = <400000>;
+	clock-frequency = <100000>;
 	status = "disabled";
+
+	leddim: leddimmer@62 {
+		compatible = "nxp,pca9533";
+		gpio-controller;
+		#gpio-cells = <2>;
+		reg = <0x62>;
+		status = "disabled";
+
+		red {
+			label = "red";
+			type = <PCA9532_TYPE_GPIO>;
+		};
+
+		green {
+			label = "green";
+			type = <PCA9532_TYPE_GPIO>;
+		};
+
+		blue {
+			label = "blue";
+			type = <PCA9532_TYPE_GPIO>;
+		};
+	};
 
 	stmpe: touchctrl@44 {
 		compatible = "st,stmpe811";
@@ -182,7 +233,7 @@
 		pinctrl-0 = <&pinctrl_rtc_int>;
 		reg = <0x68>;
 		interrupt-parent = <&gpio7>;
-		interrupts = <8 IRQ_TYPE_LEVEL_LOW>;
+		interrupts = <8 IRQ_TYPE_LEVEL_HIGH>;
 		status = "disabled";
 	};
 };
@@ -202,7 +253,7 @@
 
 	lvds-channel@0 {
 		fsl,data-mapping = "spwg";
-		fsl,data-width = <24>;
+		fsl,data-width = <18>;
 		status = "disabled";
 
 		port@4 {
@@ -267,6 +318,13 @@
 };
 
 &iomuxc {
+	pinctrl_csi_des0: csides0grp {
+		fsl,pins = <
+			MX6QDL_PAD_CSI0_DATA_EN__GPIO5_IO20	0x1b0b0
+			MX6QDL_PAD_EIM_DA9__GPIO3_IO09		0x1b0b0
+		>;
+	};
+
 	pinctrl_panel_en: panelen1grp {
 		fsl,pins = <
 			MX6QDL_PAD_EIM_EB0__GPIO2_IO28		0xb0b1
@@ -373,8 +431,8 @@
 
 	pinctrl_uart3: uart3grp {
 		fsl,pins = <
-			MX6QDL_PAD_EIM_EB3__UART3_CTS_B		0x1b0b1
-			MX6QDL_PAD_EIM_D23__UART3_RTS_B		0x1b0b1
+			MX6QDL_PAD_EIM_EB3__UART3_RTS_B		0x1b0b1
+			MX6QDL_PAD_EIM_D23__UART3_CTS_B		0x1b0b1
 			MX6QDL_PAD_EIM_D24__UART3_TX_DATA	0x1b0b1
 			MX6QDL_PAD_EIM_D25__UART3_RX_DATA	0x1b0b1
 		>;

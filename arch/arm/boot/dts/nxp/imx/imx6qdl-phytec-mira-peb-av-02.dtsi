@@ -5,7 +5,8 @@
  */
 
 / {
-	display: display0 {
+
+	display: display@di0 {
 		#address-cells = <1>;
 		#size-cells = <0>;
 		compatible = "fsl,imx-parallel-display";
@@ -56,7 +57,7 @@
 };
 
 &i2c1 {
-	edt_ft5x06: touchscreen@38 {
+	edt_ft5x06: polytouch@38 {
 		compatible = "edt,edt-ft5406";
 		pinctrl-names = "default";
 		pinctrl-0 = <&pinctrl_edt_ft5x06>;
@@ -77,7 +78,9 @@
 			MX6QDL_PAD_DI0_DISP_CLK__IPU1_DI0_DISP_CLK	0x10
 			MX6QDL_PAD_DI0_PIN2__IPU1_DI0_PIN02		0x10
 			MX6QDL_PAD_DI0_PIN3__IPU1_DI0_PIN03		0x10
+
 			MX6QDL_PAD_DI0_PIN15__IPU1_DI0_PIN15		0x1b080
+
 			MX6QDL_PAD_DISP0_DAT0__IPU1_DISP0_DATA00	0x10
 			MX6QDL_PAD_DISP0_DAT1__IPU1_DISP0_DATA01	0x10
 			MX6QDL_PAD_DISP0_DAT2__IPU1_DISP0_DATA02	0x10
