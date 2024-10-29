@@ -369,6 +369,12 @@ properties:
           - const: phytec,imx6qdl-pcm058  # PHYTEC phyCORE-i.MX6
           - const: fsl,imx6q
 
+      - description: i.MX6Q PHYTEC phyBOARD-Nunki
+        items:
+          - const: phytec,imx6q-pbac11    # PHYTEC phyBOARD-Nunki
+          - const: phytec,imx6qdl-pcm058  # PHYTEC phyCORE-i.MX6
+          - const: fsl,imx6q
+
       - description: i.MX6Q PHYTEC phyFLEX-i.MX6
         items:
           - const: phytec,imx6q-pbab01    # PHYTEC phyFLEX carrier board
