@@ -279,6 +279,7 @@ dtb-$(CONFIG_SOC_IMX6Q) += \
 	imx6q-phyflex-vm050-0.dtb \
 	imx6q-phyflex-vm050-1.dtb \
 	imx6-vm016-mipi-0.dtb \
+	imx6-phy-adin1300.dtb \
 	imx6q-pico-dwarf.dtb \
 	imx6q-pico-hobbit.dtb \
 	imx6q-pico-nymph.dtb \
@@ -568,6 +569,8 @@ imx6q-phyflex-vm050-0-dtbs := imx6q-phytec-pbab01.dtb \
 
 imx6q-phyflex-vm050-1-dtbs := imx6q-phytec-pbab01.dtb \
 			imx6-vm050-1.dtbo
+
+imx6-phy-adin1300-dtbs := imx6q-phytec-mira-ff-rdk-nand.dtb imx6-phy-adin1300.dtbo
 
 dtb-$(CONFIG_SOC_IMX6UL) += \
 	imx6ul-14x14-evk.dtb \
