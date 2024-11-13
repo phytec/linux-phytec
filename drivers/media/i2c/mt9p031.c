@@ -1092,6 +1092,25 @@ static int mt9p031_close(struct v4l2_subdev *subdev, struct v4l2_subdev_fh *fh)
 	return mt9p031_set_power(subdev, 0);
 }
 
+static int mt9p031_get_mbus_config(struct v4l2_subdev *subdev, unsigned int pad,
+				   struct v4l2_mbus_config *cfg)
+{
+	struct mt9p031 *mt9p031 = to_mt9p031(subdev);
+
+	cfg->type = V4L2_MBUS_PARALLEL;
+
+	cfg->bus.parallel.flags = V4L2_MBUS_MASTER |
+				  V4L2_MBUS_HSYNC_ACTIVE_HIGH |
+				  V4L2_MBUS_VSYNC_ACTIVE_HIGH |
+				  V4L2_MBUS_DATA_ACTIVE_HIGH;
+
+	cfg->bus.parallel.flags |= mt9p031->pdata->pixclk_pol ?
+				   V4L2_MBUS_PCLK_SAMPLE_RISING :
+				   V4L2_MBUS_PCLK_SAMPLE_FALLING;
+
+	return 0;
+}
+
 static const struct v4l2_subdev_core_ops mt9p031_subdev_core_ops = {
 	.s_power        = mt9p031_set_power,
 #ifdef CONFIG_VIDEO_ADV_DEBUG
@@ -1112,6 +1131,7 @@ static const struct v4l2_subdev_pad_ops mt9p031_subdev_pad_ops = {
 	.set_fmt = mt9p031_set_format,
 	.get_selection = mt9p031_get_selection,
 	.set_selection = mt9p031_set_selection,
+	.get_mbus_config = mt9p031_get_mbus_config,
 };
 
 static const struct v4l2_subdev_ops mt9p031_subdev_ops = {
