@@ -664,7 +664,7 @@ static int panel_simple_probe(struct device *dev, const struct panel_desc *desc)
 	 * fully enabling the panel.
 	 */
 	pm_runtime_enable(dev);
-	pm_runtime_set_autosuspend_delay(dev, 1000);
+	pm_runtime_set_autosuspend_delay(dev, -1);
 	pm_runtime_use_autosuspend(dev);
 
 	drm_panel_init(&panel->base, dev, &panel_simple_funcs, connector_type);
