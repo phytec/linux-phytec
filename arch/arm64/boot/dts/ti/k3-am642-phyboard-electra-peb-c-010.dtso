@@ -12,8 +12,8 @@
 
 &{/} {
 	aliases {
-		ethernet3 = &icssg1_emac0;
-		ethernet4 = &icssg1_emac1;
+		ethernet3 = "/icssg1-ethernet/ethernet-ports/port@0";
+		ethernet4 = "/icssg1-ethernet/ethernet-ports/port@1";
 	};
 
 	icssg1-ethernet {
