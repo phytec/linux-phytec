@@ -3336,7 +3336,7 @@ static const struct panel_desc powertip_ph800480t032_zhc19 = {
 		.width = 152,
 		.height = 91,
 	},
-	.bus_format = MEDIA_BUS_FMT_RGB888_1X24,
+	.bus_format = MEDIA_BUS_FMT_RGB666_1X18,
 	.bus_flags = DRM_BUS_FLAG_DE_HIGH |
 		DRM_BUS_FLAG_PIXDATA_SAMPLE_NEGEDGE |
 		DRM_BUS_FLAG_SYNC_SAMPLE_NEGEDGE,
