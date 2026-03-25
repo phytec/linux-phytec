@@ -278,6 +278,8 @@ properties:
       - osddisplays,osd101t2045-53ts
         # POWERTIP PH800480T013-IDF2 7.0" WVGA TFT LCD panel
       - powertip,ph800480t013-idf02
+        # POWERTIP PH800480T032-ZHC19 7.0" WVGA TFT LCD panel
+      - powertip,ph800480t032-zhc19
         # QiaoDian XianShi Corporation 4"3 TFT LCD panel
       - qiaodian,qd43003c0-40
         # Shenzhen QiShenglong Industrialist Co., Ltd. Gopher 2b 4.3" 480(RGB)x272 TFT LCD panel
