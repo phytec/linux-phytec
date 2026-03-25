@@ -361,6 +361,19 @@ dtb-$(CONFIG_SOC_IMX6SX) += \
 	imx6sx-udoo-neo-extended.dtb \
 	imx6sx-udoo-neo-full.dtb
 
+imx6ul-segin-emmc-peb-av-18-dtbs := imx6ul-phytec-segin-ff-rdk-nand.dtb \
+			imx6ul-segin-peb-av-18.dtbo
+imx6ul-segin-nand-peb-av-18-dtbs := imx6ul-phytec-segin-ff-rdk-nand.dtb \
+			imx6ul-segin-peb-av-18.dtbo
+imx6ul-segin-nand-rs485-peb-av-18-dtbs := imx6ul-phytec-segin-ff-rdk-nand.dtb \
+			imx6ul-segin-peb-av-18.dtbo
+imx6ull-segin-emmc-peb-av-18-dtbs := imx6ull-phytec-segin-ff-rdk-nand.dtb \
+			imx6ull-segin-peb-av-18.dtbo
+imx6ull-segin-nand-peb-av-18-dtbs := imx6ull-phytec-segin-ff-rdk-nand.dtb \
+			imx6ull-segin-peb-av-18.dtbo
+imx6ull-segin-nand-rs485-peb-av-18-dtbs := imx6ull-phytec-segin-ff-rdk-nand.dtb \
+			imx6ull-segin-peb-av-18.dtbo
+
 imx6ul-segin-emmc-vm009-dtbs := imx6ul-phytec-segin-ff-rdk-emmc.dtb \
 			imx6ul-vm009.dtbo
 imx6ul-segin-nand-vm009-dtbs := imx6ul-phytec-segin-ff-rdk-nand.dtb \
@@ -624,6 +637,12 @@ dtb-$(CONFIG_SOC_IMX6UL) += \
 	imx6ull-phytec-segin-lc-rdk-nand.dtb \
 	imx6ull-phytec-tauri-emmc.dtb \
 	imx6ull-phytec-tauri-nand.dtb \
+	imx6ul-segin-emmc-peb-av-18.dtb \
+	imx6ul-segin-nand-peb-av-18.dtb \
+	imx6ul-segin-nand-rs485-peb-av-18-dtb \
+	imx6ull-segin-emmc-peb-av-18.dtb \
+	imx6ull-segin-nand-peb-av-18.dtb \
+	imx6ull-segin-nand-rs485-peb-av-18-dtb \
 	imx6ul-segin-emmc-vm009.dtb \
 	imx6ul-segin-nand-vm009.dtb \
 	imx6ull-segin-emmc-vm009.dtb \
