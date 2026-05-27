@@ -106,6 +106,7 @@ dtb-$(CONFIG_SOC_IMX6Q) += \
 	imx6dl-phytec-pbab01.dtb \
 	imx6dl-phytec-pbab01-nonor.dtb \
 	imx6dl-mira-ff-emmc-cam-0-lvds.dtb \
+	imx6dl-mira-ff-emmc-peb-av-18.dtb \
 	imx6dl-mira-ff-emmc-vm009-0.dtb \
 	imx6dl-mira-ff-emmc-vm010-bw-0.dtb \
 	imx6dl-mira-ff-emmc-vm010-col-0.dtb \
@@ -115,6 +116,9 @@ dtb-$(CONFIG_SOC_IMX6Q) += \
 	imx6dl-mira-ff-emmc-vm012-col-0.dtb \
 	imx6dl-mira-ff-emmc-vm016-0.dtb \
 	imx6dl-mira-ff-emmc-vm050-0.dtb \
+	imx6dl-mira-ff-nand-peb-av-18.dtb \
+	imx6dl-mira-lc-emmc-peb-av-18.dtb \
+	imx6dl-mira-lc-nand-peb-av-18.dtb \
 	imx6dl-phyflex-cam-0-lvds.dtb \
 	imx6dl-phyflex-vm009-0.dtb \
 	imx6dl-phyflex-vm010-bw-0.dtb \
@@ -239,6 +243,7 @@ dtb-$(CONFIG_SOC_IMX6Q) += \
 	imx6q-phytec-nunki-rdk-nand.dtb \
 	imx6q-phytec-pbab01.dtb \
 	imx6q-mira-ff-emmc-cam-0-lvds.dtb \
+	imx6q-mira-ff-emmc-peb-av-18.dtb \
 	imx6q-mira-ff-emmc-vm009-0.dtb \
 	imx6q-mira-ff-emmc-vm010-bw-0.dtb \
 	imx6q-mira-ff-emmc-vm010-col-0.dtb \
@@ -249,6 +254,7 @@ dtb-$(CONFIG_SOC_IMX6Q) += \
 	imx6q-mira-ff-emmc-vm016-0.dtb \
 	imx6q-mira-ff-emmc-vm050-0.dtb \
 	imx6q-mira-ff-nand-cam-0-lvds.dtb \
+	imx6q-mira-ff-nand-peb-av-18.dtb \
 	imx6q-mira-ff-nand-vm009-0.dtb \
 	imx6q-mira-ff-nand-vm010-bw-0.dtb \
 	imx6q-mira-ff-nand-vm010-col-0.dtb \
@@ -258,6 +264,8 @@ dtb-$(CONFIG_SOC_IMX6Q) += \
 	imx6q-mira-ff-nand-vm012-col-0.dtb \
 	imx6q-mira-ff-nand-vm016-0.dtb \
 	imx6q-mira-ff-nand-vm050-0.dtb \
+	imx6q-mira-lc-emmc-peb-av-18.dtb \
+	imx6q-mira-lc-nand-peb-av-18.dtb \
 	imx6q-phyflex-cam-0-lvds.dtb \
 	imx6q-phyflex-cam-1-lvds.dtb \
 	imx6q-phyflex-vm009-0.dtb \
@@ -443,6 +451,25 @@ imx6q-phyflex-cam-0-lvds-dtbs := imx6q-phytec-pbab01.dtb \
 
 imx6q-phyflex-cam-1-lvds-dtbs := imx6q-phytec-pbab01.dtb \
 			imx6-cam-1-lvds.dtbo
+
+#PEB-AV-18
+
+imx6dl-mira-ff-emmc-peb-av-18-dtbs := imx6dl-phytec-mira-ff-rdk-emmc.dtb \
+			imx6dl-phytec-mira-peb-av-18.dtbo
+imx6dl-mira-ff-nand-peb-av-18-dtbs := imx6dl-phytec-mira-ff-rdk-nand.dtb \
+			imx6dl-phytec-mira-peb-av-18.dtbo
+imx6dl-mira-lc-emmc-peb-av-18-dtbs := imx6dl-phytec-mira-lc-rdk-emmc.dtb \
+			imx6dl-phytec-mira-peb-av-18.dtbo
+imx6dl-mira-lc-nand-peb-av-18-dtbs := imx6dl-phytec-mira-lc-rdk-nand.dtb \
+			imx6dl-phytec-mira-peb-av-18.dtbo
+imx6q-mira-ff-emmc-peb-av-18-dtbs := imx6q-phytec-mira-ff-rdk-emmc.dtb \
+			imx6q-phytec-mira-peb-av-18.dtbo
+imx6q-mira-ff-nand-peb-av-18-dtbs := imx6q-phytec-mira-ff-rdk-nand.dtb \
+			imx6q-phytec-mira-peb-av-18.dtbo
+imx6q-mira-lc-emmc-peb-av-18-dtbs := imx6q-phytec-mira-lc-rdk-emmc.dtb \
+			imx6q-phytec-mira-peb-av-18.dtbo
+imx6q-mira-lc-nand-peb-av-18-dtbs := imx6q-phytec-mira-lc-rdk-nand.dtb \
+			imx6q-phytec-mira-peb-av-18.dtbo
 
 #VM009
 

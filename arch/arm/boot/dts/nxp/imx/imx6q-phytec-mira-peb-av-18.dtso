@@ -1,0 +1,11 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * Copyright (C) 2026 PHYTEC Messtechnik GmbH
+ * Author: Florijan Plohl <florijan.plohl@norik.com>
+ */
+
+/dts-v1/;
+/plugin/;
+
+#include "imx6q-pinfunc.h"
+#include "imx6qdl-phytec-mira-peb-av-18.dtsi"
