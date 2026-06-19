@@ -264,8 +264,6 @@ dtb-$(CONFIG_SOC_IMX6Q) += \
 	imx6q-mira-ff-nand-vm012-col-0.dtb \
 	imx6q-mira-ff-nand-vm016-0.dtb \
 	imx6q-mira-ff-nand-vm050-0.dtb \
-	imx6q-mira-lc-emmc-peb-av-18.dtb \
-	imx6q-mira-lc-nand-peb-av-18.dtb \
 	imx6q-phyflex-cam-0-lvds.dtb \
 	imx6q-phyflex-cam-1-lvds.dtb \
 	imx6q-phyflex-vm009-0.dtb \
@@ -465,10 +463,6 @@ imx6dl-mira-lc-nand-peb-av-18-dtbs := imx6dl-phytec-mira-lc-rdk-nand.dtb \
 imx6q-mira-ff-emmc-peb-av-18-dtbs := imx6q-phytec-mira-ff-rdk-emmc.dtb \
 			imx6q-phytec-mira-peb-av-18.dtbo
 imx6q-mira-ff-nand-peb-av-18-dtbs := imx6q-phytec-mira-ff-rdk-nand.dtb \
-			imx6q-phytec-mira-peb-av-18.dtbo
-imx6q-mira-lc-emmc-peb-av-18-dtbs := imx6q-phytec-mira-lc-rdk-emmc.dtb \
-			imx6q-phytec-mira-peb-av-18.dtbo
-imx6q-mira-lc-nand-peb-av-18-dtbs := imx6q-phytec-mira-lc-rdk-nand.dtb \
 			imx6q-phytec-mira-peb-av-18.dtbo
 
 #VM009
