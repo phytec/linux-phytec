@@ -116,7 +116,7 @@ static int ar0144_probe(struct i2c_client *i2c)
 	if (i2c->dev.of_node)
 		cfg = (struct onsemi_dev_cfg *)device_get_match_data(&i2c->dev);
 	else
-		cfg = i2c_match_id(ar0144_id_table, i2c)->driver_data;
+		cfg = (struct onsemi_dev_cfg *)i2c_match_id(ar0144_id_table, i2c)->driver_data;
 
 	sensor->core.v4l_parm = &sensor->v4l_parm.core;
 	sensor->core.pll_cfg  = &sensor->pll_cfg;

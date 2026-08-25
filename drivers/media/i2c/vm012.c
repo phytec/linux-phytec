@@ -1436,7 +1436,7 @@ static int vm012_probe(struct i2c_client *client)
 	if (client->dev.of_node)
 		vm012->info = (struct vm012_of_data *)device_get_match_data(&client->dev);
 	else
-		vm012->info = i2c_match_id(vm012_id, client)->driver_data;
+		vm012->info = (struct vm012_of_data *)i2c_match_id(vm012_id, client)->driver_data;
 
 	vm012->clk = devm_clk_get(&client->dev, NULL);
 	rc = PTR_ERR_OR_ZERO(vm012->clk);
