@@ -336,6 +336,32 @@
 		reset-assert-us = <1000>;
 		reset-deassert-us = <1000>;
 		ti,rx-internal-delay = <DP83867_RGMIIDCTL_2_00_NS>;
+
+		leds {
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			led@0 {
+				reg = <0>;
+				color = <LED_COLOR_ID_GREEN>;
+				function = LED_FUNCTION_LAN;
+				active-low;
+			};
+
+			led@1 {
+				reg = <1>;
+				color = <LED_COLOR_ID_GREEN>;
+				function = LED_FUNCTION_SPEED_LAN;
+				active-low;
+			};
+
+			led@2 {
+				reg = <2>;
+				color = <LED_COLOR_ID_ORANGE>;
+				function = LED_FUNCTION_ACTIVITY;
+				active-low;
+			};
+		};
 	};
 
 	icssg0_phy2: ethernet-phy@2 {
@@ -347,6 +373,32 @@
 		reset-assert-us = <1000>;
 		reset-deassert-us = <1000>;
 		ti,rx-internal-delay = <DP83867_RGMIIDCTL_2_00_NS>;
+
+		leds {
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			led@0 {
+				reg = <0>;
+				color = <LED_COLOR_ID_GREEN>;
+				function = LED_FUNCTION_LAN;
+				active-low;
+			};
+
+			led@1 {
+				reg = <1>;
+				color = <LED_COLOR_ID_GREEN>;
+				function = LED_FUNCTION_SPEED_LAN;
+				active-low;
+			};
+
+			led@2 {
+				reg = <2>;
+				color = <LED_COLOR_ID_ORANGE>;
+				function = LED_FUNCTION_ACTIVITY;
+				active-low;
+			};
+		};
 	};
 };
 
