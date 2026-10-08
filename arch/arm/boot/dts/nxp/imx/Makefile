@@ -111,6 +111,7 @@ dtb-$(CONFIG_SOC_IMX6Q) += \
 	imx6dl-mba6b.dtb \
 	imx6dl-nit6xlite.dtb \
 	imx6dl-nitrogen6x.dtb \
+	imx6dl-phytec-mira-rdk-emmc-peb-av-18.dtb \
 	imx6dl-phytec-mira-rdk-emmc.dtb \
 	imx6dl-phytec-mira-rdk-nand.dtb \
 	imx6dl-phytec-pbab01.dtb \
@@ -231,7 +232,9 @@ dtb-$(CONFIG_SOC_IMX6Q) += \
 	imx6q-nitrogen6_max.dtb \
 	imx6q-nitrogen6_som2.dtb \
 	imx6q-novena.dtb \
+	imx6q-phytec-mira-rdk-emmc-peb-av-18.dtb \
 	imx6q-phytec-mira-rdk-emmc.dtb \
+	imx6q-phytec-mira-rdk-nand-peb-av-18.dtb \
 	imx6q-phytec-mira-rdk-nand.dtb \
 	imx6q-phytec-pbab01.dtb \
 	imx6q-pico-dwarf.dtb \
@@ -291,6 +294,15 @@ dtb-$(CONFIG_SOC_IMX6Q) += \
 	imx6qp-yapp4-pegasus-plus.dtb \
 	imx6qp-zii-rdu2.dtb \
 	imx6s-dhcom-drc02.dtb
+
+# phyBOARD-Mira PEB-AV-18
+imx6dl-phytec-mira-rdk-emmc-peb-av-18-dtbs := imx6dl-phytec-mira-rdk-emmc.dtb \
+			imx6dl-phytec-mira-peb-av-18.dtbo
+imx6q-phytec-mira-rdk-emmc-peb-av-18-dtbs := imx6q-phytec-mira-rdk-emmc.dtb \
+			imx6q-phytec-mira-peb-av-18.dtbo
+imx6q-phytec-mira-rdk-nand-peb-av-18-dtbs := imx6q-phytec-mira-rdk-nand.dtb \
+			imx6q-phytec-mira-peb-av-18.dtbo
+
 dtb-$(CONFIG_SOC_IMX6SL) += \
 	imx6sl-evk.dtb \
 	imx6sl-kobo-aura2.dtb \
