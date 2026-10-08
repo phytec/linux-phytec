@@ -341,7 +341,9 @@ if:
     properties:
       compatible:
         contains:
-          const: innolux,g101ice-l01
+          enum:
+            - auo,g104sn02
+            - innolux,g101ice-l01
 then:
   properties:
     data-mapping: false
