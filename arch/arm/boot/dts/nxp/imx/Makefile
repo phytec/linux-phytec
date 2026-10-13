@@ -60,6 +60,7 @@ imx53-qsb-hdmi-dtbs := imx53-qsb.dtb imx53-qsb-hdmi.dtbo
 imx53-qsrb-hdmi-dtbs := imx53-qsrb.dtb imx53-qsb-hdmi.dtbo
 dtb-$(CONFIG_SOC_IMX6Q) += \
 	imx6-phytec-phycore-phy-adin1300.dtb \
+	imx6-phytec-phycore-phy-ksz9131.dtb \
 	imx6dl-alti6p.dtb \
 	imx6dl-apf6dev.dtb \
 	imx6dl-aristainetos_4.dtb \
@@ -299,6 +300,10 @@ dtb-$(CONFIG_SOC_IMX6Q) += \
 # phyCORE-i.MX6 ADIN1300 PHY
 imx6-phytec-phycore-phy-adin1300-dtbs := imx6q-phytec-mira-rdk-nand.dtb \
 			imx6-phytec-phycore-phy-adin1300.dtbo
+
+# phyCORE-i.MX6 KSZ9131 PHY
+imx6-phytec-phycore-phy-ksz9131-dtbs := imx6q-phytec-mira-rdk-nand.dtb \
+			imx6-phytec-phycore-phy-ksz9131.dtbo
 
 # phyBOARD-Mira PEB-AV-18
 imx6dl-phytec-mira-rdk-emmc-peb-av-18-dtbs := imx6dl-phytec-mira-rdk-emmc.dtb \
