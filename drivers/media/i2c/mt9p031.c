@@ -115,6 +115,18 @@ struct mt9p031_model_info {
 	u32 code;
 };
 
+static const u32 mt9p031_color_fmts[] = {
+	MEDIA_BUS_FMT_SGRBG8_1X8,
+	MEDIA_BUS_FMT_SGRBG10_1X10,
+	MEDIA_BUS_FMT_SGRBG12_1X12,
+};
+
+static const u32 mt9p031_monochrome_fmts[] = {
+	MEDIA_BUS_FMT_Y8_1X8,
+	MEDIA_BUS_FMT_Y10_1X10,
+	MEDIA_BUS_FMT_Y12_1X12,
+};
+
 struct mt9p031 {
 	struct v4l2_subdev subdev;
 	struct media_pad pad;
@@ -140,6 +152,9 @@ struct mt9p031 {
 	struct v4l2_ctrl *blc_auto;
 	struct v4l2_ctrl *blc_offset;
 
+	const u32 *fmts;
+	unsigned int num_fmts;
+
 	/* Registers cache */
 	u16 output_control;
 	u16 mode2;
@@ -148,6 +163,17 @@ struct mt9p031 {
 static struct mt9p031 *to_mt9p031(struct v4l2_subdev *sd)
 {
 	return container_of(sd, struct mt9p031, subdev);
+}
+
+static u32 mt9p031_find_datafmt(struct mt9p031 *mt9p031, u32 code)
+{
+	unsigned int i;
+
+	for (i = 0; i < mt9p031->num_fmts; i++)
+		if (mt9p031->fmts[i] == code)
+			return mt9p031->fmts[i];
+
+	return mt9p031->fmts[mt9p031->num_fmts-1];
 }
 
 static int mt9p031_read(struct i2c_client *client, u8 reg)
@@ -514,10 +540,11 @@ static int mt9p031_enum_mbus_code(struct v4l2_subdev *subdev,
 {
 	struct mt9p031 *mt9p031 = to_mt9p031(subdev);
 
-	if (code->pad || code->index)
+	if (code->pad || code->index >= mt9p031->num_fmts)
 		return -EINVAL;
 
-	code->code = mt9p031->format.code;
+	code->code = mt9p031->fmts[code->index];
+
 	return 0;
 }
 
@@ -612,6 +639,8 @@ static int mt9p031_set_format(struct v4l2_subdev *subdev,
 					    format->which);
 	__format->width = __crop->width / hratio;
 	__format->height = __crop->height / vratio;
+
+	__format->code = mt9p031_find_datafmt(mt9p031, format->format.code);
 
 	format->format = *__format;
 
@@ -709,7 +738,15 @@ static int mt9p031_init_state(struct v4l2_subdev *subdev,
 	crop->height = MT9P031_WINDOW_HEIGHT_DEF;
 
 	format = __mt9p031_get_pad_format(mt9p031, sd_state, 0, which);
-	format->code = mt9p031->code;
+	if (mt9p031->code == MEDIA_BUS_FMT_Y12_1X12) {
+		mt9p031->fmts = mt9p031_monochrome_fmts;
+		mt9p031->num_fmts = ARRAY_SIZE(mt9p031_monochrome_fmts);
+	} else {
+		mt9p031->fmts = mt9p031_color_fmts;
+		mt9p031->num_fmts = ARRAY_SIZE(mt9p031_color_fmts);
+	}
+	format->code = mt9p031_find_datafmt(mt9p031, 0);
+
 	format->width = MT9P031_WINDOW_WIDTH_DEF;
 	format->height = MT9P031_WINDOW_HEIGHT_DEF;
 	format->field = V4L2_FIELD_NONE;
