@@ -113,9 +113,16 @@ dtb-$(CONFIG_SOC_IMX6Q) += \
 	imx6dl-mba6b.dtb \
 	imx6dl-nit6xlite.dtb \
 	imx6dl-nitrogen6x.dtb \
+	imx6dl-phytec-mira-rdk-emmc-cam-0-lvds.dtb \
 	imx6dl-phytec-mira-rdk-emmc-leds-gpio.dtb \
 	imx6dl-phytec-mira-rdk-emmc-leds-pca9533.dtb \
 	imx6dl-phytec-mira-rdk-emmc-peb-av-18.dtb \
+	imx6dl-phytec-mira-rdk-emmc-vm009-0.dtb \
+	imx6dl-phytec-mira-rdk-emmc-vm010-bw-0.dtb \
+	imx6dl-phytec-mira-rdk-emmc-vm010-col-0.dtb \
+	imx6dl-phytec-mira-rdk-emmc-vm011-bw-0.dtb \
+	imx6dl-phytec-mira-rdk-emmc-vm011-col-0.dtb \
+	imx6dl-phytec-mira-rdk-emmc-vm016-0.dtb \
 	imx6dl-phytec-mira-rdk-emmc.dtb \
 	imx6dl-phytec-mira-rdk-nand.dtb \
 	imx6dl-phytec-pbab01.dtb \
@@ -236,13 +243,27 @@ dtb-$(CONFIG_SOC_IMX6Q) += \
 	imx6q-nitrogen6_max.dtb \
 	imx6q-nitrogen6_som2.dtb \
 	imx6q-novena.dtb \
+	imx6q-phytec-mira-rdk-emmc-cam-0-lvds.dtb \
 	imx6q-phytec-mira-rdk-emmc-leds-gpio.dtb \
 	imx6q-phytec-mira-rdk-emmc-leds-pca9533.dtb \
 	imx6q-phytec-mira-rdk-emmc-peb-av-18.dtb \
+	imx6q-phytec-mira-rdk-emmc-vm009-0.dtb \
+	imx6q-phytec-mira-rdk-emmc-vm010-bw-0.dtb \
+	imx6q-phytec-mira-rdk-emmc-vm010-col-0.dtb \
+	imx6q-phytec-mira-rdk-emmc-vm011-bw-0.dtb \
+	imx6q-phytec-mira-rdk-emmc-vm011-col-0.dtb \
+	imx6q-phytec-mira-rdk-emmc-vm016-0.dtb \
 	imx6q-phytec-mira-rdk-emmc.dtb \
+	imx6q-phytec-mira-rdk-nand-cam-0-lvds.dtb \
 	imx6q-phytec-mira-rdk-nand-leds-gpio.dtb \
 	imx6q-phytec-mira-rdk-nand-leds-pca9533.dtb \
 	imx6q-phytec-mira-rdk-nand-peb-av-18.dtb \
+	imx6q-phytec-mira-rdk-nand-vm009-0.dtb \
+	imx6q-phytec-mira-rdk-nand-vm010-bw-0.dtb \
+	imx6q-phytec-mira-rdk-nand-vm010-col-0.dtb \
+	imx6q-phytec-mira-rdk-nand-vm011-bw-0.dtb \
+	imx6q-phytec-mira-rdk-nand-vm011-col-0.dtb \
+	imx6q-phytec-mira-rdk-nand-vm016-0.dtb \
 	imx6q-phytec-mira-rdk-nand.dtb \
 	imx6q-phytec-pbab01.dtb \
 	imx6q-pico-dwarf.dtb \
@@ -334,6 +355,56 @@ imx6q-phytec-mira-rdk-emmc-leds-pca9533-dtbs := imx6q-phytec-mira-rdk-emmc.dtb \
 			imx6-phytec-mira-leds-pca9533.dtbo
 imx6q-phytec-mira-rdk-nand-leds-pca9533-dtbs := imx6q-phytec-mira-rdk-nand.dtb \
 			imx6-phytec-mira-leds-pca9533.dtbo
+
+# phyBOARD-Mira cameras
+imx6dl-phytec-mira-rdk-emmc-cam-0-lvds-dtbs := imx6dl-phytec-mira-rdk-emmc.dtb \
+			imx6-cam-0-lvds.dtbo
+imx6q-phytec-mira-rdk-emmc-cam-0-lvds-dtbs := imx6q-phytec-mira-rdk-emmc.dtb \
+			imx6-cam-0-lvds.dtbo
+imx6q-phytec-mira-rdk-nand-cam-0-lvds-dtbs := imx6q-phytec-mira-rdk-nand.dtb \
+			imx6-cam-0-lvds.dtbo
+
+imx6dl-phytec-mira-rdk-emmc-vm009-0-dtbs := imx6dl-phytec-mira-rdk-emmc.dtb \
+			imx6-vm009-0.dtbo
+imx6q-phytec-mira-rdk-emmc-vm009-0-dtbs := imx6q-phytec-mira-rdk-emmc.dtb \
+			imx6-vm009-0.dtbo
+imx6q-phytec-mira-rdk-nand-vm009-0-dtbs := imx6q-phytec-mira-rdk-nand.dtb \
+			imx6-vm009-0.dtbo
+
+imx6dl-phytec-mira-rdk-emmc-vm010-bw-0-dtbs := imx6dl-phytec-mira-rdk-emmc.dtb \
+			imx6-vm010-bw-0.dtbo
+imx6q-phytec-mira-rdk-emmc-vm010-bw-0-dtbs := imx6q-phytec-mira-rdk-emmc.dtb \
+			imx6-vm010-bw-0.dtbo
+imx6q-phytec-mira-rdk-nand-vm010-bw-0-dtbs := imx6q-phytec-mira-rdk-nand.dtb \
+			imx6-vm010-bw-0.dtbo
+
+imx6dl-phytec-mira-rdk-emmc-vm010-col-0-dtbs := imx6dl-phytec-mira-rdk-emmc.dtb \
+			imx6-vm010-col-0.dtbo
+imx6q-phytec-mira-rdk-emmc-vm010-col-0-dtbs := imx6q-phytec-mira-rdk-emmc.dtb \
+			imx6-vm010-col-0.dtbo
+imx6q-phytec-mira-rdk-nand-vm010-col-0-dtbs := imx6q-phytec-mira-rdk-nand.dtb \
+			imx6-vm010-col-0.dtbo
+
+imx6dl-phytec-mira-rdk-emmc-vm011-bw-0-dtbs := imx6dl-phytec-mira-rdk-emmc.dtb \
+			imx6-vm011-bw-0.dtbo
+imx6q-phytec-mira-rdk-emmc-vm011-bw-0-dtbs := imx6q-phytec-mira-rdk-emmc.dtb \
+			imx6-vm011-bw-0.dtbo
+imx6q-phytec-mira-rdk-nand-vm011-bw-0-dtbs := imx6q-phytec-mira-rdk-nand.dtb \
+			imx6-vm011-bw-0.dtbo
+
+imx6dl-phytec-mira-rdk-emmc-vm011-col-0-dtbs := imx6dl-phytec-mira-rdk-emmc.dtb \
+			imx6-vm011-col-0.dtbo
+imx6q-phytec-mira-rdk-emmc-vm011-col-0-dtbs := imx6q-phytec-mira-rdk-emmc.dtb \
+			imx6-vm011-col-0.dtbo
+imx6q-phytec-mira-rdk-nand-vm011-col-0-dtbs := imx6q-phytec-mira-rdk-nand.dtb \
+			imx6-vm011-col-0.dtbo
+
+imx6dl-phytec-mira-rdk-emmc-vm016-0-dtbs := imx6dl-phytec-mira-rdk-emmc.dtb \
+			imx6-vm016-0.dtbo
+imx6q-phytec-mira-rdk-emmc-vm016-0-dtbs := imx6q-phytec-mira-rdk-emmc.dtb \
+			imx6-vm016-0.dtbo
+imx6q-phytec-mira-rdk-nand-vm016-0-dtbs := imx6q-phytec-mira-rdk-nand.dtb \
+			imx6-vm016-0.dtbo
 
 dtb-$(CONFIG_SOC_IMX6SL) += \
 	imx6sl-evk.dtb \
