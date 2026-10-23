@@ -1,0 +1,61 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * Copyright (C) 2026 PHYTEC Messtechnik GmbH
+ * Author: Primoz Fiser <primoz.fiser@norik.com>
+ */
+/dts-v1/;
+/plugin/;
+
+#include <dt-bindings/leds/leds-pca9532.h>
+#include <dt-bindings/gpio/gpio.h>
+
+&{/} {
+	dim_gpio_leds: dimleds {
+		compatible = "gpio-leds";
+		status = "okay";
+
+		led-red {
+			label = "phyboard-mira:red";
+			gpios = <&leddim 0 GPIO_ACTIVE_HIGH>;
+			linux,default-trigger = "none";
+		};
+
+		led-green {
+			label = "phyboard-mira:green";
+			gpios = <&leddim 1 GPIO_ACTIVE_HIGH>;
+			linux,default-trigger = "none";
+		};
+
+		led-blue {
+			label = "phyboard-mira:blue";
+			gpios = <&leddim 2 GPIO_ACTIVE_HIGH>;
+			linux,default-trigger = "mmc0";
+			default-state = "on";
+		};
+	};
+};
+
+&i2c1 {
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	leddim: leddimmer@62 {
+		compatible = "nxp,pca9533";
+		gpio-controller;
+		#gpio-cells = <2>;
+		reg = <0x62>;
+		status = "okay";
+
+		led-red {
+			type = <PCA9532_TYPE_GPIO>;
+		};
+
+		led-green {
+			type = <PCA9532_TYPE_GPIO>;
+		};
+
+		led-blue {
+			type = <PCA9532_TYPE_GPIO>;
+		};
+	};
+};

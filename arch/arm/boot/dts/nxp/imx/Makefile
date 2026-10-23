@@ -113,6 +113,7 @@ dtb-$(CONFIG_SOC_IMX6Q) += \
 	imx6dl-mba6b.dtb \
 	imx6dl-nit6xlite.dtb \
 	imx6dl-nitrogen6x.dtb \
+	imx6dl-phytec-mira-rdk-emmc-leds-pca9533.dtb \
 	imx6dl-phytec-mira-rdk-emmc-peb-av-18.dtb \
 	imx6dl-phytec-mira-rdk-emmc.dtb \
 	imx6dl-phytec-mira-rdk-nand.dtb \
@@ -234,8 +235,10 @@ dtb-$(CONFIG_SOC_IMX6Q) += \
 	imx6q-nitrogen6_max.dtb \
 	imx6q-nitrogen6_som2.dtb \
 	imx6q-novena.dtb \
+	imx6q-phytec-mira-rdk-emmc-leds-pca9533.dtb \
 	imx6q-phytec-mira-rdk-emmc-peb-av-18.dtb \
 	imx6q-phytec-mira-rdk-emmc.dtb \
+	imx6q-phytec-mira-rdk-nand-leds-pca9533.dtb \
 	imx6q-phytec-mira-rdk-nand-peb-av-18.dtb \
 	imx6q-phytec-mira-rdk-nand.dtb \
 	imx6q-phytec-pbab01.dtb \
@@ -312,6 +315,14 @@ imx6q-phytec-mira-rdk-emmc-peb-av-18-dtbs := imx6q-phytec-mira-rdk-emmc.dtb \
 			imx6q-phytec-mira-peb-av-18.dtbo
 imx6q-phytec-mira-rdk-nand-peb-av-18-dtbs := imx6q-phytec-mira-rdk-nand.dtb \
 			imx6q-phytec-mira-peb-av-18.dtbo
+
+# phyBOARD-Mira PCA9533 LED dimmer
+imx6dl-phytec-mira-rdk-emmc-leds-pca9533-dtbs := imx6dl-phytec-mira-rdk-emmc.dtb \
+			imx6-phytec-mira-leds-pca9533.dtbo
+imx6q-phytec-mira-rdk-emmc-leds-pca9533-dtbs := imx6q-phytec-mira-rdk-emmc.dtb \
+			imx6-phytec-mira-leds-pca9533.dtbo
+imx6q-phytec-mira-rdk-nand-leds-pca9533-dtbs := imx6q-phytec-mira-rdk-nand.dtb \
+			imx6-phytec-mira-leds-pca9533.dtbo
 
 dtb-$(CONFIG_SOC_IMX6SL) += \
 	imx6sl-evk.dtb \
