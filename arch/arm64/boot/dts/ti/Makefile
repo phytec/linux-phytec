@@ -31,6 +31,7 @@ dtb-$(CONFIG_ARCH_K3) += k3-am62-phyboard-lyra-m2-lwb5p.dtbo
 dtb-$(CONFIG_ARCH_K3) += k3-am62-phyboard-lyra-oldi-ac200.dtbo
 dtb-$(CONFIG_ARCH_K3) += k3-am62-phyboard-lyra-oldi-ac209a.dtbo
 dtb-$(CONFIG_ARCH_K3) += k3-am62-phyboard-lyra-oldi-lcd185.dtbo
+dtb-$(CONFIG_ARCH_K3) += k3-am62-phyboard-lyra-vm016-mipi.dtbo
 dtb-$(CONFIG_ARCH_K3) += k3-am62-phyboard-lyra-x17-evse.dtbo
 dtb-$(CONFIG_ARCH_K3) += k3-am62-phyboard-lyra-x17-spi0.dtbo
 dtb-$(CONFIG_ARCH_K3) += k3-am62-pocketbeagle2.dtb
@@ -183,6 +184,8 @@ k3-am625-phyboard-lyra-oldi-lcd185-dtbs := k3-am625-phyboard-lyra-rdk.dtb \
 	k3-am62-phyboard-lyra-oldi-lcd185.dtbo
 k3-am625-phyboard-lyra-qspi-nor-dtbs := k3-am625-phyboard-lyra-rdk.dtb \
 	k3-am6xx-phycore-qspi-nor.dtbo
+k3-am625-phyboard-lyra-vm016-mipi-dtbs := k3-am625-phyboard-lyra-rdk.dtb \
+	k3-am62-phyboard-lyra-vm016-mipi.dtbo
 k3-am625-phyboard-lyra-x17-evse-dtbs := k3-am625-phyboard-lyra-rdk.dtb \
 	k3-am62-phyboard-lyra-x17-evse.dtbo
 k3-am625-phyboard-lyra-x17-spi0-dtbs := k3-am625-phyboard-lyra-rdk.dtb \
@@ -291,6 +294,7 @@ dtb- += k3-am625-beagleplay-csi2-ov5640.dtb \
 	k3-am625-phyboard-lyra-oldi-ac209a.dtb \
 	k3-am625-phyboard-lyra-oldi-lcd185.dtb \
 	k3-am625-phyboard-lyra-qspi-nor.dtb \
+	k3-am625-phyboard-lyra-vm016-mipi.dtb \
 	k3-am625-phyboard-lyra-x17-evse.dtb \
 	k3-am625-phyboard-lyra-x17-spi0.dtb \
 	k3-am625-sk-csi2-imx219.dtb \
