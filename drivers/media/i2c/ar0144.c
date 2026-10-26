@@ -2024,6 +2024,7 @@ static const struct v4l2_subdev_core_ops ar0144_subdev_core_ops = {
 };
 
 static const struct v4l2_subdev_video_ops ar0144_subdev_video_ops = {
+	.s_stream		= v4l2_subdev_s_stream_helper,
 	.pre_streamon           = ar0144_pre_streamon,
 	.post_streamoff         = ar0144_post_streamoff,
 };
