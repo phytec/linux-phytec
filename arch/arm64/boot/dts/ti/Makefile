@@ -27,6 +27,7 @@ dtb-$(CONFIG_ARCH_K3) += k3-am625-verdin-wifi-yavia.dtb
 dtb-$(CONFIG_ARCH_K3) += k3-am62x-phyboard-lyra-gpio-fan.dtbo
 dtb-$(CONFIG_ARCH_K3) += k3-am62-lp-sk.dtb
 dtb-$(CONFIG_ARCH_K3) += k3-am62-lp-sk-nand.dtbo
+dtb-$(CONFIG_ARCH_K3) += k3-am62-phyboard-lyra-m2-cc3351.dtbo
 dtb-$(CONFIG_ARCH_K3) += k3-am62-phyboard-lyra-m2-lwb5p.dtbo
 dtb-$(CONFIG_ARCH_K3) += k3-am62-phyboard-lyra-oldi-ac200.dtbo
 dtb-$(CONFIG_ARCH_K3) += k3-am62-phyboard-lyra-oldi-ac209a.dtbo
@@ -174,6 +175,8 @@ k3-am625-phyboard-lyra-disable-spi-nor-dtbs := k3-am625-phyboard-lyra-rdk.dtb \
 	k3-am6xx-phycore-disable-spi-nor.dtbo
 k3-am625-phyboard-lyra-gpio-fan-dtbs := k3-am625-phyboard-lyra-rdk.dtb \
 	k3-am62x-phyboard-lyra-gpio-fan.dtbo
+k3-am625-phyboard-lyra-m2-cc3351-dtbs := k3-am625-phyboard-lyra-rdk.dtb \
+	k3-am62-phyboard-lyra-m2-cc3351.dtbo
 k3-am625-phyboard-lyra-m2-lwb5p-dtbs := k3-am625-phyboard-lyra-rdk.dtb \
 	k3-am62-phyboard-lyra-m2-lwb5p.dtbo
 k3-am625-phyboard-lyra-oldi-ac200-dtbs := k3-am625-phyboard-lyra-rdk.dtb \
@@ -289,6 +292,7 @@ dtb- += k3-am625-beagleplay-csi2-ov5640.dtb \
 	k3-am625-phyboard-lyra-disable-rtc.dtb \
 	k3-am625-phyboard-lyra-disable-spi-nor.dtb \
 	k3-am625-phyboard-lyra-gpio-fan.dtb \
+	k3-am625-phyboard-lyra-m2-cc3351.dtb \
 	k3-am625-phyboard-lyra-m2-lwb5p.dtb \
 	k3-am625-phyboard-lyra-oldi-ac200.dtb \
 	k3-am625-phyboard-lyra-oldi-ac209a.dtb \
