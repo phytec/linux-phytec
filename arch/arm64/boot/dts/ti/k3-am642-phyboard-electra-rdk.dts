@@ -164,6 +164,14 @@
 		};
 	};
 
+	poweroff {
+		compatible = "gpio-poweroff";
+		pinctrl-names = "default";
+		pinctrl-0 = <&pbc_kill_pins_default>;
+		/* PBC_nKILL: driving it low turns off VCC_5V0_MAIN */
+		gpios = <&main_gpio0 41 GPIO_ACTIVE_LOW>;
+	};
+
 	vcc_3v3_mmc: regulator-sd {
 		/* TPS22963C */
 		compatible = "regulator-fixed";
@@ -309,6 +317,12 @@
 	main_usb0_pins_default: main-usb0-default-pins {
 		pinctrl-single,pins = <
 			AM64X_IOPAD(0x02a8, PIN_OUTPUT, 0)	/* (E19) USB0_DRVVBUS */
+		>;
+	};
+
+	pbc_kill_pins_default: pbc-kill-default-pins {
+		pinctrl-single,pins = <
+			AM64X_IOPAD(0x00a8, PIN_OUTPUT, 7)	/* (R19) GPMC0_CSn0.GPIO0_41 */
 		>;
 	};
 
